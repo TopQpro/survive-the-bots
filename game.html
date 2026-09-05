@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Survive the Bots</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #172554,
+            #020617 75%
+        );
+
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+#menu {
+    position: fixed;
+    z-index: 1000;
+
+    top: 15px;
+    left: 15px;
+
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+button {
+    border: 0;
+    border-radius: 8px;
+
+    padding: 10px 14px;
+
+    background: #0284c7;
+    color: white;
+
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0369a1;
+}
+
+#version {
+    position: fixed;
+
+    top: 18px;
+    right: 18px;
+
+    color: #94a3b8;
+    font-size: 13px;
+
+    z-index: 1000;
+}
+
+#hud {
+    position: fixed;
+
+    top: 65px;
+    left: 15px;
+
+    z-index: 1000;
+
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.hudbox {
+    background: rgba(2,6,23,.85);
+
+    border: 1px solid #334155;
+
+    border-radius: 9px;
+
+    padding: 8px 12px;
+}
+
+#game {
+    position: absolute;
+
+    inset: 0;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            rgba(30,41,59,.5) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(30,41,59,.5) 1px,
+            transparent 1px
+        );
+
+    background-size: 50px 50px;
+}
+
+#player {
+    position: absolute;
+
+    width: 34px;
+    height: 34px;
+
+    border-radius: 50%;
+
+    background: #22c55e;
+
+    box-shadow:
+        0 0 25px #22c55e;
+
+    transform: translate(-50%, -50%);
+}
+
+.bot {
+    position: absolute;
+
+    width: 30px;
+    height: 30px;
+
+    border-radius: 50%;
+
+    background: #ef4444;
+
+    box-shadow:
+        0 0 20px #ef4444;
+
+    transform: translate(-50%, -50%);
+}
+
+.bot.fast {
+    background: #f97316;
+}
+
+.bot.tank {
+    width: 42px;
+    height: 42px;
+
+    background: #a855f7;
+
+    box-shadow:
+        0 0 25px #a855f7;
+}
+
+.bullet {
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    background: #facc15;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 10px #facc15;
+}
+
+#startScreen {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 2000;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        rgba(2,6,23,.92);
+}
+
+.startBox {
+    width: min(500px, 90%);
+
+    text-align: center;
+
+    background: #0f172a;
+
+    border: 1px solid #334155;
+
+    border-radius: 18px;
+
+    padding: 35px;
+
+    box-shadow:
+        0 20px 70px rgba(0,0,0,.5);
+}
+
+.startBox h1 {
+    color: #38bdf8;
+    font-size: 42px;
+}
+
+#gameOver {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 3000;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        rgba(2,6,23,.9);
+}
+
+.gameOverBox {
+    background: #0f172a;
+
+    padding: 35px;
+
+    border-radius: 18px;
+
+    text-align: center;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="version">
+    Survive the Bots v1.3.0
+</div>
+
+
+<div id="menu">
+
+    <button onclick="location.href='shop.html'">
+        🛒 Shop
+    </button>
+
+    <button onclick="location.href='inventory.html'">
+        🔫 Inventory
+    </button>
+
+    <button onclick="location.href='leaderboard.html'">
+        🏆 Leaderboard
+    </button>
+
+    <button
+        id="adminButton"
+        style="display:none"
+        onclick="location.href='admin.html'"
+    >
+        👑 Admin
+    </button>
+
+    <button onclick="logout()">
+        Uitloggen
+    </button>
+
+</div>
+
+
+<div id="hud">
+
+    <div class="hudbox">
+        👤 <span id="username">-</span>
+    </div>
+
+    <div class="hudbox">
+        ❤️ <span id="health">100</span>
+    </div>
+
+    <div class="hudbox">
+        💀 <span id="kills">0</span>
+    </div>
+
+    <div class="hudbox">
+        🌊 <span id="wave">1</span>
+    </div>
+
+    <div class="hudbox">
+        ⭐ <span id="score">0</span>
+    </div>
+
+    <div class="hudbox">
+        💰 <span id="coins">0</span>
+    </div>
+
+    <div class="hudbox">
+        🔫 <span id="weapon">Pistol</span>
+    </div>
+
+</div>
+
+
+<div id="game">
+
+    <div id="player"></div>
+
+</div>
+
+
+<div id="startScreen">
+
+    <div class="startBox">
+
+        <h1>Survive the Bots</h1>
+
+        <p>
+            Overleef zoveel mogelijk waves.
+        </p>
+
+        <p>
+            <b>WASD</b> / pijltjes = bewegen<br>
+            <b>Muis</b> = richten<br>
+            <b>Linkermuisknop</b> = schieten
+        </p>
+
+        <button onclick="startGame()">
+            ▶ START GAME
+        </button>
+
+    </div>
+
+</div>
+
+
+<div id="gameOver">
+
+    <div class="gameOverBox">
+
+        <h1>💀 GAME OVER</h1>
+
+        <p>
+            Score:
+            <b id="finalScore">0</b>
+        </p>
+
+        <p>
+            Kills:
+            <b id="finalKills">0</b>
+        </p>
+
+        <p>
+            Wave:
+            <b id="finalWave">1</b>
+        </p>
+
+        <button onclick="location.reload()">
+            🔄 Opnieuw
+        </button>
+
+        <button onclick="location.href='index.html'">
+            🏠 Menu
+        </button>
+
+    </div>
+
+</div>
+
+
+<script src="supabase-config.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script>
+
+const supabaseClient =
+    supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
+
+
+let playerData = null;
+
+let gameRunning = false;
+
+let health = 100;
+
+let kills = 0;
+
+let wave = 1;
+
+let score = 0;
+
+let coins = 0;
+
+let bots = [];
+
+let bullets = [];
+
+let keys = {};
+
+let lastShot = 0;
+
+let currentWeapon = {
+    name: "Pistol",
+    damage: 25,
+    fire_rate: 300,
+    bullets: 1,
+    spread: 0,
+    bullet_speed: 12
+};
+
+
+const game =
+    document.getElementById("game");
+
+const player =
+    document.getElementById("player");
+
+
+// ============================================================
+// LOGIN
+// ============================================================
+
+try {
+
+    playerData =
+        JSON.parse(
+            localStorage.getItem("stb_player")
+        );
+
+} catch {
+
+    playerData = null;
+
+}
+
+
+if (!playerData) {
+
+    location.href = "index.html";
+
+}
+
+
+document.getElementById("username")
+    .textContent =
+    playerData.username;
+
+
+if (playerData.role === "admin") {
+
+    document.getElementById("adminButton")
+        .style.display = "block";
+
+}
+
+
+loadCoins();
+
+
+// ============================================================
+// INPUT
+// ============================================================
+
+document.addEventListener(
+    "keydown",
+    e => {
+        keys[e.key.toLowerCase()] = true;
+    }
+);
+
+document.addEventListener(
+    "keyup",
+    e => {
+        keys[e.key.toLowerCase()] = false;
+    }
+);
+
+
+game.addEventListener(
+    "mousedown",
+    shoot
+);
+
+
+// ============================================================
+// COINS
+// ============================================================
+
+async function loadCoins() {
+
+    const { data, error } =
+        await supabaseClient.rpc(
+            "get_player_coins",
+            {
+                p_user_id: playerData.id
+            }
+        );
+
+
+    if (!error && data !== null) {
+
+        coins = data;
+
+        document.getElementById("coins")
+            .textContent = coins;
+
+    }
+
+}
+
+
+// ============================================================
+// START
+// ============================================================
+
+function startGame() {
+
+    document.getElementById(
+        "startScreen"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "gameOver"
+    ).style.display = "none";
+
+
+    health = 100;
+
+    kills = 0;
+
+    wave = 1;
+
+    score = 0;
+
+    gameRunning = true;
+
+
+    clearBots();
+
+    updateHUD();
+
+    spawnWave();
+
+
+    requestAnimationFrame(
+        gameLoop
+    );
+
+}
+
+
+// ============================================================
+// GAME LOOP
+// ============================================================
+
+function gameLoop() {
+
+    if (!gameRunning)
+        return;
+
+
+    movePlayer();
+
+    updateBots();
+
+    updateBullets();
+
+    checkBotPlayerCollisions();
+
+    requestAnimationFrame(
+        gameLoop
+    );
+
+}
+
+
+// ============================================================
+// PLAYER
+// ============================================================
+
+function getPlayerPosition() {
+
+    return {
+
+        x: game.clientWidth / 2,
+
+        y: game.clientHeight / 2
+
+    };
+
+}
+
+
+function movePlayer() {
+
+    const speed = 5;
+
+    let x =
+        game.clientWidth / 2;
+
+    let y =
+        game.clientHeight / 2;
+
+
+    if (keys["w"] ||
+        keys["arrowup"]) {
+
+        y -= speed;
+
+    }
+
+
+    if (keys["s"] ||
+        keys["arrowdown"]) {
+
+        y += speed;
+
+    }
+
+
+    if (keys["a"] ||
+        keys["arrowleft"]) {
+
+        x -= speed;
+
+    }
+
+
+    if (keys["d"] ||
+        keys["arrowright"]) {
+
+        x += speed;
+
+    }
+
+
+    const current =
+        getPlayerPosition();
+
+
+    x =
+        Math.max(
+            20,
+            Math.min(
+                game.clientWidth - 20,
+                current.x + (x - game.clientWidth / 2)
+            )
+        );
+
+
+    y =
+        Math.max(
+            20,
+            Math.min(
+                game.clientHeight - 20,
+                current.y + (y - game.clientHeight / 2)
+            )
+        );
+
+
+    player.style.left =
+        x + "px";
+
+    player.style.top =
+        y + "px";
+
+}
+
+
+// ============================================================
+// WAVE
+// ============================================================
+
+function spawnWave() {
+
+    clearBots();
+
+
+    const amount =
+        4 + wave * 2;
+
+
+    for (
+        let i = 0;
+        i < amount;
+        i++
+    ) {
+
+        spawnBot();
+
+    }
+
+}
+
+
+function spawnBot() {
+
+    const bot =
+        document.createElement("div");
+
+
+    let type =
+        Math.random();
+
+
+    if (type < .15) {
+
+        bot.className =
+            "bot tank";
+
+    }
+
+    else if (type < .35) {
+
+        bot.className =
+            "bot fast";
+
+    }
+
+    else {
+
+        bot.className =
+            "bot";
+
+    }
+
+
+    const side =
+        Math.floor(
+            Math.random() * 4
+        );
+
+
+    let x;
+    let y;
+
+
+    if (side === 0) {
+
+        x = Math.random() * game.clientWidth;
+        y = -40;
+
+    }
+
+    else if (side === 1) {
+
+        x = game.clientWidth + 40;
+        y = Math.random() * game.clientHeight;
+
+    }
+
+    else if (side === 2) {
+
+        x = Math.random() * game.clientWidth;
+        y = game.clientHeight + 40;
+
+    }
+
+    else {
+
+        x = -40;
+        y = Math.random() * game.clientHeight;
+
+    }
+
+
+    game.appendChild(bot);
+
+
+    let hp = 1;
+
+    let speed =
+        1 + wave * .06;
+
+
+    if (bot.classList.contains("fast")) {
+
+        hp = 1;
+
+        speed += 1.2;
+
+    }
+
+
+    if (bot.classList.contains("tank")) {
+
+        hp =
+            5 + wave;
+
+        speed *= .55;
+
+    }
+
+
+    bots.push({
+
+        element: bot,
+
+        x,
+
+        y,
+
+        hp,
+
+        maxHp: hp,
+
+        speed
+
+    });
+
+
+    bot.style.left =
+        x + "px";
+
+    bot.style.top =
+        y + "px";
+
+}
+
+
+// ============================================================
+// BOTS
+// ============================================================
+
+function updateBots() {
+
+    const p =
+        getPlayerPosition();
+
+
+    bots.forEach(bot => {
+
+        const dx =
+            p.x - bot.x;
+
+        const dy =
+            p.y - bot.y;
+
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if (distance > 1) {
+
+            bot.x +=
+                dx / distance *
+                bot.speed;
+
+            bot.y +=
+                dy / distance *
+                bot.speed;
+
+        }
+
+
+        bot.element.style.left =
+            bot.x + "px";
+
+        bot.element.style.top =
+            bot.y + "px";
+
+    });
+
+}
+
+
+// ============================================================
+// SHOOTING
+// ============================================================
+
+function shoot(event) {
+
+    if (!gameRunning)
+        return;
+
+
+    const now =
+        Date.now();
+
+
+    if (
+        now - lastShot <
+        currentWeapon.fire_rate
+    )
+        return;
+
+
+    lastShot = now;
+
+
+    const rect =
+        game.getBoundingClientRect();
+
+
+    const targetX =
+        event.clientX -
+        rect.left;
+
+
+    const targetY =
+        event.clientY -
+        rect.top;
+
+
+    const p =
+        getPlayerPosition();
+
+
+    for (
+        let i = 0;
+        i < currentWeapon.bullets;
+        i++
+    ) {
+
+        const angle =
+            Math.atan2(
+                targetY - p.y,
+                targetX - p.x
+            )
+            +
+            (
+                Math.random() -
+                .5
+            )
+            *
+            currentWeapon.spread;
+
+
+        bullets.push({
+
+            x: p.x,
+
+            y: p.y,
+
+            vx:
+                Math.cos(angle) *
+                currentWeapon.bullet_speed,
+
+            vy:
+                Math.sin(angle) *
+                currentWeapon.bullet_speed,
+
+            damage:
+                currentWeapon.damage,
+
+            element:
+                createBullet(p.x, p.y)
+
+        });
+
+    }
+
+}
+
+
+function createBullet(x, y) {
+
+    const element =
+        document.createElement("div");
+
+
+    element.className =
+        "bullet";
+
+
+    element.style.left =
+        x + "px";
+
+    element.style.top =
+        y + "px";
+
+
+    game.appendChild(element);
+
+
+    return element;
+
+}
+
+
+// ============================================================
+// BULLETS
+// ============================================================
+
+function updateBullets() {
+
+    for (
+        let i = bullets.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const b =
+            bullets[i];
+
+
+        b.x += b.vx;
+
+        b.y += b.vy;
+
+
+        b.element.style.left =
+            b.x + "px";
+
+        b.element.style.top =
+            b.y + "px";
+
+
+        let hit = false;
+
+
+        for (
+            let j = bots.length - 1;
+            j >= 0;
+            j--
+        ) {
+
+            const bot =
+                bots[j];
+
+
+            const dx =
+                b.x - bot.x;
+
+            const dy =
+                b.y - bot.y;
+
+
+            const distance =
+                Math.sqrt(
+                    dx * dx +
+                    dy * dy
+                );
+
+
+            if (distance < 25) {
+
+                bot.hp -= b.damage;
+
+                hit = true;
+
+
+                if (bot.hp <= 0) {
+
+                    bot.element.remove();
+
+                    bots.splice(j, 1);
+
+                    kills++;
+
+                    score += 10;
+
+
+                    if (
+                        bots.length === 0
+                    ) {
+
+                        wave++;
+
+                        score +=
+                            wave * 25;
+
+                        spawnWave();
+
+                    }
+
+                    updateHUD();
+
+                }
+
+                break;
+
+            }
+
+        }
+
+
+        if (
+            hit ||
+            b.x < -50 ||
+            b.y < -50 ||
+            b.x > game.clientWidth + 50 ||
+            b.y > game.clientHeight + 50
+        ) {
+
+            b.element.remove();
+
+            bullets.splice(i, 1);
+
+        }
+
+    }
+
+}
+
+
+// ============================================================
+// PLAYER COLLISION
+// ============================================================
+
+function checkBotPlayerCollisions() {
+
+    const p =
+        getPlayerPosition();
+
+
+    bots.forEach(bot => {
+
+        const dx =
+            p.x - bot.x;
+
+        const dy =
+            p.y - bot.y;
+
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if (distance < 28) {
+
+            health -=
+                bot.element.classList.contains("tank")
+                    ? .8
+                    : .35;
+
+
+            if (health <= 0) {
+
+                health = 0;
+
+                endGame();
+
+            }
+
+
+            updateHUD();
+
+        }
+
+    });
+
+}
+
+
+// ============================================================
+// HUD
+// ============================================================
+
+function updateHUD() {
+
+    document.getElementById("health")
+        .textContent =
+        Math.max(
+            0,
+            Math.round(health)
+        );
+
+
+    document.getElementById("kills")
+        .textContent =
+        kills;
+
+
+    document.getElementById("wave")
+        .textContent =
+        wave;
+
+
+    document.getElementById("score")
+        .textContent =
+        score;
+
+}
+
+
+// ============================================================
+// GAME OVER
+// ============================================================
+
+async function endGame() {
+
+    if (!gameRunning)
+        return;
+
+
+    gameRunning = false;
+
+
+    document.getElementById(
+        "finalScore"
+    ).textContent = score;
+
+
+    document.getElementById(
+        "finalKills"
+    ).textContent = kills;
+
+
+    document.getElementById(
+        "finalWave"
+    ).textContent = wave;
+
+
+    document.getElementById(
+        "gameOver"
+    ).style.display = "flex";
+
+
+    await saveScore();
+
+}
+
+
+// ============================================================
+// SAVE
+// ============================================================
+
+async function saveScore() {
+
+    const { error } =
+        await supabaseClient.rpc(
+            "save_game_score",
+            {
+                p_user_id:
+                    playerData.id,
+
+                p_score:
+                    score,
+
+                p_kills:
+                    kills,
+
+                p_wave:
+                    wave
+            }
+        );
+
+
+    if (error) {
+
+        console.error(
+            "Score opslaan:",
+            error
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// CLEAR
+// ============================================================
+
+function clearBots() {
+
+    bots.forEach(
+        b => b.element.remove()
+    );
+
+    bots = [];
+
+
+    bullets.forEach(
+        b => b.element.remove()
+    );
+
+    bullets = [];
+
+}
+
+
+// ============================================================
+// LOGOUT
+// ============================================================
+
+function logout() {
+
+    localStorage.removeItem(
+        "stb_player"
+    );
+
+    location.href =
+        "index.html";
+
+}
+
+</script>
+
+</body>
+
+</html>
