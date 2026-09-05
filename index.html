@@ -1212,31 +1212,34 @@ function endGame() {
     ).classList.remove("hidden");
 }
 
-function saveScore() {
+async function saveScore() {
 
     const name =
-        document.getElementById(
-            "playerName"
-        ).value.trim() || "Player";
+        document.getElementById("playerName").value.trim()
+        || "Player";
 
-    saveData.leaderboard.push({
-        name,
-        kills,
-        wave,
-        score: kills * 100 + wave * 500
-    });
+    const score = kills * 100 + wave * 500;
 
-    saveData.leaderboard.sort(
-        (a,b) => b.score - a.score
-    );
+    const { error } = await supabaseClient
+        .from("leaderboard")
+        .insert({
+            player_name: name,
+            score: score,
+            kills: kills,
+            wave: wave
+        });
 
-    saveData.leaderboard =
-        saveData.leaderboard.slice(0, 10);
+    if (error) {
+        console.error("Score opslaan mislukt:", error);
+        alert("Je score kon niet worden opgeslagen.");
+        return;
+    }
 
-    save();
+    console.log("Score opgeslagen!");
 
     openLeaderboard();
 }
+
 
 function openLeaderboard() {
 
@@ -1268,34 +1271,43 @@ function closeLeaderboard() {
     updateMoneyDisplays();
 }
 
-function renderLeaderboard() {
+async function renderLeaderboard() {
 
     const list =
-        document.getElementById(
-            "leaderboardList"
-        );
+        document.getElementById("leaderboardList");
 
-    if (!saveData.leaderboard.length) {
+    list.innerHTML = "<p>Scores laden...</p>";
 
+    const { data, error } = await supabaseClient
+        .from("leaderboard")
+        .select("player_name, score, kills, wave")
+        .order("score", { ascending: false })
+        .limit(10);
+
+    if (error) {
+        console.error(error);
         list.innerHTML =
-            "<p>Nog geen scores. Wees de eerste!</p>";
-
+            "<p>Leaderboard kon niet worden geladen.</p>";
         return;
     }
 
-    list.innerHTML =
-        saveData.leaderboard.map(
-            (entry, index) => `
-                <div class="card" style="margin:8px">
-                    <b>#${index + 1} ${escapeHtml(entry.name)}</b>
-                    <br>
-                    ${entry.score} punten
-                    • ${entry.kills} kills
-                    • Wave ${entry.wave}
-                </div>
-            `
-        ).join("");
+    if (!data || data.length === 0) {
+        list.innerHTML =
+            "<p>Nog geen scores. Wees de eerste!</p>";
+        return;
+    }
+
+    list.innerHTML = data.map((entry, index) => `
+        <div class="card" style="margin:8px">
+            <b>#${index + 1} ${escapeHtml(entry.player_name)}</b>
+            <br>
+            ${entry.score} punten
+            • ${entry.kills} kills
+            • Wave ${entry.wave}
+        </div>
+    `).join("");
 }
+
 
 function resetLeaderboard() {
 
