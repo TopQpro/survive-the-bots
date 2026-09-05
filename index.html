@@ -334,6 +334,20 @@ h2 {
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = https://topqpro.github.io/survive-the-bots/
+const SUPABASE_KEY = sb_publishable_k7sEatMNh2lPj7WvL1CnyA_N0-4RGpL
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+</script>
+
+
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -1537,7 +1551,5 @@ document.querySelectorAll(
 updateMoneyDisplays();
 </script>
 
- const SUPABASE_URL = https://topqpro.github.io/survive-the-bots/
- const SUPABASE_KEY = sb_publishable_k7sEatMNh2lPj7WvL1CnyA_N0-4RGpL
 </body>
 </html>
