@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html lang="nl">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
 <title>Survive the Bots</title>
 
-<!-- ==============================
-     SUPABASE LIBRARY
-================================ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
 * {
     box-sizing: border-box;
     user-select: none;
@@ -19,65 +23,101 @@
 
 html,
 body {
+
     margin: 0;
+
     width: 100%;
     height: 100%;
+
     overflow: hidden;
+
     background: #070a11;
+
     color: white;
+
     font-family: Arial, sans-serif;
 }
 
 canvas {
+
     display: block;
+
     width: 100%;
     height: 100%;
+
     background: #090d16;
 }
 
 button {
+
     border: none;
+
     border-radius: 10px;
+
     padding: 12px 18px;
+
     margin: 5px;
+
     background: #20c997;
+
     color: white;
+
     font-weight: bold;
+
     cursor: pointer;
 }
 
 button:hover {
+
     filter: brightness(1.15);
 }
 
 button.secondary {
+
     background: #26334d;
 }
 
-button:disabled {
-    opacity: 0.5;
-    cursor: default;
-}
-
 input {
+
+    width: 100%;
+
+    max-width: 350px;
+
+    padding: 13px;
+
+    margin: 6px;
+
+    border: 0;
+
+    border-radius: 9px;
+
     font-size: 16px;
 }
 
 .screen {
+
     position: fixed;
+
     inset: 0;
+
     z-index: 20;
 
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
-    background: rgba(3, 5, 10, 0.95);
+    background:
+        rgba(3,5,10,.96);
 }
 
 .panel {
-    width: min(92%, 850px);
-    max-height: 90vh;
+
+    width: min(94%, 850px);
+
+    max-height: 92vh;
+
     overflow-y: auto;
 
     padding: 30px;
@@ -85,15 +125,17 @@ input {
     background: #101725;
 
     border: 1px solid #2a3955;
+
     border-radius: 20px;
 
     box-shadow:
-        0 0 60px rgba(0, 200, 255, 0.12);
+        0 0 60px rgba(0,200,255,.12);
 
     text-align: center;
 }
 
 h1 {
+
     margin-top: 0;
 
     color: #36d9ff;
@@ -101,37 +143,49 @@ h1 {
     font-size: 42px;
 
     text-shadow:
-        0 0 20px rgba(54, 217, 255, 0.6);
+        0 0 20px
+        rgba(54,217,255,.6);
 }
 
 h2 {
+
     color: #36d9ff;
 }
 
 .hidden {
+
     display: none !important;
 }
 
-/* ==============================
-   START MENU
-================================ */
-
-#version {
-    margin-top: -15px;
-    margin-bottom: 25px;
+.version {
 
     color: #78869f;
+
+    margin-bottom: 25px;
 
     font-size: 14px;
 }
 
-/* ==============================
-   HUD
-================================ */
+.error {
+
+    color: #ff6678;
+
+    min-height: 20px;
+
+    margin: 10px;
+}
+
+.success {
+
+    color: #20c997;
+}
 
 #hud {
+
     position: fixed;
+
     top: 12px;
+
     left: 15px;
 
     z-index: 5;
@@ -144,26 +198,34 @@ h2 {
         0 2px 5px #000;
 }
 
-#shopButton {
+#account {
+
     position: fixed;
+
     top: 12px;
+
     right: 15px;
 
     z-index: 5;
+
+    background: rgba(10,15,25,.8);
+
+    padding: 8px 12px;
+
+    border-radius: 10px;
 }
 
-/* ==============================
-   BOSS BAR
-================================ */
-
 #bossBar {
+
     position: fixed;
+
     top: 15px;
+
     left: 50%;
 
     transform: translateX(-50%);
 
-    width: min(450px, 70%);
+    width: min(450px,70%);
 
     display: none;
 
@@ -171,6 +233,7 @@ h2 {
 }
 
 .bar {
+
     height: 15px;
 
     overflow: hidden;
@@ -181,28 +244,27 @@ h2 {
 }
 
 .barFill {
+
     height: 100%;
 
     background: #ff4057;
 }
 
-/* ==============================
-   SHOP
-================================ */
-
 .shopGrid {
+
     display: grid;
 
     grid-template-columns:
         repeat(
             auto-fit,
-            minmax(170px, 1fr)
+            minmax(170px,1fr)
         );
 
     gap: 12px;
 }
 
 .card {
+
     padding: 18px;
 
     background: #182238;
@@ -213,488 +275,414 @@ h2 {
 }
 
 .card.selected {
+
     border-color: #36d9ff;
 
     box-shadow:
-        0 0 20px rgba(
-            54,
-            217,
-            255,
-            0.2
-        );
+        0 0 20px
+        rgba(54,217,255,.2);
 }
 
 .icon {
+
     font-size: 35px;
 }
 
-/* ==============================
-   MOBILE
-================================ */
-
-#mobileControls {
-    position: fixed;
-
-    bottom: 20px;
-    left: 20px;
-    right: 20px;
-
-    display: none;
-
-    justify-content: space-between;
-
-    z-index: 6;
-
-    pointer-events: none;
-}
-
-.mobileGroup {
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, 55px);
-
-    gap: 5px;
-
-    pointer-events: auto;
-}
-
-.mobileButton {
-    width: 55px;
-    height: 55px;
-
-    padding: 0;
-
-    opacity: 0.7;
-
-    background: #24314b;
-}
-
-@media (max-width: 700px) {
-
-    #mobileControls {
-        display: flex;
-    }
-
-    #hud {
-        font-size: 14px;
-    }
+@media (max-width:700px) {
 
     h1 {
         font-size: 30px;
     }
+
+    #hud {
+        font-size: 13px;
+    }
 }
+
 </style>
+
 </head>
 
 <body>
 
 <canvas id="game"></canvas>
 
-<!-- ==============================
-     HUD
-================================ -->
+
+<!-- HUD -->
 
 <div id="hud" class="hidden">
 
-    ❤️ HP:
-    <span id="hp">100</span>
+❤️ HP:
+<span id="hp">100</span>
 
-    <br>
+<br>
 
-    🪙 Coins:
-    <span id="coins">0</span>
+🪙 Coins:
+<span id="coins">0</span>
 
-    <br>
+<br>
 
-    👾 Kills:
-    <span id="kills">0</span>
+👾 Kills:
+<span id="kills">0</span>
 
-    <br>
+<br>
 
-    🌊 Wave:
-    <span id="wave">1</span>
+🌊 Wave:
+<span id="wave">1</span>
 
-    <br>
+<br>
 
-    🔫
-    <span id="weaponName">
-        Pistol
-    </span>
+🔫
+<span id="weaponName">Pistol</span>
 
 </div>
 
-<button
-    id="shopButton"
-    class="secondary hidden"
-    onclick="openShop()"
->
-    🛒 SHOP
-</button>
-
-<!-- ==============================
-     BOSS
-================================ -->
-
-<div id="bossBar">
-
-    <div style="text-align:center;">
-        👹 BOSS
-    </div>
-
-    <div class="bar">
-
-        <div
-            id="bossHealth"
-            class="barFill"
-            style="width:100%"
-        ></div>
-
-    </div>
-
-</div>
-
-<!-- ==============================
-     MOBILE CONTROLS
-================================ -->
 
 <div
-    id="mobileControls"
+    id="account"
     class="hidden"
 >
 
-    <div class="mobileGroup">
+<span id="accountName">
+    Player
+</span>
 
-        <div></div>
-
-        <button
-            class="mobileButton"
-            data-key="w"
-        >
-            ▲
-        </button>
-
-        <div></div>
-
-        <button
-            class="mobileButton"
-            data-key="a"
-        >
-            ◀
-        </button>
-
-        <button
-            class="mobileButton"
-            data-key="s"
-        >
-            ▼
-        </button>
-
-        <button
-            class="mobileButton"
-            data-key="d"
-        >
-            ▶
-        </button>
-
-    </div>
+<button
+    class="secondary"
+    onclick="logout()"
+>
+    Uitloggen
+</button>
 
 </div>
 
-<!-- ==============================
-     START MENU
-================================ -->
+
+<!-- START -->
 
 <div
     id="menu"
     class="screen"
 >
 
-    <div class="panel">
+<div class="panel">
 
-        <h1>
-            ⚡ SURVIVE THE BOTS
-        </h1>
+<h1>
+⚡ SURVIVE THE BOTS
+</h1>
 
-        <div id="version">
-            v1.0.1
-        </div>
+<div class="version">
+v1.1.0
+</div>
 
-        <p>
-            Overleef de bots,
-            verdien coins en koop
-            nieuwe wapens en skins.
-        </p>
+<div id="welcomeText">
+Log in om te spelen.
+</div>
 
-        <h2>
-            🪙
-            <span id="menuCoins">
-                0
-            </span>
-            coins
-        </h2>
+<div>
 
-        <button onclick="startGame()">
-            ▶ START GAME
-        </button>
+<button onclick="showLogin()">
+🔑 INLOGGEN
+</button>
 
-        <button
-            class="secondary"
-            onclick="openShop()"
-        >
-            🛒 SHOP
-        </button>
-
-        <button
-            class="secondary"
-            onclick="openLeaderboard()"
-        >
-            🏆 LEADERBOARD
-        </button>
-
-        <p
-            style="
-                margin-top:25px;
-                color:#8895ad;
-            "
-        >
-            WASD = bewegen
-            • Muis = richten
-            • Klik = schieten
-        </p>
-
-        <p
-            style="
-                color:#59677f;
-                font-size:12px;
-            "
-        >
-            © 2026 Survive the Bots
-        </p>
-
-    </div>
+<button onclick="showRegister()">
+👤 ACCOUNT MAKEN
+</button>
 
 </div>
 
-<!-- ==============================
-     SHOP
-================================ -->
+<button
+    class="secondary"
+    onclick="openLeaderboard()"
+>
+🏆 LEADERBOARD
+</button>
+
+</div>
+
+</div>
+
+
+<!-- AUTH -->
+
+<div
+    id="auth"
+    class="screen hidden"
+>
+
+<div class="panel">
+
+<h1 id="authTitle">
+🔑 INLOGGEN
+</h1>
+
+<input
+    id="email"
+    type="email"
+    placeholder="E-mail"
+/>
+
+<input
+    id="password"
+    type="password"
+    placeholder="Wachtwoord"
+/>
+
+<div id="authError" class="error"></div>
+
+<button onclick="submitAuth()">
+DOORGAAN
+</button>
+
+<button
+    class="secondary"
+    onclick="closeAuth()"
+>
+TERUG
+</button>
+
+</div>
+
+</div>
+
+
+<!-- GAME MENU -->
+
+<div
+    id="gameMenu"
+    class="screen hidden"
+>
+
+<div class="panel">
+
+<h1>
+⚡ SURVIVE THE BOTS
+</h1>
+
+<div class="version">
+v1.1.0
+</div>
+
+<p>
+Welkom,
+<b id="gameMenuName"></b>
+</p>
+
+<h2>
+🪙
+<span id="menuCoins">0</span>
+</h2>
+
+<button onclick="startGame()">
+▶ START GAME
+</button>
+
+<button
+    class="secondary"
+    onclick="openShop()"
+>
+🛒 SHOP
+</button>
+
+<button
+    class="secondary"
+    onclick="openLeaderboard()"
+>
+🏆 LEADERBOARD
+</button>
+
+</div>
+
+</div>
+
+
+<!-- SHOP -->
 
 <div
     id="shop"
     class="screen hidden"
 >
 
-    <div class="panel">
+<div class="panel">
 
-        <h1>
-            🛒 SHOP
-        </h1>
+<h1>
+🛒 SHOP
+</h1>
 
-        <h2>
-            🪙
-            <span id="shopCoins">
-                0
-            </span>
-            coins
-        </h2>
+<h2>
+🪙
+<span id="shopCoins">0</span>
+</h2>
 
-        <h2>
-            🔫 Wapens
-        </h2>
+<h2>
+🔫 WAPENS
+</h2>
 
-        <div
-            id="weaponShop"
-            class="shopGrid"
-        ></div>
+<div
+    id="weaponShop"
+    class="shopGrid"
+></div>
 
-        <h2>
-            🎨 Skins
-        </h2>
+<br>
 
-        <div
-            id="skinShop"
-            class="shopGrid"
-        ></div>
-
-        <br>
-
-        <button
-            class="secondary"
-            onclick="closeShop()"
-        >
-            TERUG
-        </button>
-
-    </div>
+<button
+    class="secondary"
+    onclick="closeShop()"
+>
+TERUG
+</button>
 
 </div>
 
-<!-- ==============================
-     LEADERBOARD
-================================ -->
+</div>
+
+
+<!-- LEADERBOARD -->
 
 <div
     id="leaderboard"
     class="screen hidden"
 >
 
-    <div class="panel">
+<div class="panel">
 
-        <h1>
-            🏆 LEADERBOARD
-        </h1>
+<h1>
+🏆 LEADERBOARD
+</h1>
 
-        <div id="leaderboardList">
-            <p>
-                Scores laden...
-            </p>
-        </div>
+<div id="leaderboardList">
+Laden...
+</div>
 
-        <br>
-
-        <button
-            class="secondary"
-            onclick="closeLeaderboard()"
-        >
-            TERUG
-        </button>
-
-    </div>
+<button
+    class="secondary"
+    onclick="closeLeaderboard()"
+>
+TERUG
+</button>
 
 </div>
 
-<!-- ==============================
-     UPGRADE
-================================ -->
+</div>
+
+
+<!-- UPGRADE -->
 
 <div
     id="upgrade"
     class="screen hidden"
 >
 
-    <div class="panel">
+<div class="panel">
 
-        <h1>
-            ⚡ UPGRADE
-        </h1>
+<h1>
+⚡ UPGRADE
+</h1>
 
-        <p>
-            Kies één upgrade.
-        </p>
+<p>
+Kies een upgrade.
+</p>
 
-        <button
-            onclick="chooseUpgrade('damage')"
-        >
-            🔥 +30% Damage
-        </button>
+<button onclick="chooseUpgrade('damage')">
+🔥 +30% Damage
+</button>
 
-        <button
-            onclick="chooseUpgrade('speed')"
-        >
-            🏃 +20% Speed
-        </button>
+<button onclick="chooseUpgrade('speed')">
+🏃 +20% Speed
+</button>
 
-        <button
-            onclick="chooseUpgrade('fire')"
-        >
-            ⚡ +25% Fire Rate
-        </button>
+<button onclick="chooseUpgrade('fire')">
+⚡ +25% Fire Rate
+</button>
 
-        <button
-            onclick="chooseUpgrade('health')"
-        >
-            ❤️ +30 HP
-        </button>
-
-    </div>
+<button onclick="chooseUpgrade('health')">
+❤️ +30 HP
+</button>
 
 </div>
 
-<!-- ==============================
-     GAME OVER
-================================ -->
+</div>
+
+
+<!-- GAME OVER -->
 
 <div
     id="gameOver"
     class="screen hidden"
 >
 
-    <div class="panel">
+<div class="panel">
 
-        <h1>
-            💀 GAME OVER
-        </h1>
+<h1>
+💀 GAME OVER
+</h1>
 
-        <p>
-            👾 Kills:
-            <b id="finalKills">
-                0
-            </b>
-        </p>
+<p>
+Kills:
+<b id="finalKills">0</b>
+</p>
 
-        <p>
-            🌊 Wave:
-            <b id="finalWave">
-                1
-            </b>
-        </p>
+<p>
+Wave:
+<b id="finalWave">1</b>
+</p>
 
-        <p>
-            🪙 Coins:
-            <b id="finalCoins">
-                0
-            </b>
-        </p>
+<p>
+Score:
+<b id="finalScore">0</b>
+</p>
 
-        <input
-            id="playerName"
-            maxlength="15"
-            placeholder="Jouw naam"
-            style="
-                padding:12px;
-                border-radius:8px;
-                border:0;
-                width:220px;
-                text-align:center;
-            "
-        >
+<button onclick="saveScore()">
+🏆 SCORE OPSLAAN
+</button>
 
-        <br>
+<button
+    class="secondary"
+    onclick="startGame()"
+>
+OPNIEUW
+</button>
 
-        <button onclick="saveScore()">
-            🏆 SCORE OPSLAAN
-        </button>
-
-        <button
-            class="secondary"
-            onclick="startGame()"
-        >
-            OPNIEUW
-        </button>
-
-    </div>
+<button
+    class="secondary"
+    onclick="returnToMenu()"
+>
+MENU
+</button>
 
 </div>
 
-<!-- ==============================
-     GAME CODE
-================================ -->
+</div>
+
+
+<!-- BOSS -->
+
+<div id="bossBar">
+
+<div style="text-align:center">
+👹 BOSS
+</div>
+
+<div class="bar">
+
+<div
+    id="bossHealth"
+    class="barFill"
+    style="width:100%"
+></div>
+
+</div>
+
+</div>
+
 
 <script>
 
-/* =================================
-   VERSIE
-================================= */
+/* ============================================================
+   CONFIG
+============================================================ */
 
-const GAME_VERSION = "1.0.0";
+const GAME_VERSION = "1.1.0";
 
-
-/* =================================
-   SUPABASE
-
-   Vul alleen deze 2 waarden in.
-================================= */
 
 const SUPABASE_URL =
     "https://neodeghkonbotgdsivwx.supabase.co";
@@ -703,9 +691,9 @@ const SUPABASE_KEY =
     "sb_publishable_k7sEatMNh2lPj7WvL1CnyA_N0-4RGpL";
 
 
-/*
-   Supabase client maken
-*/
+/* ============================================================
+   SUPABASE
+============================================================ */
 
 const supabaseClient =
     window.supabase.createClient(
@@ -713,21 +701,13 @@ const supabaseClient =
         SUPABASE_KEY
     );
 
-console.log(
-    "Survive the Bots " +
-    GAME_VERSION +
-    " gestart."
-);
 
-
-/* =================================
-   CANVAS
-================================= */
+/* ============================================================
+   GAME
+============================================================ */
 
 const canvas =
-    document.getElementById(
-        "game"
-    );
+    document.getElementById("game");
 
 const ctx =
     canvas.getContext("2d");
@@ -742,9 +722,7 @@ function resizeCanvas() {
         window.innerHeight;
 }
 
-
 resizeCanvas();
-
 
 window.addEventListener(
     "resize",
@@ -752,19 +730,13 @@ window.addEventListener(
 );
 
 
-/* =================================
-   INPUT
-================================= */
-
 const keys = {};
 
 const mouse = {
 
-    x:
-        canvas.width / 2,
+    x: canvas.width / 2,
 
-    y:
-        canvas.height / 2,
+    y: canvas.height / 2,
 
     down: false
 };
@@ -772,10 +744,10 @@ const mouse = {
 
 document.addEventListener(
     "keydown",
-    event => {
+    e => {
 
         keys[
-            event.key.toLowerCase()
+            e.key.toLowerCase()
         ] = true;
     }
 );
@@ -783,10 +755,10 @@ document.addEventListener(
 
 document.addEventListener(
     "keyup",
-    event => {
+    e => {
 
         keys[
-            event.key.toLowerCase()
+            e.key.toLowerCase()
         ] = false;
     }
 );
@@ -794,312 +766,874 @@ document.addEventListener(
 
 canvas.addEventListener(
     "mousemove",
-    event => {
+    e => {
 
-        mouse.x =
-            event.clientX;
+        mouse.x = e.clientX;
 
-        mouse.y =
-            event.clientY;
+        mouse.y = e.clientY;
     }
 );
 
 
 canvas.addEventListener(
     "mousedown",
-    () => {
-
-        mouse.down = true;
-    }
+    () => mouse.down = true
 );
 
 
 canvas.addEventListener(
     "mouseup",
-    () => {
-
-        mouse.down = false;
-    }
+    () => mouse.down = false
 );
 
 
-/* =================================
-   WEAPONS
-================================= */
+/* ============================================================
+   ACCOUNT
+============================================================ */
 
-const weapons = {
+let currentUser = null;
 
-    pistol: {
+let profile = null;
 
-        name: "Pistol",
+let authMode = "login";
 
-        icon: "🔫",
 
-        price: 0,
+async function loadUser() {
 
-        damage: 25,
+    const {
+        data
+    } =
+        await supabaseClient
+            .auth
+            .getUser();
 
-        fireRate: 300,
 
-        bullets: 1,
+    currentUser =
+        data?.user || null;
 
-        spread: 0,
 
-        speed: 10
-    },
+    if (!currentUser) {
 
-    smg: {
+        showMenu();
 
-        name: "SMG",
-
-        icon: "🔫",
-
-        price: 100,
-
-        damage: 13,
-
-        fireRate: 90,
-
-        bullets: 1,
-
-        spread: 0.08,
-
-        speed: 11
-    },
-
-    shotgun: {
-
-        name: "Shotgun",
-
-        icon: "💥",
-
-        price: 250,
-
-        damage: 18,
-
-        fireRate: 550,
-
-        bullets: 6,
-
-        spread: 0.35,
-
-        speed: 9
-    },
-
-    sniper: {
-
-        name: "Sniper",
-
-        icon: "🎯",
-
-        price: 500,
-
-        damage: 110,
-
-        fireRate: 900,
-
-        bullets: 1,
-
-        spread: 0,
-
-        speed: 15
+        return;
     }
-};
 
 
-/* =================================
-   SKINS
-================================= */
+    await loadProfile();
 
-const skins = {
+    await loadWeapons();
 
-    blue: {
+    showGameMenu();
+}
 
-        name: "Cyber Blue",
 
-        icon: "🔵",
+async function loadProfile() {
 
-        price: 0,
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
 
-        color: "#36d9ff"
-    },
+            .from("profiles")
 
-    red: {
+            .select(
+                "id,email,display_name,coins"
+            )
 
-        name: "Red Fury",
+            .eq(
+                "id",
+                currentUser.id
+            )
 
-        icon: "🔴",
+            .single();
 
-        price: 100,
 
-        color: "#ff4057"
-    },
+    if (error) {
 
-    green: {
+        console.error(error);
 
-        name: "Toxic",
-
-        icon: "🟢",
-
-        price: 200,
-
-        color: "#20c997"
-    },
-
-    purple: {
-
-        name: "Void",
-
-        icon: "🟣",
-
-        price: 350,
-
-        color: "#a970ff"
-    },
-
-    gold: {
-
-        name: "Golden",
-
-        icon: "🟡",
-
-        price: 750,
-
-        color: "#ffd166"
-    },
-
-    white: {
-
-        name: "Ghost",
-
-        icon: "⚪",
-
-        price: 1000,
-
-        color: "#f5f5f5"
+        return;
     }
-};
 
 
-/* =================================
-   LOCAL SAVE
-================================= */
+    profile = data;
 
-let saveData;
-
-
-try {
-
-    saveData =
-        JSON.parse(
-            localStorage.getItem(
-                "surviveBotsSave"
-            ) || "null"
-        );
-
-} catch {
-
-    saveData = null;
+    updateAccountUI();
 }
 
 
-if (!saveData) {
+function updateAccountUI() {
 
-    saveData = {
+    if (!profile) {
+        return;
+    }
 
-        coins: 0,
 
-        ownedWeapons: [
-            "pistol"
-        ],
+    const name =
+        profile.display_name ||
+        currentUser.email;
 
-        ownedSkins: [
-            "blue"
-        ],
 
-        weapon: "pistol",
+    document.getElementById(
+        "accountName"
+    ).textContent = name;
 
-        skin: "blue"
-    };
+
+    document.getElementById(
+        "menuCoins"
+    ).textContent =
+        profile.coins;
+
+
+    document.getElementById(
+        "shopCoins"
+    ).textContent =
+        profile.coins;
 }
 
 
-/* Oude saves repareren */
+/* ============================================================
+   AUTH
+============================================================ */
 
-if (
-    !saveData.weapon ||
-    !weapons[
-        saveData.weapon
-    ]
-) {
+function showLogin() {
 
-    saveData.weapon =
-        "pistol";
+    authMode = "login";
+
+    document.getElementById(
+        "authTitle"
+    ).textContent =
+        "🔑 INLOGGEN";
+
+
+    document.getElementById(
+        "auth"
+    ).classList.remove(
+        "hidden"
+    );
+
+
+    document.getElementById(
+        "authError"
+    ).textContent = "";
 }
 
 
-if (
-    !saveData.skin ||
-    !skins[
-        saveData.skin
-    ]
-) {
+function showRegister() {
 
-    saveData.skin =
-        "blue";
+    authMode = "register";
+
+    document.getElementById(
+        "authTitle"
+    ).textContent =
+        "👤 ACCOUNT MAKEN";
+
+
+    document.getElementById(
+        "auth"
+    ).classList.remove(
+        "hidden"
+    );
+
+
+    document.getElementById(
+        "authError"
+    ).textContent = "";
 }
 
 
-if (
-    !Array.isArray(
-        saveData.ownedWeapons
-    )
-) {
+function closeAuth() {
 
-    saveData.ownedWeapons =
-        ["pistol"];
-}
-
-
-if (
-    !Array.isArray(
-        saveData.ownedSkins
-    )
-) {
-
-    saveData.ownedSkins =
-        ["blue"];
-}
-
-
-if (
-    typeof saveData.coins !==
-    "number"
-) {
-
-    saveData.coins = 0;
-}
-
-
-function localSave() {
-
-    localStorage.setItem(
-        "surviveBotsSave",
-        JSON.stringify(
-            saveData
-        )
+    document.getElementById(
+        "auth"
+    ).classList.add(
+        "hidden"
     );
 }
 
 
-localSave();
+async function submitAuth() {
+
+    const email =
+        document.getElementById(
+            "email"
+        ).value.trim();
 
 
-/* =================================
-   GAME VARIABLES
-================================= */
+    const password =
+        document.getElementById(
+            "password"
+        ).value;
 
-let player = null;
+
+    const errorBox =
+        document.getElementById(
+            "authError"
+        );
+
+
+    errorBox.textContent = "";
+
+
+    if (!email || !password) {
+
+        errorBox.textContent =
+            "Vul e-mail en wachtwoord in.";
+
+        return;
+    }
+
+
+    let result;
+
+
+    if (authMode === "register") {
+
+        result =
+            await supabaseClient
+                .auth
+                .signUp({
+
+                    email,
+
+                    password
+                });
+
+    } else {
+
+        result =
+            await supabaseClient
+                .auth
+                .signInWithPassword({
+
+                    email,
+
+                    password
+                });
+    }
+
+
+    if (result.error) {
+
+        console.error(
+            result.error
+        );
+
+
+        errorBox.textContent =
+            result.error.message;
+
+        return;
+    }
+
+
+    if (
+        authMode === "register" &&
+        !result.data.session
+    ) {
+
+        errorBox.textContent =
+            "Account gemaakt. Controleer je e-mail om je account te bevestigen.";
+
+        return;
+    }
+
+
+    closeAuth();
+
+    await loadUser();
+}
+
+
+async function logout() {
+
+    await supabaseClient
+        .auth
+        .signOut();
+
+
+    currentUser = null;
+
+    profile = null;
+
+    gameRunning = false;
+
+    document.getElementById(
+        "hud"
+    ).classList.add(
+        "hidden"
+    );
+
+    document.getElementById(
+        "account"
+    ).classList.add(
+        "hidden"
+    );
+
+    showMenu();
+}
+
+
+/* ============================================================
+   MENUS
+============================================================ */
+
+function hideAllScreens() {
+
+    document
+        .querySelectorAll(".screen")
+        .forEach(
+            element => {
+
+                element.classList.add(
+                    "hidden"
+                );
+            }
+        );
+}
+
+
+function showMenu() {
+
+    hideAllScreens();
+
+
+    document.getElementById(
+        "menu"
+    ).classList.remove(
+        "hidden"
+    );
+}
+
+
+function showGameMenu() {
+
+    hideAllScreens();
+
+
+    document.getElementById(
+        "gameMenu"
+    ).classList.remove(
+        "hidden"
+    );
+
+
+    document.getElementById(
+        "account"
+    ).classList.remove(
+        "hidden"
+    );
+
+
+    document.getElementById(
+        "gameMenuName"
+    ).textContent =
+        profile?.display_name ||
+        currentUser.email;
+
+
+    updateAccountUI();
+}
+
+
+function returnToMenu() {
+
+    gameRunning = false;
+
+    document.getElementById(
+        "hud"
+    ).classList.add(
+        "hidden"
+    );
+
+
+    showGameMenu();
+}
+
+
+/* ============================================================
+   DATABASE WEAPONS
+============================================================ */
+
+let weapons = {};
+
+let ownedWeapons = [];
+
+
+async function loadWeapons() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from("weapons")
+
+            .select("*")
+
+            .eq(
+                "active",
+                true
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Weapons laden:",
+            error
+        );
+
+        return;
+    }
+
+
+    weapons = {};
+
+
+    data.forEach(
+        weapon => {
+
+            weapons[
+                weapon.id
+            ] = weapon;
+        }
+    );
+
+
+    const {
+        data: owned,
+        error: ownedError
+    } =
+        await supabaseClient
+
+            .from("user_weapons")
+
+            .select("weapon_id")
+
+            .eq(
+                "user_id",
+                currentUser.id
+            );
+
+
+    if (ownedError) {
+
+        console.error(
+            ownedError
+        );
+
+        return;
+    }
+
+
+    ownedWeapons =
+        owned.map(
+            row =>
+                row.weapon_id
+        );
+}
+
+
+/* ============================================================
+   BUY WEAPON
+============================================================ */
+
+async function buyWeapon(
+    weaponId
+) {
+
+    const weapon =
+        weapons[weaponId];
+
+
+    if (!weapon) {
+        return;
+    }
+
+
+    if (
+        ownedWeapons.includes(
+            weaponId
+        )
+    ) {
+
+        selectWeapon(
+            weaponId
+        );
+
+        return;
+    }
+
+
+    if (
+        profile.coins <
+        weapon.price
+    ) {
+
+        alert(
+            "Je hebt niet genoeg coins."
+        );
+
+        return;
+    }
+
+
+    /*
+       Eerst aankoop proberen te
+       registreren.
+    */
+
+    const {
+        error: purchaseError
+    } =
+        await supabaseClient
+
+            .from(
+                "shop_purchases"
+            )
+
+            .insert({
+
+                user_id:
+                    currentUser.id,
+
+                item_type:
+                    "weapon",
+
+                item_id:
+                    weaponId,
+
+                price:
+                    weapon.price
+            });
+
+
+    if (purchaseError) {
+
+        console.error(
+            purchaseError
+        );
+
+        alert(
+            "Aankoop kon niet worden geregistreerd."
+        );
+
+        return;
+    }
+
+
+    /*
+       Wapen toevoegen aan account.
+    */
+
+    const {
+        error: weaponError
+    } =
+        await supabaseClient
+
+            .from(
+                "user_weapons"
+            )
+
+            .insert({
+
+                user_id:
+                    currentUser.id,
+
+                weapon_id:
+                    weaponId,
+
+                source:
+                    "purchase"
+            });
+
+
+    if (weaponError) {
+
+        console.error(
+            weaponError
+        );
+
+        alert(
+            "Wapen kon niet worden toegevoegd."
+        );
+
+        return;
+    }
+
+
+    /*
+       Coins aanpassen.
+    */
+
+    const newCoins =
+        profile.coins -
+        weapon.price;
+
+
+    const {
+        error: coinError
+    } =
+        await supabaseClient
+
+            .from("profiles")
+
+            .update({
+
+                coins:
+                    newCoins
+            })
+
+            .eq(
+                "id",
+                currentUser.id
+            );
+
+
+    if (coinError) {
+
+        console.error(
+            coinError
+        );
+
+        alert(
+            "Coins konden niet worden aangepast."
+        );
+
+        return;
+    }
+
+
+    profile.coins =
+        newCoins;
+
+
+    ownedWeapons.push(
+        weaponId
+    );
+
+
+    await loadWeapons();
+
+    updateAccountUI();
+
+    renderShop();
+
+    alert(
+        `${weapon.name} gekocht!`
+    );
+}
+
+
+/* ============================================================
+   SELECT WEAPON
+============================================================ */
+
+let selectedWeapon =
+    "pistol";
+
+
+function selectWeapon(
+    weaponId
+) {
+
+    if (
+        !ownedWeapons.includes(
+            weaponId
+        )
+    ) {
+
+        return;
+    }
+
+
+    selectedWeapon =
+        weaponId;
+
+
+    renderShop();
+}
+
+
+/* ============================================================
+   SHOP
+============================================================ */
+
+function openShop() {
+
+    if (!currentUser) {
+
+        showLogin();
+
+        return;
+    }
+
+
+    gameRunning = false;
+
+    hideAllScreens();
+
+
+    document.getElementById(
+        "shop"
+    ).classList.remove(
+        "hidden"
+    );
+
+
+    renderShop();
+}
+
+
+function closeShop() {
+
+    showGameMenu();
+}
+
+
+function renderShop() {
+
+    const shop =
+        document.getElementById(
+            "weaponShop"
+        );
+
+
+    shop.innerHTML = "";
+
+
+    Object.values(
+        weapons
+    ).forEach(
+        weapon => {
+
+            const owned =
+                ownedWeapons.includes(
+                    weapon.id
+                );
+
+
+            const selected =
+                selectedWeapon ===
+                weapon.id;
+
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "card" +
+                (
+                    selected
+                        ? " selected"
+                        : ""
+                );
+
+
+            let buttonText;
+
+
+            if (selected) {
+
+                buttonText =
+                    "GESELECTEERD";
+
+            } else if (owned) {
+
+                buttonText =
+                    "GEBRUIKEN";
+
+            } else {
+
+                buttonText =
+                    `🪙 ${weapon.price}`;
+            }
+
+
+            card.innerHTML = `
+
+                <div class="icon">
+                    ${weapon.icon}
+                </div>
+
+                <h3>
+                    ${escapeHtml(
+                        weapon.name
+                    )}
+                </h3>
+
+                <p>
+                    Damage:
+                    ${weapon.damage}
+
+                    <br>
+
+                    Fire rate:
+                    ${weapon.fire_rate}ms
+                </p>
+
+                <button
+                    ${
+                        selected
+                            ? "disabled"
+                            : ""
+                    }
+                >
+                    ${buttonText}
+                </button>
+            `;
+
+
+            const button =
+                card.querySelector(
+                    "button"
+                );
+
+
+            if (!selected) {
+
+                button.onclick =
+                    async () => {
+
+                        if (owned) {
+
+                            selectWeapon(
+                                weapon.id
+                            );
+
+                        } else {
+
+                            await buyWeapon(
+                                weapon.id
+                            );
+                        }
+                    };
+            }
+
+
+            shop.appendChild(
+                card
+            );
+        }
+    );
+
+
+    updateAccountUI();
+}
+
+
+/* ============================================================
+   GAME
+============================================================ */
+
+let player;
 
 let bullets = [];
 
@@ -1129,133 +1663,24 @@ let upgradeStats = {
 };
 
 
-/* =================================
-   HUD
-================================= */
+function startGame() {
 
-function updateMoneyDisplays() {
+    if (!currentUser) {
 
-    document.getElementById(
-        "menuCoins"
-    ).textContent =
-        saveData.coins;
+        showLogin();
 
-    document.getElementById(
-        "shopCoins"
-    ).textContent =
-        saveData.coins;
-}
-
-
-function updateHUD() {
-
-    if (!player) {
         return;
     }
 
-    document.getElementById(
-        "hp"
-    ).textContent =
-        Math.max(
-            0,
-            Math.floor(
-                player.hp
-            )
-        );
 
-    document.getElementById(
-        "coins"
-    ).textContent =
-        saveData.coins;
+    hideAllScreens();
 
-    document.getElementById(
-        "kills"
-    ).textContent =
-        kills;
-
-    document.getElementById(
-        "wave"
-    ).textContent =
-        wave;
-
-    document.getElementById(
-        "weaponName"
-    ).textContent =
-        weapons[
-            saveData.weapon
-        ].name;
-}
-
-
-/* =================================
-   START GAME
-================================= */
-
-function startGame() {
-
-    document.getElementById(
-        "menu"
-    ).classList.add(
-        "hidden"
-    );
-
-    document.getElementById(
-        "gameOver"
-    ).classList.add(
-        "hidden"
-    );
-
-    document.getElementById(
-        "shop"
-    ).classList.add(
-        "hidden"
-    );
-
-    document.getElementById(
-        "leaderboard"
-    ).classList.add(
-        "hidden"
-    );
-
-    document.getElementById(
-        "upgrade"
-    ).classList.add(
-        "hidden"
-    );
 
     document.getElementById(
         "hud"
     ).classList.remove(
         "hidden"
     );
-
-    document.getElementById(
-        "shopButton"
-    ).classList.remove(
-        "hidden"
-    );
-
-    document.getElementById(
-        "mobileControls"
-    ).classList.remove(
-        "hidden"
-    );
-
-
-    /*
-       Nieuwe game.
-       Upgrades worden hier
-       bewust gereset.
-    */
-
-    upgradeStats = {
-
-        damage: 1,
-
-        speed: 1,
-
-        fire: 1
-    };
 
 
     player = {
@@ -1276,13 +1701,13 @@ function startGame() {
 
         damage:
             weapons[
-                saveData.weapon
-            ].damage,
+                selectedWeapon
+            ]?.damage || 25,
 
         fireRate:
             weapons[
-                saveData.weapon
-            ].fireRate
+                selectedWeapon
+            ]?.fire_rate || 300
     };
 
 
@@ -1302,6 +1727,17 @@ function startGame() {
 
     boss = null;
 
+
+    upgradeStats = {
+
+        damage: 1,
+
+        speed: 1,
+
+        fire: 1
+    };
+
+
     gameRunning = true;
 
 
@@ -1320,14 +1756,21 @@ function startGame() {
 }
 
 
-/* =================================
-   SHOOT
-================================= */
-
 function shoot() {
 
     const now =
         performance.now();
+
+
+    const weapon =
+        weapons[
+            selectedWeapon
+        ];
+
+
+    if (!weapon) {
+        return;
+    }
 
 
     if (
@@ -1340,12 +1783,6 @@ function shoot() {
 
 
     lastShot = now;
-
-
-    const weapon =
-        weapons[
-            saveData.weapon
-        ];
 
 
     const baseAngle =
@@ -1361,7 +1798,9 @@ function shoot() {
 
     for (
         let i = 0;
+
         i < weapon.bullets;
+
         i++
     ) {
 
@@ -1369,9 +1808,11 @@ function shoot() {
             baseAngle +
             (
                 Math.random() -
-                0.5
+                .5
             ) *
-            weapon.spread;
+            Number(
+                weapon.spread
+            );
 
 
         bullets.push({
@@ -1382,17 +1823,17 @@ function shoot() {
 
             vx:
                 Math.cos(angle) *
-                weapon.speed,
+                Number(
+                    weapon.bullet_speed
+                ),
 
             vy:
                 Math.sin(angle) *
-                weapon.speed,
+                Number(
+                    weapon.bullet_speed
+                ),
 
-            radius:
-                weapon.name ===
-                "Sniper"
-                ? 7
-                : 5,
+            radius: 5,
 
             damage:
                 player.damage
@@ -1400,10 +1841,6 @@ function shoot() {
     }
 }
 
-
-/* =================================
-   SPAWN ENEMY
-================================= */
 
 function spawnEnemy() {
 
@@ -1461,8 +1898,7 @@ function spawnEnemy() {
 
     const strength =
         1 +
-        wave *
-        0.12;
+        wave * .12;
 
 
     enemies.push({
@@ -1474,26 +1910,19 @@ function spawnEnemy() {
         radius: 17,
 
         hp:
-            50 *
-            strength,
+            50 * strength,
 
         maxHp:
-            50 *
-            strength,
+            50 * strength,
 
         speed:
             1 +
-            wave *
-            0.04,
+            wave * .04,
 
         damage: 10
     });
 }
 
-
-/* =================================
-   BOSS
-================================= */
 
 function spawnBoss() {
 
@@ -1508,18 +1937,15 @@ function spawnBoss() {
 
         hp:
             1000 +
-            wave *
-            150,
+            wave * 150,
 
         maxHp:
             1000 +
-            wave *
-            150,
+            wave * 150,
 
         speed:
-            0.7 +
-            wave *
-            0.02,
+            .7 +
+            wave * .02,
 
         damage: 25
     };
@@ -1532,10 +1958,6 @@ function spawnBoss() {
 }
 
 
-/* =================================
-   PARTICLES
-================================= */
-
 function createParticles(
     x,
     y,
@@ -1544,39 +1966,37 @@ function createParticles(
 
     for (
         let i = 0;
+
         i < 12;
+
         i++
     ) {
 
         particles.push({
 
-            x: x,
+            x,
 
-            y: y,
+            y,
 
             vx:
                 (
                     Math.random() -
-                    0.5
+                    .5
                 ) * 5,
 
             vy:
                 (
                     Math.random() -
-                    0.5
+                    .5
                 ) * 5,
 
             life: 30,
 
-            color: color
+            color
         });
     }
 }
 
-
-/* =================================
-   UPDATE
-================================= */
 
 function update() {
 
@@ -1585,21 +2005,13 @@ function update() {
     let dy = 0;
 
 
-    if (keys["w"]) {
-        dy--;
-    }
+    if (keys["w"]) dy--;
 
-    if (keys["s"]) {
-        dy++;
-    }
+    if (keys["s"]) dy++;
 
-    if (keys["a"]) {
-        dx--;
-    }
+    if (keys["a"]) dx--;
 
-    if (keys["d"]) {
-        dx++;
-    }
+    if (keys["d"]) dx++;
 
 
     if (dx || dy) {
@@ -1610,6 +2022,7 @@ function update() {
                 dy
             );
 
+
         dx /= length;
 
         dy /= length;
@@ -1619,6 +2032,7 @@ function update() {
             dx *
             player.speed;
 
+
         player.y +=
             dy *
             player.speed;
@@ -1627,14 +2041,10 @@ function update() {
 
     player.x =
         Math.max(
-
             player.radius,
-
             Math.min(
-
                 canvas.width -
-                    player.radius,
-
+                player.radius,
                 player.x
             )
         );
@@ -1642,14 +2052,10 @@ function update() {
 
     player.y =
         Math.max(
-
             player.radius,
-
             Math.min(
-
                 canvas.height -
-                    player.radius,
-
+                player.radius,
                 player.y
             )
         );
@@ -1660,10 +2066,6 @@ function update() {
     }
 
 
-    /* ==========================
-       SPAWN
-    ========================== */
-
     spawnTimer--;
 
 
@@ -1671,22 +2073,14 @@ function update() {
 
         spawnEnemy();
 
-
         spawnTimer =
             Math.max(
-
                 12,
-
                 55 -
-                wave *
-                2
+                wave * 2
             );
     }
 
-
-    /* ==========================
-       BULLETS
-    ========================== */
 
     bullets.forEach(
         bullet => {
@@ -1702,27 +2096,15 @@ function update() {
 
     bullets =
         bullets.filter(
-            bullet =>
-
-                bullet.x >
-                    -80 &&
-
-                bullet.x <
-                    canvas.width +
-                    80 &&
-
-                bullet.y >
-                    -80 &&
-
-                bullet.y <
-                    canvas.height +
-                    80
+            b =>
+                b.x > -80 &&
+                b.x <
+                    canvas.width + 80 &&
+                b.y > -80 &&
+                b.y <
+                    canvas.height + 80
         );
 
-
-    /* ==========================
-       ENEMIES
-    ========================== */
 
     enemies.forEach(
         enemy => {
@@ -1741,6 +2123,7 @@ function update() {
             enemy.x +=
                 Math.cos(angle) *
                 enemy.speed;
+
 
             enemy.y +=
                 Math.sin(angle) *
@@ -1765,16 +2148,11 @@ function update() {
             ) {
 
                 player.hp -=
-                    enemy.damage *
-                    0.03;
+                    enemy.damage * .03;
             }
         }
     );
 
-
-    /* ==========================
-       BOSS
-    ========================== */
 
     if (boss) {
 
@@ -1792,6 +2170,7 @@ function update() {
         boss.x +=
             Math.cos(angle) *
             boss.speed;
+
 
         boss.y +=
             Math.sin(angle) *
@@ -1816,8 +2195,7 @@ function update() {
         ) {
 
             player.hp -=
-                boss.damage *
-                0.015;
+                boss.damage * .015;
         }
 
 
@@ -1834,10 +2212,6 @@ function update() {
     }
 
 
-    /* ==========================
-       COLLISIONS
-    ========================== */
-
     for (
         let bi =
             bullets.length - 1;
@@ -1852,8 +2226,6 @@ function update() {
 
         let hit = false;
 
-
-        /* ENEMIES */
 
         for (
             let ei =
@@ -1892,11 +2264,8 @@ function update() {
 
 
                 createParticles(
-
                     bullet.x,
-
                     bullet.y,
-
                     "#36d9ff"
                 );
 
@@ -1912,16 +2281,12 @@ function update() {
 
                     kills++;
 
-                    saveData.coins +=
-                        5;
+                    addCoins(5);
 
 
                     createParticles(
-
                         enemy.x,
-
                         enemy.y,
-
                         "#ff4057"
                     );
                 }
@@ -1930,8 +2295,6 @@ function update() {
             }
         }
 
-
-        /* BOSS */
 
         if (
             !hit &&
@@ -1965,21 +2328,9 @@ function update() {
                     boss.hp <= 0
                 ) {
 
-                    saveData.coins +=
-                        100;
+                    addCoins(100);
 
                     kills += 10;
-
-
-                    createParticles(
-
-                        boss.x,
-
-                        boss.y,
-
-                        "#ffd166"
-                    );
-
 
                     boss = null;
 
@@ -2002,10 +2353,6 @@ function update() {
         }
     }
 
-
-    /* ==========================
-       WAVE
-    ========================== */
 
     if (
         kills >=
@@ -2036,34 +2383,24 @@ function update() {
     }
 
 
-    /* ==========================
-       PARTICLES
-    ========================== */
-
     particles.forEach(
-        particle => {
+        p => {
 
-            particle.x +=
-                particle.vx;
+            p.x += p.vx;
 
-            particle.y +=
-                particle.vy;
+            p.y += p.vy;
 
-            particle.life--;
+            p.life--;
         }
     );
 
 
     particles =
         particles.filter(
-            particle =>
-                particle.life > 0
+            p =>
+                p.life > 0
         );
 
-
-    /* ==========================
-       GAME OVER
-    ========================== */
 
     if (
         player.hp <= 0
@@ -2073,31 +2410,87 @@ function update() {
     }
 
 
-    localSave();
-
     updateHUD();
 }
 
 
-/* =================================
-   DRAW
-================================= */
+function addCoins(
+    amount
+) {
+
+    if (!profile) {
+        return;
+    }
+
+
+    /*
+       Voor deze versie wordt
+       de balans lokaal bijgehouden
+       tijdens de game.
+
+       We schrijven hem naar Supabase
+       bij game-over.
+    */
+
+    profile.coins += amount;
+}
+
+
+function updateHUD() {
+
+    if (!player) {
+        return;
+    }
+
+
+    document.getElementById(
+        "hp"
+    ).textContent =
+        Math.max(
+            0,
+            Math.floor(
+                player.hp
+            )
+        );
+
+
+    document.getElementById(
+        "coins"
+    ).textContent =
+        profile?.coins || 0;
+
+
+    document.getElementById(
+        "kills"
+    ).textContent =
+        kills;
+
+
+    document.getElementById(
+        "wave"
+    ).textContent =
+        wave;
+
+
+    document.getElementById(
+        "weaponName"
+    ).textContent =
+        weapons[
+            selectedWeapon
+        ]?.name ||
+        "Pistol";
+}
+
 
 function draw() {
 
     ctx.clearRect(
-
         0,
-
         0,
-
         canvas.width,
-
         canvas.height
     );
 
-
-    /* GRID */
 
     ctx.strokeStyle =
         "rgba(70,100,140,.12)";
@@ -2151,47 +2544,33 @@ function draw() {
     }
 
 
-    /* BULLETS */
-
     bullets.forEach(
         bullet => {
 
             ctx.beginPath();
 
             ctx.arc(
-
                 bullet.x,
-
                 bullet.y,
-
                 bullet.radius,
-
                 0,
-
                 Math.PI * 2
             );
-
 
             ctx.fillStyle =
                 "#36d9ff";
 
-
             ctx.shadowColor =
                 "#36d9ff";
 
-
             ctx.shadowBlur = 15;
 
-
             ctx.fill();
-
 
             ctx.shadowBlur = 0;
         }
     );
 
-
-    /* ENEMIES */
 
     enemies.forEach(
         enemy => {
@@ -2199,147 +2578,77 @@ function draw() {
             ctx.beginPath();
 
             ctx.arc(
-
                 enemy.x,
-
                 enemy.y,
-
                 enemy.radius,
-
                 0,
-
                 Math.PI * 2
             );
 
-
             ctx.fillStyle =
                 "#ff4057";
-
 
             ctx.shadowColor =
                 "#ff4057";
 
-
             ctx.shadowBlur = 15;
-
 
             ctx.fill();
 
-
             ctx.shadowBlur = 0;
-
-
-            /* HP BAR */
-
-            ctx.fillStyle =
-                "#222";
-
-
-            ctx.fillRect(
-
-                enemy.x - 20,
-
-                enemy.y - 28,
-
-                40,
-
-                5
-            );
-
-
-            ctx.fillStyle =
-                "#20c997";
-
-
-            ctx.fillRect(
-
-                enemy.x - 20,
-
-                enemy.y - 28,
-
-                40 *
-                Math.max(
-
-                    0,
-
-                    enemy.hp /
-                    enemy.maxHp
-                ),
-
-                5
-            );
         }
     );
 
-
-    /* BOSS */
 
     if (boss) {
 
         ctx.beginPath();
 
         ctx.arc(
-
             boss.x,
-
             boss.y,
-
             boss.radius,
-
             0,
-
             Math.PI * 2
         );
 
-
         ctx.fillStyle =
             "#a970ff";
-
 
         ctx.shadowColor =
             "#a970ff";
 
-
         ctx.shadowBlur = 30;
-
 
         ctx.fill();
 
-
         ctx.shadowBlur = 0;
-
-
-        ctx.fillStyle =
-            "#fff";
-
-
-        ctx.font =
-            "bold 18px Arial";
-
-
-        ctx.textAlign =
-            "center";
-
-
-        ctx.fillText(
-
-            "BOSS",
-
-            boss.x,
-
-            boss.y + 6
-        );
     }
 
 
-    /* PLAYER */
-
     if (player) {
 
-        const skin =
-            skins[
-                saveData.skin
-            ];
+        ctx.beginPath();
+
+        ctx.arc(
+            player.x,
+            player.y,
+            player.radius,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            "#36d9ff";
+
+        ctx.shadowColor =
+            "#36d9ff";
+
+        ctx.shadowBlur = 22;
+
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
 
 
         const angle =
@@ -2355,104 +2664,45 @@ function draw() {
 
         ctx.save();
 
-
         ctx.translate(
-
             player.x,
-
             player.y
         );
 
-
-        ctx.rotate(
-            angle
-        );
-
-
-        ctx.fillStyle =
-            skin.color;
-
-
-        ctx.shadowColor =
-            skin.color;
-
-
-        ctx.shadowBlur = 22;
-
-
-        ctx.beginPath();
-
-
-        ctx.arc(
-
-            0,
-
-            0,
-
-            player.radius,
-
-            0,
-
-            Math.PI * 2
-        );
-
-
-        ctx.fill();
-
+        ctx.rotate(angle);
 
         ctx.fillStyle =
             "#fff";
 
-
         ctx.fillRect(
-
             5,
-
             -4,
-
             27,
-
             8
         );
 
-
         ctx.restore();
-
-
-        ctx.shadowBlur = 0;
     }
 
-
-    /* PARTICLES */
 
     particles.forEach(
         particle => {
 
             ctx.globalAlpha =
-                particle.life /
-                30;
-
+                particle.life / 30;
 
             ctx.fillStyle =
                 particle.color;
 
-
             ctx.beginPath();
 
-
             ctx.arc(
-
                 particle.x,
-
                 particle.y,
-
                 3,
-
                 0,
-
                 Math.PI * 2
             );
-
 
             ctx.fill();
         }
@@ -2462,10 +2712,6 @@ function draw() {
     ctx.globalAlpha = 1;
 }
 
-
-/* =================================
-   GAME LOOP
-================================= */
 
 function gameLoop() {
 
@@ -2485,9 +2731,9 @@ function gameLoop() {
 }
 
 
-/* =================================
+/* ============================================================
    UPGRADES
-================================= */
+============================================================ */
 
 function chooseUpgrade(
     type
@@ -2528,22 +2774,22 @@ function chooseUpgrade(
         "health"
     ) {
 
-        player.maxHp +=
-            30;
+        player.maxHp += 30;
 
-        player.hp +=
-            30;
+        player.hp += 30;
     }
 
 
     const weapon =
         weapons[
-            saveData.weapon
+            selectedWeapon
         ];
 
 
     player.damage =
-        weapon.damage *
+        Number(
+            weapon.damage
+        ) *
         upgradeStats.damage;
 
 
@@ -2553,7 +2799,9 @@ function chooseUpgrade(
 
 
     player.fireRate =
-        weapon.fireRate /
+        Number(
+            weapon.fire_rate
+        ) /
         upgradeStats.fire;
 
 
@@ -2573,13 +2821,63 @@ function chooseUpgrade(
 }
 
 
-/* =================================
-   GAME OVER
-================================= */
+/* ============================================================
+   SAVE COINS
+============================================================ */
 
-function endGame() {
+async function saveProfileCoins() {
+
+    if (!profile ||
+        !currentUser) {
+
+        return;
+    }
+
+
+    const {
+        error
+    } =
+        await supabaseClient
+
+            .from("profiles")
+
+            .update({
+
+                coins:
+                    profile.coins
+            })
+
+            .eq(
+                "id",
+                currentUser.id
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Coins opslaan:",
+            error
+        );
+    }
+}
+
+
+/* ============================================================
+   GAME OVER
+============================================================ */
+
+async function endGame() {
 
     gameRunning = false;
+
+
+    await saveProfileCoins();
+
+
+    const score =
+        kills * 100 +
+        wave * 500;
 
 
     document.getElementById(
@@ -2595,9 +2893,9 @@ function endGame() {
 
 
     document.getElementById(
-        "finalCoins"
+        "finalScore"
     ).textContent =
-        saveData.coins;
+        score;
 
 
     document.getElementById(
@@ -2608,21 +2906,20 @@ function endGame() {
 }
 
 
-/* =================================
-   ONLINE LEADERBOARD
-================================= */
+/* ============================================================
+   LEADERBOARD
+============================================================ */
 
 async function saveScore() {
 
-    const input =
-        document.getElementById(
-            "playerName"
+    if (!currentUser) {
+
+        alert(
+            "Je moet ingelogd zijn."
         );
 
-
-    const name =
-        input.value.trim()
-        || "Player";
+        return;
+    }
 
 
     const score =
@@ -2630,68 +2927,32 @@ async function saveScore() {
         wave * 500;
 
 
-    try {
+    const {
+        error
+    } =
+        await supabaseClient
 
-        const {
-            error
-        } =
-            await supabaseClient
+            .from("leaderboard")
 
-                .from(
-                    "leaderboard"
-                )
+            .insert({
 
-                .insert({
+                user_id:
+                    currentUser.id,
 
-                    player_name:
-                        name.substring(
-                            0,
-                            15
-                        ),
+                player_name:
+                    profile.display_name ||
+                    currentUser.email
+                    .split("@")[0],
 
-                    score:
-                        score,
+                score,
 
-                    kills:
-                        kills,
+                kills,
 
-                    wave:
-                        wave
-                });
+                wave
+            });
 
 
-        if (error) {
-
-            console.error(
-                "Supabase error:",
-                error
-            );
-
-
-            alert(
-                "De score kon niet worden opgeslagen."
-            );
-
-
-            return;
-        }
-
-
-        alert(
-            "🏆 Score opgeslagen!"
-        );
-
-
-        document.getElementById(
-            "gameOver"
-        ).classList.add(
-            "hidden"
-        );
-
-
-        openLeaderboard();
-
-    } catch (error) {
+    if (error) {
 
         console.error(
             error
@@ -2699,33 +2960,33 @@ async function saveScore() {
 
 
         alert(
-            "Er is een fout opgetreden."
+            "Score opslaan mislukt."
         );
+
+        return;
     }
+
+
+    alert(
+        "🏆 Score opgeslagen!"
+    );
+
+
+    openLeaderboard();
 }
 
 
-/* =================================
-   LEADERBOARD
-================================= */
-
 async function openLeaderboard() {
 
-    gameRunning = false;
+    if (!currentUser) {
+
+        showLogin();
+
+        return;
+    }
 
 
-    document.getElementById(
-        "menu"
-    ).classList.add(
-        "hidden"
-    );
-
-
-    document.getElementById(
-        "gameOver"
-    ).classList.add(
-        "hidden"
-    );
+    hideAllScreens();
 
 
     document.getElementById(
@@ -2734,12 +2995,6 @@ async function openLeaderboard() {
         "hidden"
     );
 
-
-    await renderLeaderboard();
-}
-
-
-async function renderLeaderboard() {
 
     const list =
         document.getElementById(
@@ -2748,104 +3003,32 @@ async function renderLeaderboard() {
 
 
     list.innerHTML =
-        "<p>Scores laden...</p>";
+        "Scores laden...";
 
 
-    try {
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
+            .from("leaderboard")
 
-                .from(
-                    "leaderboard"
-                )
+            .select(
+                "player_name,score,kills,wave"
+            )
 
-                .select(
-                    "player_name, score, kills, wave"
-                )
+            .order(
+                "score",
+                {
+                    ascending: false
+                }
+            )
 
-                .order(
-                    "score",
-                    {
-                        ascending:
-                            false
-                    }
-                )
-
-                .limit(10);
+            .limit(10);
 
 
-        if (error) {
-
-            console.error(
-                error
-            );
-
-
-            list.innerHTML =
-                "<p>Leaderboard kon niet worden geladen.</p>";
-
-            return;
-        }
-
-
-        if (
-            !data ||
-            data.length === 0
-        ) {
-
-            list.innerHTML =
-                "<p>Nog geen scores. Wees de eerste!</p>";
-
-            return;
-        }
-
-
-        list.innerHTML =
-            data
-                .map(
-                    (
-                        entry,
-                        index
-                    ) => {
-
-                        return `
-
-                        <div
-                            class="card"
-                            style="margin:8px"
-                        >
-
-                            <b>
-                                #${index + 1}
-                                ${escapeHtml(
-                                    entry.player_name
-                                )}
-                            </b>
-
-                            <br>
-
-                            ${entry.score}
-                            punten
-
-                            •
-                            ${entry.kills}
-                            kills
-
-                            • Wave
-                            ${entry.wave}
-
-                        </div>
-
-                        `;
-                    }
-                )
-                .join("");
-
-    } catch (error) {
+    if (error) {
 
         console.error(
             error
@@ -2853,463 +3036,80 @@ async function renderLeaderboard() {
 
 
         list.innerHTML =
-            "<p>Verbinding met leaderboard mislukt.</p>";
+            "Leaderboard kon niet worden geladen.";
+
+        return;
     }
+
+
+    if (
+        !data ||
+        data.length === 0
+    ) {
+
+        list.innerHTML =
+            "Nog geen scores.";
+
+        return;
+    }
+
+
+    list.innerHTML =
+        data
+            .map(
+                (row,index) => `
+
+                <div class="card">
+
+                    <b>
+                        #${index + 1}
+                        ${escapeHtml(
+                            row.player_name
+                        )}
+                    </b>
+
+                    <br><br>
+
+                    🏆 ${row.score}
+
+                    &nbsp; | &nbsp;
+
+                    👾 ${row.kills}
+
+                    &nbsp; | &nbsp;
+
+                    🌊 ${row.wave}
+
+                </div>
+
+                `
+            )
+            .join("");
 }
 
 
 function closeLeaderboard() {
 
-    document.getElementById(
-        "leaderboard"
-    ).classList.add(
-        "hidden"
-    );
+    if (currentUser) {
 
-
-    document.getElementById(
-        "menu"
-    ).classList.remove(
-        "hidden"
-    );
-
-
-    updateMoneyDisplays();
-}
-
-
-/* =================================
-   SHOP
-================================= */
-
-function openShop() {
-
-    gameRunning = false;
-
-
-    document.getElementById(
-        "menu"
-    ).classList.add(
-        "hidden"
-    );
-
-
-    document.getElementById(
-        "shop"
-    ).classList.remove(
-        "hidden"
-    );
-
-
-    renderShop();
-}
-
-
-function closeShop() {
-
-    document.getElementById(
-        "shop"
-    ).classList.add(
-        "hidden"
-    );
-
-
-    if (
-        player &&
-        player.hp > 0
-    ) {
-
-        gameRunning = true;
-
-
-        requestAnimationFrame(
-            gameLoop
-        );
+        showGameMenu();
 
     } else {
 
-        document.getElementById(
-            "menu"
-        ).classList.remove(
-            "hidden"
-        );
+        showMenu();
     }
 }
 
 
-function renderShop() {
-
-    updateMoneyDisplays();
-
-
-    /* ==========================
-       WEAPONS
-    ========================== */
-
-    const weaponShop =
-        document.getElementById(
-            "weaponShop"
-        );
-
-
-    weaponShop.innerHTML =
-
-        Object.entries(
-            weapons
-        )
-
-        .map(
-            (
-                [id, weapon]
-            ) => {
-
-                const owned =
-                    saveData
-                        .ownedWeapons
-                        .includes(id);
-
-
-                const selected =
-                    saveData.weapon ===
-                    id;
-
-
-                let action;
-
-
-                if (selected) {
-
-                    action = `
-
-                        <button disabled>
-                            GESELECTEERD
-                        </button>
-
-                    `;
-
-                } else if (owned) {
-
-                    action = `
-
-                        <button
-                            onclick="
-                                selectWeapon('${id}')
-                            "
-                        >
-                            GEBRUIKEN
-                        </button>
-
-                    `;
-
-                } else {
-
-                    action = `
-
-                        <button
-                            onclick="
-                                buyWeapon('${id}')
-                            "
-                        >
-                            🪙
-                            ${weapon.price}
-                        </button>
-
-                    `;
-                }
-
-
-                return `
-
-                    <div class="card ${
-                        selected
-                            ? "selected"
-                            : ""
-                    }">
-
-                        <div class="icon">
-                            ${weapon.icon}
-                        </div>
-
-                        <h3>
-                            ${weapon.name}
-                        </h3>
-
-                        <p>
-                            Damage:
-                            ${weapon.damage}
-
-                            <br>
-
-                            Fire rate:
-                            ${weapon.fireRate}ms
-                        </p>
-
-                        ${action}
-
-                    </div>
-
-                `;
-            }
-        )
-        .join("");
-
-
-    /* ==========================
-       SKINS
-    ========================== */
-
-    const skinShop =
-        document.getElementById(
-            "skinShop"
-        );
-
-
-    skinShop.innerHTML =
-
-        Object.entries(
-            skins
-        )
-
-        .map(
-            (
-                [id, skin]
-            ) => {
-
-                const owned =
-                    saveData
-                        .ownedSkins
-                        .includes(id);
-
-
-                const selected =
-                    saveData.skin ===
-                    id;
-
-
-                let action;
-
-
-                if (selected) {
-
-                    action = `
-
-                        <button disabled>
-                            GESELECTEERD
-                        </button>
-
-                    `;
-
-                } else if (owned) {
-
-                    action = `
-
-                        <button
-                            onclick="
-                                selectSkin('${id}')
-                            "
-                        >
-                            GEBRUIKEN
-                        </button>
-
-                    `;
-
-                } else {
-
-                    action = `
-
-                        <button
-                            onclick="
-                                buySkin('${id}')
-                            "
-                        >
-                            🪙
-                            ${skin.price}
-                        </button>
-
-                    `;
-                }
-
-
-                return `
-
-                    <div class="card ${
-                        selected
-                            ? "selected"
-                            : ""
-                    }">
-
-                        <div class="icon">
-                            ${skin.icon}
-                        </div>
-
-                        <h3>
-                            ${skin.name}
-                        </h3>
-
-                        <div
-                            style="
-                                width:40px;
-                                height:40px;
-                                border-radius:50%;
-                                background:${skin.color};
-                                margin:10px auto;
-                            "
-                        ></div>
-
-                        ${action}
-
-                    </div>
-
-                `;
-            }
-        )
-        .join("");
-}
-
-
-/* =================================
-   BUY WEAPON
-================================= */
-
-function buyWeapon(id) {
-
-    const weapon =
-        weapons[id];
-
-
-    if (
-        saveData.coins <
-        weapon.price
-    ) {
-
-        alert(
-            "Niet genoeg coins!"
-        );
-
-        return;
-    }
-
-
-    saveData.coins -=
-        weapon.price;
-
-
-    saveData
-        .ownedWeapons
-        .push(id);
-
-
-    saveData.weapon =
-        id;
-
-
-    localSave();
-
-    renderShop();
-}
-
-
-/* =================================
-   SELECT WEAPON
-================================= */
-
-function selectWeapon(id) {
-
-    if (
-        !saveData
-            .ownedWeapons
-            .includes(id)
-    ) {
-
-        return;
-    }
-
-
-    saveData.weapon =
-        id;
-
-
-    localSave();
-
-    renderShop();
-}
-
-
-/* =================================
-   BUY SKIN
-================================= */
-
-function buySkin(id) {
-
-    const skin =
-        skins[id];
-
-
-    if (
-        saveData.coins <
-        skin.price
-    ) {
-
-        alert(
-            "Niet genoeg coins!"
-        );
-
-        return;
-    }
-
-
-    saveData.coins -=
-        skin.price;
-
-
-    saveData
-        .ownedSkins
-        .push(id);
-
-
-    saveData.skin =
-        id;
-
-
-    localSave();
-
-    renderShop();
-}
-
-
-/* =================================
-   SELECT SKIN
-================================= */
-
-function selectSkin(id) {
-
-    if (
-        !saveData
-            .ownedSkins
-            .includes(id)
-    ) {
-
-        return;
-    }
-
-
-    saveData.skin =
-        id;
-
-
-    localSave();
-
-    renderShop();
-}
-
-
-/* =================================
-   HTML SECURITY
-================================= */
-
-function escapeHtml(text) {
-
-    return String(text)
+/* ============================================================
+   SECURITY
+============================================================ */
+
+function escapeHtml(
+    value
+) {
+
+    return String(value)
 
         .replaceAll(
             "&",
@@ -3338,58 +3138,46 @@ function escapeHtml(text) {
 }
 
 
-/* =================================
-   MOBILE CONTROLS
-================================= */
+/* ============================================================
+   AUTH STATE
+============================================================ */
 
-document
-    .querySelectorAll(
-        ".mobileButton"
-    )
-    .forEach(
-        button => {
+supabaseClient
+    .auth
+    .onAuthStateChange(
+        async (
+            event,
+            session
+        ) => {
 
-            const key =
-                button.dataset.key;
-
-
-            button.addEventListener(
-                "touchstart",
-                event => {
-
-                    event.preventDefault();
-
-                    keys[key] = true;
-                }
-            );
+            currentUser =
+                session?.user ||
+                null;
 
 
-            button.addEventListener(
-                "touchend",
-                event => {
+            if (currentUser) {
 
-                    event.preventDefault();
-
-                    keys[key] = false;
-                }
-            );
+                await loadUser();
+            }
         }
     );
 
 
-/* =================================
+/* ============================================================
    STARTUP
-================================= */
+============================================================ */
 
-document.getElementById(
-    "version"
-).textContent =
-    "v" + GAME_VERSION;
+console.log(
+    "Survive the Bots " +
+    GAME_VERSION +
+    " gestart."
+);
 
 
-updateMoneyDisplays();
+loadUser();
 
 </script>
 
 </body>
+
 </html>
