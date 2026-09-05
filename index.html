@@ -480,6 +480,45 @@ if (!saveData) {
     };
 }
 
+// Zorg dat oude/opgeslagen gegevens altijd geldige waarden hebben
+if (!saveData.weapon || !weapons[saveData.weapon]) {
+    saveData.weapon = "pistol";
+}
+
+if (!saveData.skin || !skins[saveData.skin]) {
+    saveData.skin = "blue";
+}
+
+if (!Array.isArray(saveData.ownedWeapons)) {
+    saveData.ownedWeapons = ["pistol"];
+}
+
+if (!Array.isArray(saveData.ownedSkins)) {
+    saveData.ownedSkins = ["blue"];
+}
+
+if (!Array.isArray(saveData.leaderboard)) {
+    saveData.leaderboard = [];
+}
+
+if (typeof saveData.coins !== "number") {
+    saveData.coins = 0;
+}
+
+save();
+
+
+if (!saveData) {
+    saveData = {
+        coins: 0,
+        ownedWeapons: ["pistol"],
+        ownedSkins: ["blue"],
+        weapon: "pistol",
+        skin: "blue",
+        leaderboard: []
+    };
+}
+
 function save() {
     localStorage.setItem(
         "surviveBotsSave",
