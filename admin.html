@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Survive the Bots - Admin</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background:
+                radial-gradient(
+                    circle at top,
+                    #172554,
+                    #020617 70%
+                );
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: min(1200px, 94%);
+            margin: auto;
+            padding: 35px 0;
+        }
+
+        .card {
+            background: rgba(15,23,42,.96);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #38bdf8;
+        }
+
+        h2 {
+            color: #e2e8f0;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            background: #020617;
+            color: white;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            margin: 5px 0;
+        }
+
+        button {
+            padding: 11px 16px;
+            margin: 5px;
+            border: 0;
+            border-radius: 8px;
+            background: #0284c7;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0369a1;
+        }
+
+        .danger {
+            background: #dc2626;
+        }
+
+        .success {
+            background: #16a34a;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(280px, 1fr)
+                );
+            gap: 15px;
+        }
+
+        .weapon {
+            background: #1e293b;
+            border: 1px solid #475569;
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .weapon img {
+            width: 100%;
+            height: 130px;
+            object-fit: contain;
+            background: #020617;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #334155;
+            text-align: left;
+        }
+
+        th {
+            color: #38bdf8;
+        }
+
+        .status {
+            padding: 10px;
+            background: #1e293b;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>👑 Survive the Bots Admin</h1>
+
+        <p>
+            Admin Panel — versie 1.2.0
+        </p>
+
+        <button onclick="goGame()">
+            🎮 Terug naar game
+        </button>
+
+        <button
+            class="danger"
+            onclick="logout()"
+        >
+            Uitloggen
+        </button>
+
+    </div>
+
+
+    <!-- ACCESS DENIED -->
+
+    <div
+        id="accessDenied"
+        class="card hidden"
+    >
+
+        <h2>⛔ Geen toegang</h2>
+
+        <p>
+            Je account heeft geen adminrechten.
+        </p>
+
+    </div>
+
+
+    <!-- ADMIN -->
+
+    <div id="adminPanel" class="hidden">
+
+        <!-- USERS -->
+
+        <div class="card">
+
+            <h2>👥 Gebruikers</h2>
+
+            <button onclick="loadUsers()">
+                Vernieuwen
+            </button>
+
+            <div id="usersContainer">
+                Laden...
+            </div>
+
+        </div>
+
+
+        <!-- WEAPONS -->
+
+        <div class="card">
+
+            <h2>🔫 Wapens beheren</h2>
+
+            <button onclick="newWeapon()">
+                ➕ Nieuw wapen
+            </button>
+
+            <div
+                id="weaponsContainer"
+                class="grid"
+            >
+                Laden...
+            </div>
+
+        </div>
+
+
+        <!-- ASSIGN -->
+
+        <div class="card">
+
+            <h2>🎁 Wapen aan gebruiker geven</h2>
+
+            <select id="assignUser">
+                <option value="">
+                    Kies gebruiker
+                </option>
+            </select>
+
+            <select id="assignWeapon">
+                <option value="">
+                    Kies wapen
+                </option>
+            </select>
+
+            <button
+                class="success"
+                onclick="grantWeapon()"
+            >
+                🎁 Geef wapen
+            </button>
+
+            <div
+                id="assignMessage"
+                class="status hidden"
+            ></div>
+
+        </div>
+
+
+        <!-- CREATE WEAPON -->
+
+        <div
+            id="weaponEditor"
+            class="card hidden"
+        >
+
+            <h2>🔧 Wapen bewerken</h2>
+
+            <input
+                id="weaponId"
+                placeholder="ID, bijvoorbeeld sniper"
+            >
+
+            <input
+                id="weaponName"
+                placeholder="Naam"
+            >
+
+            <input
+                id="weaponIcon"
+                placeholder="Emoji, bijvoorbeeld 🎯"
+            >
+
+            <input
+                id="weaponImage"
+                placeholder="Image URL"
+            >
+
+            <input
+                id="weaponDamage"
+                type="number"
+                placeholder="Damage"
+            >
+
+            <input
+                id="weaponFireRate"
+                type="number"
+                placeholder="Fire rate"
+            >
+
+            <input
+                id="weaponBullets"
+                type="number"
+                placeholder="Aantal kogels"
+            >
+
+            <input
+                id="weaponSpread"
+                type="number"
+                step="0.01"
+                placeholder="Spread"
+            >
+
+            <input
+                id="weaponSpeed"
+                type="number"
+                step="0.1"
+                placeholder="Bullet speed"
+            >
+
+            <input
+                id="weaponPrice"
+                type="number"
+                placeholder="Prijs"
+            >
+
+            <label>
+
+                <input
+                    id="weaponActive"
+                    type="checkbox"
+                    checked
+                    style="width:auto"
+                >
+
+                Actief
+
+            </label>
+
+            <br>
+
+            <button
+                class="success"
+                onclick="saveWeapon()"
+            >
+                💾 Opslaan
+            </button>
+
+            <button
+                class="danger"
+                onclick="closeEditor()"
+            >
+                Annuleren
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="supabase-config.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script>
+
+const supabaseClient =
+    supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
+
+
+let admin = null;
+
+let weapons = [];
+
+let users = [];
+
+
+// ============================================================
+// INIT
+// ============================================================
+
+async function init() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(
+                "stb_player"
+            );
+
+
+        if (!saved) {
+
+            deny();
+
+            return;
+        }
+
+
+        admin =
+            JSON.parse(saved);
+
+
+        if (
+            !admin ||
+            admin.role !== "admin"
+        ) {
+
+            deny();
+
+            return;
+        }
+
+
+        document
+            .getElementById("adminPanel")
+            .classList.remove("hidden");
+
+
+        await loadUsers();
+
+        await loadWeapons();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        deny();
+
+    }
+}
+
+
+// ============================================================
+// ACCESS
+// ============================================================
+
+function deny() {
+
+    document
+        .getElementById("accessDenied")
+        .classList.remove("hidden");
+
+}
+
+
+// ============================================================
+// USERS
+// ============================================================
+
+async function loadUsers() {
+
+    /*
+     * players is intentionally protected by RLS.
+     *
+     * Daarom halen we gebruikers via een admin RPC.
+     */
+
+    const { data, error } =
+        await supabaseClient.rpc(
+            "admin_get_players",
+            {
+                p_admin_id: admin.id
+            }
+        );
+
+
+    if (error) {
+
+        console.error(error);
+
+        document
+            .getElementById("usersContainer")
+            .innerHTML =
+            `<p>Gebruikers konden niet geladen worden.
+            Maak de admin_get_players functie aan.</p>`;
+
+        return;
+    }
+
+
+    users = data || [];
+
+
+    renderUsers();
+
+    populateUserSelect();
+
+}
+
+
+function renderUsers() {
+
+    const container =
+        document.getElementById(
+            "usersContainer"
+        );
+
+
+    if (!users.length) {
+
+        container.innerHTML =
+            "<p>Geen gebruikers.</p>";
+
+        return;
+    }
+
+
+    let html = `
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Coins</th>
+                    <th>ID</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+    `;
+
+
+    users.forEach(user => {
+
+        html += `
+
+            <tr>
+
+                <td>
+                    ${escapeHtml(user.username)}
+                </td>
+
+                <td>
+                    ${escapeHtml(user.role)}
+                </td>
+
+                <td>
+                    ${user.coins}
+                </td>
+
+                <td>
+                    ${user.id}
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+
+    container.innerHTML = html;
+
+}
+
+
+function populateUserSelect() {
+
+    const select =
+        document.getElementById(
+            "assignUser"
+        );
+
+
+    select.innerHTML =
+        `<option value="">
+            Kies gebruiker
+         </option>`;
+
+
+    users.forEach(user => {
+
+        select.innerHTML += `
+
+            <option value="${user.id}">
+                ${escapeHtml(user.username)}
+            </option>
+
+        `;
+
+    });
+
+}
+
+
+// ============================================================
+// WEAPONS
+// ============================================================
+
+async function loadWeapons() {
+
+    const { data, error } =
+        await supabaseClient
+
+            .from("weapons")
+
+            .select("*")
+
+            .order("price");
+
+
+    if (error) {
+
+        console.error(error);
+
+        return;
+    }
+
+
+    weapons = data || [];
+
+    renderWeapons();
+
+    populateWeaponSelect();
+
+}
+
+
+function renderWeapons() {
+
+    const container =
+        document.getElementById(
+            "weaponsContainer"
+        );
+
+
+    container.innerHTML = "";
+
+
+    weapons.forEach(weapon => {
+
+        const div =
+            document.createElement("div");
+
+
+        div.className =
+            "weapon";
+
+
+        const image =
+            weapon.image_url
+                ? `<img src="${escapeHtml(weapon.image_url)}">`
+                : `<div style="
+                    height:130px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    font-size:65px;
+                   ">
+                    ${escapeHtml(weapon.icon || "🔫")}
+                   </div>`;
+
+
+        div.innerHTML = `
+
+            ${image}
+
+            <h3>
+                ${escapeHtml(weapon.name)}
+            </h3>
+
+            <p>
+                Damage: ${weapon.damage}<br>
+                Fire rate: ${weapon.fire_rate}<br>
+                Kogels: ${weapon.bullets}<br>
+                Prijs: ${weapon.price}<br>
+                Status:
+                ${weapon.active ? "✅ Actief" : "❌ Uit"}
+            </p>
+
+            <button
+                onclick="editWeapon('${escapeHtml(weapon.id)}')"
+            >
+                ✏️ Bewerken
+            </button>
+
+        `;
+
+
+        container.appendChild(div);
+
+    });
+
+}
+
+
+function populateWeaponSelect() {
+
+    const select =
+        document.getElementById(
+            "assignWeapon"
+        );
+
+
+    select.innerHTML =
+        `<option value="">
+            Kies wapen
+         </option>`;
+
+
+    weapons.forEach(weapon => {
+
+        select.innerHTML += `
+
+            <option value="${escapeHtml(weapon.id)}">
+                ${escapeHtml(weapon.name)}
+            </option>
+
+        `;
+
+    });
+
+}
+
+
+// ============================================================
+// NEW WEAPON
+// ============================================================
+
+function newWeapon() {
+
+    clearEditor();
+
+    document
+        .getElementById("weaponEditor")
+        .classList.remove("hidden");
+
+}
+
+
+// ============================================================
+// EDIT WEAPON
+// ============================================================
+
+function editWeapon(id) {
+
+    const weapon =
+        weapons.find(
+            w => w.id === id
+        );
+
+
+    if (!weapon) return;
+
+
+    document.getElementById("weaponId").value =
+        weapon.id;
+
+    document.getElementById("weaponName").value =
+        weapon.name;
+
+    document.getElementById("weaponIcon").value =
+        weapon.icon || "";
+
+    document.getElementById("weaponImage").value =
+        weapon.image_url || "";
+
+    document.getElementById("weaponDamage").value =
+        weapon.damage;
+
+    document.getElementById("weaponFireRate").value =
+        weapon.fire_rate;
+
+    document.getElementById("weaponBullets").value =
+        weapon.bullets;
+
+    document.getElementById("weaponSpread").value =
+        weapon.spread;
+
+    document.getElementById("weaponSpeed").value =
+        weapon.bullet_speed;
+
+    document.getElementById("weaponPrice").value =
+        weapon.price;
+
+    document.getElementById("weaponActive").checked =
+        weapon.active;
+
+
+    document
+        .getElementById("weaponEditor")
+        .classList.remove("hidden");
+
+}
+
+
+// ============================================================
+// SAVE WEAPON
+// ============================================================
+
+async function saveWeapon() {
+
+    const weapon = {
+
+        id:
+            document
+                .getElementById("weaponId")
+                .value
+                .trim(),
+
+        name:
+            document
+                .getElementById("weaponName")
+                .value
+                .trim(),
+
+        icon:
+            document
+                .getElementById("weaponIcon")
+                .value
+                .trim(),
+
+        image_url:
+            document
+                .getElementById("weaponImage")
+                .value
+                .trim() || null,
+
+        damage:
+            Number(
+                document
+                    .getElementById("weaponDamage")
+                    .value
+            ),
+
+        fire_rate:
+            Number(
+                document
+                    .getElementById("weaponFireRate")
+                    .value
+            ),
+
+        bullets:
+            Number(
+                document
+                    .getElementById("weaponBullets")
+                    .value
+            ),
+
+        spread:
+            Number(
+                document
+                    .getElementById("weaponSpread")
+                    .value
+            ),
+
+        bullet_speed:
+            Number(
+                document
+                    .getElementById("weaponSpeed")
+                    .value
+            ),
+
+        price:
+            Number(
+                document
+                    .getElementById("weaponPrice")
+                    .value
+            ),
+
+        active:
+            document
+                .getElementById("weaponActive")
+                .checked
+
+    };
+
+
+    if (!weapon.id || !weapon.name) {
+
+        alert(
+            "Vul minimaal ID en naam in."
+        );
+
+        return;
+    }
+
+
+    const { error } =
+        await supabaseClient.rpc(
+            "admin_save_weapon",
+            {
+                p_admin_id: admin.id,
+                p_weapon: weapon
+            }
+        );
+
+
+    if (error) {
+
+        console.error(error);
+
+        alert(error.message);
+
+        return;
+    }
+
+
+    alert(
+        "Wapen opgeslagen!"
+    );
+
+
+    closeEditor();
+
+    loadWeapons();
+
+}
+
+
+function clearEditor() {
+
+    [
+        "weaponId",
+        "weaponName",
+        "weaponIcon",
+        "weaponImage",
+        "weaponDamage",
+        "weaponFireRate",
+        "weaponBullets",
+        "weaponSpread",
+        "weaponSpeed",
+        "weaponPrice"
+    ].forEach(id => {
+
+        document
+            .getElementById(id)
+            .value = "";
+
+    });
+
+
+    document
+        .getElementById("weaponActive")
+        .checked = true;
+
+}
+
+
+function closeEditor() {
+
+    document
+        .getElementById("weaponEditor")
+        .classList.add("hidden");
+
+}
+
+
+// ============================================================
+// GRANT WEAPON
+// ============================================================
+
+async function grantWeapon() {
+
+    const userId =
+        document
+            .getElementById("assignUser")
+            .value;
+
+
+    const weaponId =
+        document
+            .getElementById("assignWeapon")
+            .value;
+
+
+    if (!userId || !weaponId) {
+
+        alert(
+            "Selecteer een gebruiker en wapen."
+        );
+
+        return;
+    }
+
+
+    const { error } =
+        await supabaseClient.rpc(
+            "admin_grant_weapon",
+            {
+                p_admin_id: admin.id,
+
+                p_user_id: userId,
+
+                p_weapon_id: weaponId
+            }
+        );
+
+
+    const message =
+        document.getElementById(
+            "assignMessage"
+        );
+
+
+    if (error) {
+
+        console.error(error);
+
+        message.textContent =
+            error.message;
+
+    } else {
+
+        message.textContent =
+            "✅ Wapen succesvol toegewezen.";
+
+    }
+
+
+    message.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+
+function goGame() {
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+function logout() {
+
+    localStorage.removeItem(
+        "stb_player"
+    );
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+// ============================================================
+// ESCAPE
+// ============================================================
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+// ============================================================
+// START
+// ============================================================
+
+init();
+
+</script>
+
+</body>
+</html>

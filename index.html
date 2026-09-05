@@ -1,3015 +1,858 @@
 <!DOCTYPE html>
 <html lang="nl">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
-
-<title>Survive the Bots</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-
-* {
-    box-sizing: border-box;
-    user-select: none;
-}
-
-html,
-body {
-
-    margin: 0;
-
-    width: 100%;
-    height: 100%;
-
-    overflow: hidden;
-
-    background: #070a11;
-
-    color: white;
-
-    font-family: Arial, sans-serif;
-}
-
-canvas {
-
-    display: block;
-
-    width: 100%;
-    height: 100%;
-
-    background: #090d16;
-}
-
-button {
-
-    border: none;
-
-    border-radius: 10px;
-
-    padding: 12px 18px;
-
-    margin: 5px;
-
-    background: #20c997;
-
-    color: white;
-
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-button:hover {
-
-    filter: brightness(1.15);
-}
-
-button.secondary {
-
-    background: #26334d;
-}
-
-input {
-
-    width: 100%;
-
-    max-width: 350px;
-
-    padding: 13px;
-
-    margin: 6px;
-
-    border: 0;
-
-    border-radius: 9px;
-
-    font-size: 16px;
-}
-
-.screen {
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 20;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    background:
-        rgba(3,5,10,.96);
-}
-
-.panel {
-
-    width: min(94%, 850px);
-
-    max-height: 92vh;
-
-    overflow-y: auto;
-
-    padding: 30px;
-
-    background: #101725;
-
-    border: 1px solid #2a3955;
-
-    border-radius: 20px;
-
-    box-shadow:
-        0 0 60px rgba(0,200,255,.12);
-
-    text-align: center;
-}
-
-h1 {
-
-    margin-top: 0;
-
-    color: #36d9ff;
-
-    font-size: 42px;
-
-    text-shadow:
-        0 0 20px
-        rgba(54,217,255,.6);
-}
-
-h2 {
-
-    color: #36d9ff;
-}
-
-.hidden {
-
-    display: none !important;
-}
-
-.version {
-
-    color: #78869f;
-
-    margin-bottom: 25px;
-
-    font-size: 14px;
-}
-
-.error {
-
-    color: #ff6678;
-
-    min-height: 20px;
-
-    margin: 10px;
-}
-
-.success {
-
-    color: #20c997;
-}
-
-#hud {
-
-    position: fixed;
-
-    top: 12px;
-
-    left: 15px;
-
-    z-index: 5;
-
-    line-height: 1.7;
-
-    font-weight: bold;
-
-    text-shadow:
-        0 2px 5px #000;
-}
-
-#account {
-
-    position: fixed;
-
-    top: 12px;
-
-    right: 15px;
-
-    z-index: 5;
-
-    background: rgba(10,15,25,.8);
-
-    padding: 8px 12px;
-
-    border-radius: 10px;
-}
-
-#bossBar {
-
-    position: fixed;
-
-    top: 15px;
-
-    left: 50%;
-
-    transform: translateX(-50%);
-
-    width: min(450px,70%);
-
-    display: none;
-
-    z-index: 5;
-}
-
-.bar {
-
-    height: 15px;
-
-    overflow: hidden;
-
-    background: #222;
-
-    border-radius: 10px;
-}
-
-.barFill {
-
-    height: 100%;
-
-    background: #ff4057;
-}
-
-.shopGrid {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(170px,1fr)
-        );
-
-    gap: 12px;
-}
-
-.card {
-
-    padding: 18px;
-
-    background: #182238;
-
-    border: 1px solid #2c3b59;
-
-    border-radius: 14px;
-}
-
-.card.selected {
-
-    border-color: #36d9ff;
-
-    box-shadow:
-        0 0 20px
-        rgba(54,217,255,.2);
-}
-
-.icon {
-
-    font-size: 35px;
-}
-
-@media (max-width:700px) {
-
-    h1 {
-        font-size: 30px;
-    }
-
-    #hud {
-        font-size: 13px;
-    }
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Survive the Bots</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background:
+                radial-gradient(circle at top, #172554, #020617 65%);
+            color: white;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .version {
+            position: fixed;
+            top: 12px;
+            right: 15px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .container {
+            width: min(1000px, 94%);
+            margin: auto;
+            padding: 40px 0;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, .94);
+            border: 1px solid #334155;
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.35);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #38bdf8;
+        }
+
+        h2 {
+            color: #e2e8f0;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            margin: 7px 0;
+            background: #020617;
+            color: white;
+            border: 1px solid #475569;
+            border-radius: 9px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #38bdf8;
+        }
+
+        button {
+            padding: 12px 18px;
+            border: 0;
+            border-radius: 9px;
+            background: #0284c7;
+            color: white;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #0369a1;
+        }
+
+        .danger {
+            background: #dc2626;
+        }
+
+        .danger:hover {
+            background: #b91c1c;
+        }
+
+        .success {
+            background: #16a34a;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .auth {
+            max-width: 420px;
+            margin: 70px auto;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .tabs button {
+            flex: 1;
+            background: #1e293b;
+        }
+
+        .tabs button.active {
+            background: #0284c7;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background: #1e293b;
+            color: #cbd5e1;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #020617;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        #game {
+            position: relative;
+            width: 100%;
+            height: 520px;
+            overflow: hidden;
+            background:
+                linear-gradient(#111827 1px, transparent 1px),
+                linear-gradient(90deg, #111827 1px, transparent 1px),
+                #030712;
+            background-size: 40px 40px;
+            border: 2px solid #334155;
+            border-radius: 15px;
+        }
+
+        #player {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #22c55e;
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 20px #22c55e;
+        }
+
+        .bot {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            background: #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #ef4444;
+        }
+
+        .bullet {
+            position: absolute;
+            width: 7px;
+            height: 7px;
+            background: #facc15;
+            border-radius: 50%;
+        }
+
+        .weapons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .weapon {
+            background: #1e293b;
+            border: 1px solid #475569;
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .weapon.active {
+            border-color: #38bdf8;
+            box-shadow: 0 0 15px rgba(56,189,248,.25);
+        }
+
+        .weapon-image {
+            width: 100%;
+            height: 100px;
+            object-fit: contain;
+            background: #020617;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #334155;
+            text-align: left;
+        }
+
+        th {
+            color: #38bdf8;
+        }
+
+        .leaderboard {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 
 <body>
 
-<canvas id="game"></canvas>
-
-
-<!-- HUD -->
-
-<div id="hud" class="hidden">
-
-❤️ HP:
-<span id="hp">100</span>
-
-<br>
-
-🪙 Coins:
-<span id="coins">0</span>
-
-<br>
-
-👾 Kills:
-<span id="kills">0</span>
-
-<br>
-
-🌊 Wave:
-<span id="wave">1</span>
-
-<br>
-
-🔫
-<span id="weaponName">Pistol</span>
-
-</div>
-
-
-<div
-    id="account"
-    class="hidden"
->
-
-<span id="accountName">
-    Player
-</span>
-
-<button
-    class="secondary"
-    onclick="logout()"
->
-    Uitloggen
-</button>
-
-</div>
-
-
-<!-- START -->
-
-<div
-    id="menu"
-    class="screen"
->
-
-<div class="panel">
-
-<h1>
-⚡ SURVIVE THE BOTS
-</h1>
-
 <div class="version">
-v1.1.0
+    Survive the Bots v1.2.0
 </div>
 
-<div id="welcomeText">
-Log in om te spelen.
-</div>
+<div class="container">
 
-<div>
+    <!-- LOGIN -->
 
-<button onclick="showLogin()">
-🔑 INLOGGEN
-</button>
+    <section id="authSection" class="auth card">
 
-<button onclick="showRegister()">
-👤 ACCOUNT MAKEN
-</button>
+        <h1>🎮 Survive the Bots</h1>
 
-</div>
+        <div class="tabs">
+            <button id="loginTab" class="active">
+                Inloggen
+            </button>
 
-<button
-    class="secondary"
-    onclick="openLeaderboard()"
->
-🏆 LEADERBOARD
-</button>
+            <button id="registerTab">
+                Registreren
+            </button>
+        </div>
 
-</div>
+        <div id="loginForm">
 
-</div>
+            <input
+                id="loginUsername"
+                placeholder="Gebruikersnaam"
+                autocomplete="username"
+            >
 
+            <input
+                id="loginPassword"
+                type="password"
+                placeholder="Wachtwoord"
+                autocomplete="current-password"
+            >
 
-<!-- AUTH -->
+            <button onclick="login()">
+                Inloggen
+            </button>
 
-<div
-    id="auth"
-    class="screen hidden"
->
+        </div>
 
-<div class="panel">
+        <div id="registerForm" class="hidden">
 
-<h1 id="authTitle">
-🔑 INLOGGEN
-</h1>
+            <input
+                id="registerUsername"
+                placeholder="Gebruikersnaam"
+                autocomplete="username"
+            >
 
-<input
-    id="email"
-    type="email"
-    placeholder="E-mail"
-/>
+            <input
+                id="registerPassword"
+                type="password"
+                placeholder="Wachtwoord"
+                autocomplete="new-password"
+            >
 
-<input
-    id="password"
-    type="password"
-    placeholder="Wachtwoord"
-/>
+            <button onclick="register()">
+                Account maken
+            </button>
 
-<div id="authError" class="error"></div>
+        </div>
 
-<button onclick="submitAuth()">
-DOORGAAN
-</button>
+        <div id="authMessage" class="message hidden"></div>
 
-<button
-    class="secondary"
-    onclick="closeAuth()"
->
-TERUG
-</button>
-
-</div>
-
-</div>
+    </section>
 
 
-<!-- GAME MENU -->
+    <!-- GAME -->
 
-<div
-    id="gameMenu"
-    class="screen hidden"
->
+    <section id="gameSection" class="hidden">
 
-<div class="panel">
+        <div class="hud">
 
-<h1>
-⚡ SURVIVE THE BOTS
-</h1>
+            <div>
+                👤 <span id="usernameDisplay">-</span>
+            </div>
 
-<div class="version">
-v1.1.0
-</div>
+            <div>
+                💰 <span id="coinsDisplay">0</span>
+            </div>
 
-<p>
-Welkom,
-<b id="gameMenuName"></b>
-</p>
+            <div>
+                ❤️ <span id="healthDisplay">100</span>
+            </div>
 
-<h2>
-🪙
-<span id="menuCoins">0</span>
-</h2>
+            <div>
+                💀 Kills:
+                <span id="killsDisplay">0</span>
+            </div>
 
-<button onclick="startGame()">
-▶ START GAME
-</button>
+            <div>
+                🌊 Wave:
+                <span id="waveDisplay">1</span>
+            </div>
 
-<button
-    class="secondary"
-    onclick="openShop()"
->
-🛒 SHOP
-</button>
+            <button
+                id="adminButton"
+                class="hidden"
+                onclick="openAdmin()"
+            >
+                👑 Admin
+            </button>
 
-<button
-    class="secondary"
-    onclick="openLeaderboard()"
->
-🏆 LEADERBOARD
-</button>
+            <button
+                class="danger"
+                onclick="logout()"
+            >
+                Uitloggen
+            </button>
 
-</div>
-
-</div>
+        </div>
 
 
-<!-- SHOP -->
+        <div class="card">
 
-<div
-    id="shop"
-    class="screen hidden"
->
+            <h1>Survive the Bots</h1>
 
-<div class="panel">
+            <p>
+                Beweeg met <b>WASD</b> of de pijltjestoetsen.
+                Klik om te schieten.
+            </p>
 
-<h1>
-🛒 SHOP
-</h1>
+            <button
+                class="success"
+                onclick="startGame()"
+            >
+                ▶ Start game
+            </button>
 
-<h2>
-🪙
-<span id="shopCoins">0</span>
-</h2>
+            <div id="game">
 
-<h2>
-🔫 WAPENS
-</h2>
+                <div id="player"></div>
 
-<div
-    id="weaponShop"
-    class="shopGrid"
-></div>
+            </div>
 
-<br>
-
-<button
-    class="secondary"
-    onclick="closeShop()"
->
-TERUG
-</button>
-
-</div>
-
-</div>
+        </div>
 
 
-<!-- LEADERBOARD -->
+        <!-- WAPENS -->
 
-<div
-    id="leaderboard"
-    class="screen hidden"
->
+        <div class="card" style="margin-top:20px">
 
-<div class="panel">
+            <h2>🔫 Mijn wapens</h2>
 
-<h1>
-🏆 LEADERBOARD
-</h1>
+            <div id="weapons" class="weapons">
+                Laden...
+            </div>
 
-<div id="leaderboardList">
-Laden...
-</div>
+        </div>
 
-<button
-    class="secondary"
-    onclick="closeLeaderboard()"
->
-TERUG
-</button>
 
-</div>
+        <!-- LEADERBOARD -->
+
+        <div class="card leaderboard">
+
+            <h2>🏆 Leaderboard</h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>#</th>
+                        <th>Speler</th>
+                        <th>Score</th>
+                        <th>Kills</th>
+                        <th>Wave</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="leaderboardBody">
+                    <tr>
+                        <td colspan="5">
+                            Laden...
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
 
 </div>
 
 
-<!-- UPGRADE -->
+<script src="supabase-config.js"></script>
 
-<div
-    id="upgrade"
-    class="screen hidden"
->
-
-<div class="panel">
-
-<h1>
-⚡ UPGRADE
-</h1>
-
-<p>
-Kies een upgrade.
-</p>
-
-<button onclick="chooseUpgrade('damage')">
-🔥 +30% Damage
-</button>
-
-<button onclick="chooseUpgrade('speed')">
-🏃 +20% Speed
-</button>
-
-<button onclick="chooseUpgrade('fire')">
-⚡ +25% Fire Rate
-</button>
-
-<button onclick="chooseUpgrade('health')">
-❤️ +30 HP
-</button>
-
-</div>
-
-</div>
-
-
-<!-- GAME OVER -->
-
-<div
-    id="gameOver"
-    class="screen hidden"
->
-
-<div class="panel">
-
-<h1>
-💀 GAME OVER
-</h1>
-
-<p>
-Kills:
-<b id="finalKills">0</b>
-</p>
-
-<p>
-Wave:
-<b id="finalWave">1</b>
-</p>
-
-<p>
-Score:
-<b id="finalScore">0</b>
-</p>
-
-<button onclick="saveScore()">
-🏆 SCORE OPSLAAN
-</button>
-
-<button
-    class="secondary"
-    onclick="startGame()"
->
-OPNIEUW
-</button>
-
-<button
-    class="secondary"
-    onclick="returnToMenu()"
->
-MENU
-</button>
-
-</div>
-
-</div>
-
-
-<!-- BOSS -->
-
-<div id="bossBar">
-
-<div style="text-align:center">
-👹 BOSS
-</div>
-
-<div class="bar">
-
-<div
-    id="bossHealth"
-    class="barFill"
-    style="width:100%"
-></div>
-
-</div>
-
-</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
 <script>
 
-/* ============================================================
-   CONFIG
-============================================================ */
-
-const GAME_VERSION = "1.1.0";
-
-
-const SUPABASE_URL =
-    "https://neodeghkonbotgdsivwx.supabase.co";
-
-const SUPABASE_KEY =
-    "sb_publishable_k7sEatMNh2lPj7WvL1CnyA_N0-4RGpL";
+const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
 
 
-/* ============================================================
-   SUPABASE
-============================================================ */
+// ============================================================
+// STATE
+// ============================================================
 
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
+let currentPlayer = null;
+
+let selectedWeapon = null;
+
+let gameRunning = false;
+
+let health = 100;
+
+let kills = 0;
+
+let wave = 1;
+
+let score = 0;
+
+let bots = [];
+
+let keys = {};
 
 
-/* ============================================================
-   GAME
-============================================================ */
+// ============================================================
+// AUTH TABS
+// ============================================================
 
-const canvas =
-    document.getElementById("game");
+document
+    .getElementById("loginTab")
+    .onclick = () => {
 
-const ctx =
-    canvas.getContext("2d");
+        document
+            .getElementById("loginTab")
+            .classList.add("active");
+
+        document
+            .getElementById("registerTab")
+            .classList.remove("active");
+
+        document
+            .getElementById("loginForm")
+            .classList.remove("hidden");
+
+        document
+            .getElementById("registerForm")
+            .classList.add("hidden");
+    };
 
 
-function resizeCanvas() {
+document
+    .getElementById("registerTab")
+    .onclick = () => {
 
-    canvas.width =
-        window.innerWidth;
+        document
+            .getElementById("registerTab")
+            .classList.add("active");
 
-    canvas.height =
-        window.innerHeight;
+        document
+            .getElementById("loginTab")
+            .classList.remove("active");
+
+        document
+            .getElementById("registerForm")
+            .classList.remove("hidden");
+
+        document
+            .getElementById("loginForm")
+            .classList.add("hidden");
+    };
+
+
+// ============================================================
+// MESSAGE
+// ============================================================
+
+function showMessage(message) {
+
+    const box =
+        document.getElementById("authMessage");
+
+    box.textContent = message;
+
+    box.classList.remove("hidden");
 }
 
-resizeCanvas();
 
-window.addEventListener(
-    "resize",
-    resizeCanvas
-);
+// ============================================================
+// REGISTER
+// ============================================================
 
+async function register() {
 
-const keys = {};
+    const username =
+        document
+            .getElementById("registerUsername")
+            .value
+            .trim();
 
-const mouse = {
-
-    x: canvas.width / 2,
-
-    y: canvas.height / 2,
-
-    down: false
-};
-
-
-document.addEventListener(
-    "keydown",
-    e => {
-
-        keys[
-            e.key.toLowerCase()
-        ] = true;
-    }
-);
+    const password =
+        document
+            .getElementById("registerPassword")
+            .value;
 
 
-document.addEventListener(
-    "keyup",
-    e => {
+    if (!username || !password) {
 
-        keys[
-            e.key.toLowerCase()
-        ] = false;
-    }
-);
-
-
-canvas.addEventListener(
-    "mousemove",
-    e => {
-
-        mouse.x = e.clientX;
-
-        mouse.y = e.clientY;
-    }
-);
-
-
-canvas.addEventListener(
-    "mousedown",
-    () => mouse.down = true
-);
-
-
-canvas.addEventListener(
-    "mouseup",
-    () => mouse.down = false
-);
-
-
-/* ============================================================
-   ACCOUNT
-============================================================ */
-
-let currentUser = null;
-
-let profile = null;
-
-let authMode = "login";
-
-
-async function loadUser() {
-
-    const {
-        data
-    } =
-        await supabaseClient
-            .auth
-            .getUser();
-
-
-    currentUser =
-        data?.user || null;
-
-
-    if (!currentUser) {
-
-        showMenu();
+        showMessage(
+            "Vul een gebruikersnaam en wachtwoord in."
+        );
 
         return;
     }
 
 
-    await loadProfile();
+    try {
 
-    await loadWeapons();
+        const { data, error } =
+            await supabaseClient.rpc(
+                "register_player",
+                {
+                    p_username: username,
+                    p_password: password
+                }
+            );
 
-    showGameMenu();
+
+        if (error) {
+
+            showMessage(error.message);
+
+            return;
+        }
+
+
+        showMessage(
+            "Account aangemaakt! Je kunt nu inloggen."
+        );
+
+
+        document
+            .getElementById("loginTab")
+            .click();
+
+
+        document
+            .getElementById("loginUsername")
+            .value = username;
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+            "Er ging iets mis bij het registreren."
+        );
+    }
 }
 
 
-async function loadProfile() {
+// ============================================================
+// LOGIN
+// ============================================================
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
+async function login() {
 
-            .from("profiles")
+    const username =
+        document
+            .getElementById("loginUsername")
+            .value
+            .trim();
 
-            .select(
-                "id,email,display_name,coins"
-            )
+    const password =
+        document
+            .getElementById("loginPassword")
+            .value;
 
-            .eq(
-                "id",
-                currentUser.id
-            )
 
-            .single();
+    if (!username || !password) {
+
+        showMessage(
+            "Vul je gebruikersnaam en wachtwoord in."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        const { data, error } =
+            await supabaseClient.rpc(
+                "login_player",
+                {
+                    p_username: username,
+                    p_password: password
+                }
+            );
+
+
+        if (error) {
+
+            showMessage(error.message);
+
+            return;
+        }
+
+
+        currentPlayer =
+            typeof data === "string"
+                ? JSON.parse(data)
+                : data;
+
+
+        localStorage.setItem(
+            "stb_player",
+            JSON.stringify(currentPlayer)
+        );
+
+
+        showGame();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+            "Er ging iets mis bij het inloggen."
+        );
+    }
+}
+
+
+// ============================================================
+// LOGOUT
+// ============================================================
+
+function logout() {
+
+    currentPlayer = null;
+
+    localStorage.removeItem("stb_player");
+
+    location.reload();
+}
+
+
+// ============================================================
+// SHOW GAME
+// ============================================================
+
+function showGame() {
+
+    document
+        .getElementById("authSection")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("gameSection")
+        .classList.remove("hidden");
+
+
+    document
+        .getElementById("usernameDisplay")
+        .textContent =
+        currentPlayer.username;
+
+
+    document
+        .getElementById("coinsDisplay")
+        .textContent =
+        currentPlayer.coins;
+
+
+    if (currentPlayer.role === "admin") {
+
+        document
+            .getElementById("adminButton")
+            .classList.remove("hidden");
+    }
+
+
+    loadWeapons();
+
+    loadLeaderboard();
+}
+
+
+// ============================================================
+// ADMIN
+// ============================================================
+
+function openAdmin() {
+
+    window.location.href =
+        "admin.html";
+}
+
+
+// ============================================================
+// LOAD WEAPONS
+// ============================================================
+
+async function loadWeapons() {
+
+    const { data, error } =
+        await supabaseClient.rpc(
+            "get_player_weapons",
+            {
+                p_user_id: currentPlayer.id
+            }
+        );
+
+
+    const container =
+        document.getElementById("weapons");
 
 
     if (error) {
 
         console.error(error);
 
-        return;
-    }
-
-
-    profile = data;
-
-    updateAccountUI();
-}
-
-
-function updateAccountUI() {
-
-    if (!profile) {
-        return;
-    }
-
-
-    const name =
-        profile.display_name ||
-        currentUser.email;
-
-
-    document.getElementById(
-        "accountName"
-    ).textContent = name;
-
-
-    document.getElementById(
-        "menuCoins"
-    ).textContent =
-        profile.coins;
-
-
-    document.getElementById(
-        "shopCoins"
-    ).textContent =
-        profile.coins;
-}
-
-
-/* ============================================================
-   AUTH
-============================================================ */
-
-function showLogin() {
-
-    authMode = "login";
-
-    document.getElementById(
-        "authTitle"
-    ).textContent =
-        "🔑 INLOGGEN";
-
-
-    document.getElementById(
-        "auth"
-    ).classList.remove(
-        "hidden"
-    );
-
-
-    document.getElementById(
-        "authError"
-    ).textContent = "";
-}
-
-
-function showRegister() {
-
-    authMode = "register";
-
-    document.getElementById(
-        "authTitle"
-    ).textContent =
-        "👤 ACCOUNT MAKEN";
-
-
-    document.getElementById(
-        "auth"
-    ).classList.remove(
-        "hidden"
-    );
-
-
-    document.getElementById(
-        "authError"
-    ).textContent = "";
-}
-
-
-function closeAuth() {
-
-    document.getElementById(
-        "auth"
-    ).classList.add(
-        "hidden"
-    );
-}
-
-
-async function submitAuth() {
-
-    const email =
-        document.getElementById(
-            "email"
-        ).value.trim();
-
-
-    const password =
-        document.getElementById(
-            "password"
-        ).value;
-
-
-    const errorBox =
-        document.getElementById(
-            "authError"
-        );
-
-
-    errorBox.textContent = "";
-
-
-    if (!email || !password) {
-
-        errorBox.textContent =
-            "Vul e-mail en wachtwoord in.";
+        container.innerHTML =
+            "<p>Wapens konden niet geladen worden.</p>";
 
         return;
     }
 
 
-    let result;
+    if (!data || data.length === 0) {
 
-
-    if (authMode === "register") {
-
-        result =
-            await supabaseClient
-                .auth
-                .signUp({
-
-                    email,
-
-                    password
-                });
-
-    } else {
-
-        result =
-            await supabaseClient
-                .auth
-                .signInWithPassword({
-
-                    email,
-
-                    password
-                });
-    }
-
-
-    if (result.error) {
-
-        console.error(
-            result.error
-        );
-
-
-        errorBox.textContent =
-            result.error.message;
+        container.innerHTML =
+            "<p>Je hebt nog geen wapens.</p>";
 
         return;
     }
 
 
-    if (
-        authMode === "register" &&
-        !result.data.session
-    ) {
+    container.innerHTML = "";
 
-        errorBox.textContent =
-            "Account gemaakt. Controleer je e-mail om je account te bevestigen.";
 
-        return;
-    }
+    data.forEach(weapon => {
 
+        const div =
+            document.createElement("div");
 
-    closeAuth();
+        div.className = "weapon";
 
-    await loadUser();
-}
 
+        const image =
+            weapon.image_url
+                ? `<img class="weapon-image"
+                     src="${escapeHtml(weapon.image_url)}"
+                     alt="">`
+                : `<div style="font-size:60px;text-align:center">
+                     ${escapeHtml(weapon.icon || "🔫")}
+                   </div>`;
 
-async function logout() {
 
-    await supabaseClient
-        .auth
-        .signOut();
+        div.innerHTML = `
 
+            ${image}
 
-    currentUser = null;
+            <h3>${escapeHtml(weapon.name)}</h3>
 
-    profile = null;
+            <p>
+                Damage: ${weapon.damage}<br>
+                Fire rate: ${weapon.fire_rate}ms<br>
+                Kogels: ${weapon.bullets}
+            </p>
 
-    gameRunning = false;
+            <button onclick="selectWeapon('${escapeHtml(weapon.weapon_id)}')">
+                Gebruiken
+            </button>
 
-    document.getElementById(
-        "hud"
-    ).classList.add(
-        "hidden"
-    );
+        `;
 
-    document.getElementById(
-        "account"
-    ).classList.add(
-        "hidden"
-    );
 
-    showMenu();
-}
+        container.appendChild(div);
 
-
-/* ============================================================
-   MENUS
-============================================================ */
-
-function hideAllScreens() {
-
-    document
-        .querySelectorAll(".screen")
-        .forEach(
-            element => {
-
-                element.classList.add(
-                    "hidden"
-                );
-            }
-        );
-}
-
-
-function showMenu() {
-
-    hideAllScreens();
-
-
-    document.getElementById(
-        "menu"
-    ).classList.remove(
-        "hidden"
-    );
-}
-
-
-function showGameMenu() {
-
-    hideAllScreens();
-
-
-    document.getElementById(
-        "gameMenu"
-    ).classList.remove(
-        "hidden"
-    );
-
-
-    document.getElementById(
-        "account"
-    ).classList.remove(
-        "hidden"
-    );
-
-
-    document.getElementById(
-        "gameMenuName"
-    ).textContent =
-        profile?.display_name ||
-        currentUser.email;
-
-
-    updateAccountUI();
-}
-
-
-function returnToMenu() {
-
-    gameRunning = false;
-
-    document.getElementById(
-        "hud"
-    ).classList.add(
-        "hidden"
-    );
-
-
-    showGameMenu();
-}
-
-
-/* ============================================================
-   DATABASE WEAPONS
-============================================================ */
-
-let weapons = {};
-
-let ownedWeapons = [];
-
-
-async function loadWeapons() {
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-
-            .from("weapons")
-
-            .select("*")
-
-            .eq(
-                "active",
-                true
-            );
-
-
-    if (error) {
-
-        console.error(
-            "Weapons laden:",
-            error
-        );
-
-        return;
-    }
-
-
-    weapons = {};
-
-
-    data.forEach(
-        weapon => {
-
-            weapons[
-                weapon.id
-            ] = weapon;
-        }
-    );
-
-
-    const {
-        data: owned,
-        error: ownedError
-    } =
-        await supabaseClient
-
-            .from("user_weapons")
-
-            .select("weapon_id")
-
-            .eq(
-                "user_id",
-                currentUser.id
-            );
-
-
-    if (ownedError) {
-
-        console.error(
-            ownedError
-        );
-
-        return;
-    }
-
-
-    ownedWeapons =
-        owned.map(
-            row =>
-                row.weapon_id
-        );
-}
-
-
-/* ============================================================
-   BUY WEAPON
-============================================================ */
-
-async function buyWeapon(
-    weaponId
-) {
-
-    const weapon =
-        weapons[weaponId];
-
-
-    if (!weapon) {
-        return;
-    }
-
-
-    if (
-        ownedWeapons.includes(
-            weaponId
-        )
-    ) {
-
-        selectWeapon(
-            weaponId
-        );
-
-        return;
-    }
-
-
-    if (
-        profile.coins <
-        weapon.price
-    ) {
-
-        alert(
-            "Je hebt niet genoeg coins."
-        );
-
-        return;
-    }
-
-
-    /*
-       Eerst aankoop proberen te
-       registreren.
-    */
-
-    const {
-        error: purchaseError
-    } =
-        await supabaseClient
-
-            .from(
-                "shop_purchases"
-            )
-
-            .insert({
-
-                user_id:
-                    currentUser.id,
-
-                item_type:
-                    "weapon",
-
-                item_id:
-                    weaponId,
-
-                price:
-                    weapon.price
-            });
-
-
-    if (purchaseError) {
-
-        console.error(
-            purchaseError
-        );
-
-        alert(
-            "Aankoop kon niet worden geregistreerd."
-        );
-
-        return;
-    }
-
-
-    /*
-       Wapen toevoegen aan account.
-    */
-
-    const {
-        error: weaponError
-    } =
-        await supabaseClient
-
-            .from(
-                "user_weapons"
-            )
-
-            .insert({
-
-                user_id:
-                    currentUser.id,
-
-                weapon_id:
-                    weaponId,
-
-                source:
-                    "purchase"
-            });
-
-
-    if (weaponError) {
-
-        console.error(
-            weaponError
-        );
-
-        alert(
-            "Wapen kon niet worden toegevoegd."
-        );
-
-        return;
-    }
-
-
-    /*
-       Coins aanpassen.
-    */
-
-    const newCoins =
-        profile.coins -
-        weapon.price;
-
-
-    const {
-        error: coinError
-    } =
-        await supabaseClient
-
-            .from("profiles")
-
-            .update({
-
-                coins:
-                    newCoins
-            })
-
-            .eq(
-                "id",
-                currentUser.id
-            );
-
-
-    if (coinError) {
-
-        console.error(
-            coinError
-        );
-
-        alert(
-            "Coins konden niet worden aangepast."
-        );
-
-        return;
-    }
-
-
-    profile.coins =
-        newCoins;
-
-
-    ownedWeapons.push(
-        weaponId
-    );
-
-
-    await loadWeapons();
-
-    updateAccountUI();
-
-    renderShop();
-
-    alert(
-        `${weapon.name} gekocht!`
-    );
-}
-
-
-/* ============================================================
-   SELECT WEAPON
-============================================================ */
-
-let selectedWeapon =
-    "pistol";
-
-
-function selectWeapon(
-    weaponId
-) {
-
-    if (
-        !ownedWeapons.includes(
-            weaponId
-        )
-    ) {
-
-        return;
-    }
-
-
-    selectedWeapon =
-        weaponId;
-
-
-    renderShop();
-}
-
-
-/* ============================================================
-   SHOP
-============================================================ */
-
-function openShop() {
-
-    if (!currentUser) {
-
-        showLogin();
-
-        return;
-    }
-
-
-    gameRunning = false;
-
-    hideAllScreens();
-
-
-    document.getElementById(
-        "shop"
-    ).classList.remove(
-        "hidden"
-    );
-
-
-    renderShop();
-}
-
-
-function closeShop() {
-
-    showGameMenu();
-}
-
-
-function renderShop() {
-
-    const shop =
-        document.getElementById(
-            "weaponShop"
-        );
-
-
-    shop.innerHTML = "";
-
-
-    Object.values(
-        weapons
-    ).forEach(
-        weapon => {
-
-            const owned =
-                ownedWeapons.includes(
-                    weapon.id
-                );
-
-
-            const selected =
-                selectedWeapon ===
-                weapon.id;
-
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-
-            card.className =
-                "card" +
-                (
-                    selected
-                        ? " selected"
-                        : ""
-                );
-
-
-            let buttonText;
-
-
-            if (selected) {
-
-                buttonText =
-                    "GESELECTEERD";
-
-            } else if (owned) {
-
-                buttonText =
-                    "GEBRUIKEN";
-
-            } else {
-
-                buttonText =
-                    `🪙 ${weapon.price}`;
-            }
-
-
-            card.innerHTML = `
-
-                <div class="icon">
-                    ${weapon.icon}
-                </div>
-
-                <h3>
-                    ${escapeHtml(
-                        weapon.name
-                    )}
-                </h3>
-
-                <p>
-                    Damage:
-                    ${weapon.damage}
-
-                    <br>
-
-                    Fire rate:
-                    ${weapon.fire_rate}ms
-                </p>
-
-                <button
-                    ${
-                        selected
-                            ? "disabled"
-                            : ""
-                    }
-                >
-                    ${buttonText}
-                </button>
-            `;
-
-
-            const button =
-                card.querySelector(
-                    "button"
-                );
-
-
-            if (!selected) {
-
-                button.onclick =
-                    async () => {
-
-                        if (owned) {
-
-                            selectWeapon(
-                                weapon.id
-                            );
-
-                        } else {
-
-                            await buyWeapon(
-                                weapon.id
-                            );
-                        }
-                    };
-            }
-
-
-            shop.appendChild(
-                card
-            );
-        }
-    );
-
-
-    updateAccountUI();
-}
-
-
-/* ============================================================
-   GAME
-============================================================ */
-
-let player;
-
-let bullets = [];
-
-let enemies = [];
-
-let particles = [];
-
-let kills = 0;
-
-let wave = 1;
-
-let spawnTimer = 0;
-
-let lastShot = 0;
-
-let gameRunning = false;
-
-let boss = null;
-
-let upgradeStats = {
-
-    damage: 1,
-
-    speed: 1,
-
-    fire: 1
-};
-
-
-function startGame() {
-
-    if (!currentUser) {
-
-        showLogin();
-
-        return;
-    }
-
-
-    hideAllScreens();
-
-
-    document.getElementById(
-        "hud"
-    ).classList.remove(
-        "hidden"
-    );
-
-
-    player = {
-
-        x:
-            canvas.width / 2,
-
-        y:
-            canvas.height / 2,
-
-        radius: 18,
-
-        hp: 100,
-
-        maxHp: 100,
-
-        speed: 4,
-
-        damage:
-            weapons[
-                selectedWeapon
-            ]?.damage || 25,
-
-        fireRate:
-            weapons[
-                selectedWeapon
-            ]?.fire_rate || 300
-    };
-
-
-    bullets = [];
-
-    enemies = [];
-
-    particles = [];
-
-    kills = 0;
-
-    wave = 1;
-
-    spawnTimer = 0;
-
-    lastShot = 0;
-
-    boss = null;
-
-
-    upgradeStats = {
-
-        damage: 1,
-
-        speed: 1,
-
-        fire: 1
-    };
-
-
-    gameRunning = true;
-
-
-    document.getElementById(
-        "bossBar"
-    ).style.display =
-        "none";
-
-
-    updateHUD();
-
-
-    requestAnimationFrame(
-        gameLoop
-    );
-}
-
-
-function shoot() {
-
-    const now =
-        performance.now();
-
-
-    const weapon =
-        weapons[
-            selectedWeapon
-        ];
-
-
-    if (!weapon) {
-        return;
-    }
-
-
-    if (
-        now - lastShot <
-        player.fireRate
-    ) {
-
-        return;
-    }
-
-
-    lastShot = now;
-
-
-    const baseAngle =
-        Math.atan2(
-
-            mouse.y -
-                player.y,
-
-            mouse.x -
-                player.x
-        );
-
-
-    for (
-        let i = 0;
-
-        i < weapon.bullets;
-
-        i++
-    ) {
-
-        const angle =
-            baseAngle +
-            (
-                Math.random() -
-                .5
-            ) *
-            Number(
-                weapon.spread
-            );
-
-
-        bullets.push({
-
-            x: player.x,
-
-            y: player.y,
-
-            vx:
-                Math.cos(angle) *
-                Number(
-                    weapon.bullet_speed
-                ),
-
-            vy:
-                Math.sin(angle) *
-                Number(
-                    weapon.bullet_speed
-                ),
-
-            radius: 5,
-
-            damage:
-                player.damage
-        });
-    }
-}
-
-
-function spawnEnemy() {
-
-    if (boss) {
-        return;
-    }
-
-
-    const side =
-        Math.floor(
-            Math.random() * 4
-        );
-
-
-    let x;
-
-    let y;
-
-
-    if (side === 0) {
-
-        x =
-            Math.random() *
-            canvas.width;
-
-        y = -40;
-
-    } else if (side === 1) {
-
-        x =
-            canvas.width + 40;
-
-        y =
-            Math.random() *
-            canvas.height;
-
-    } else if (side === 2) {
-
-        x =
-            Math.random() *
-            canvas.width;
-
-        y =
-            canvas.height + 40;
-
-    } else {
-
-        x = -40;
-
-        y =
-            Math.random() *
-            canvas.height;
-    }
-
-
-    const strength =
-        1 +
-        wave * .12;
-
-
-    enemies.push({
-
-        x,
-
-        y,
-
-        radius: 17,
-
-        hp:
-            50 * strength,
-
-        maxHp:
-            50 * strength,
-
-        speed:
-            1 +
-            wave * .04,
-
-        damage: 10
     });
 }
 
 
-function spawnBoss() {
+function selectWeapon(id) {
 
-    boss = {
+    selectedWeapon = id;
 
-        x:
-            canvas.width / 2,
-
-        y: -80,
-
-        radius: 55,
-
-        hp:
-            1000 +
-            wave * 150,
-
-        maxHp:
-            1000 +
-            wave * 150,
-
-        speed:
-            .7 +
-            wave * .02,
-
-        damage: 25
-    };
+    document
+        .querySelectorAll(".weapon")
+        .forEach(x =>
+            x.classList.remove("active")
+        );
 
 
-    document.getElementById(
-        "bossBar"
-    ).style.display =
-        "block";
+    event
+        .currentTarget
+        .parentElement
+        .classList.add("active");
 }
 
 
-function createParticles(
-    x,
-    y,
-    color
-) {
+// ============================================================
+// LEADERBOARD
+// ============================================================
 
-    for (
-        let i = 0;
+async function loadLeaderboard() {
 
-        i < 12;
-
-        i++
-    ) {
-
-        particles.push({
-
-            x,
-
-            y,
-
-            vx:
-                (
-                    Math.random() -
-                    .5
-                ) * 5,
-
-            vy:
-                (
-                    Math.random() -
-                    .5
-                ) * 5,
-
-            life: 30,
-
-            color
-        });
-    }
-}
-
-
-function update() {
-
-    let dx = 0;
-
-    let dy = 0;
-
-
-    if (keys["w"]) dy--;
-
-    if (keys["s"]) dy++;
-
-    if (keys["a"]) dx--;
-
-    if (keys["d"]) dx++;
-
-
-    if (dx || dy) {
-
-        const length =
-            Math.hypot(
-                dx,
-                dy
-            );
-
-
-        dx /= length;
-
-        dy /= length;
-
-
-        player.x +=
-            dx *
-            player.speed;
-
-
-        player.y +=
-            dy *
-            player.speed;
-    }
-
-
-    player.x =
-        Math.max(
-            player.radius,
-            Math.min(
-                canvas.width -
-                player.radius,
-                player.x
-            )
-        );
-
-
-    player.y =
-        Math.max(
-            player.radius,
-            Math.min(
-                canvas.height -
-                player.radius,
-                player.y
-            )
-        );
-
-
-    if (mouse.down) {
-        shoot();
-    }
-
-
-    spawnTimer--;
-
-
-    if (spawnTimer <= 0) {
-
-        spawnEnemy();
-
-        spawnTimer =
-            Math.max(
-                12,
-                55 -
-                wave * 2
-            );
-    }
-
-
-    bullets.forEach(
-        bullet => {
-
-            bullet.x +=
-                bullet.vx;
-
-            bullet.y +=
-                bullet.vy;
-        }
-    );
-
-
-    bullets =
-        bullets.filter(
-            b =>
-                b.x > -80 &&
-                b.x <
-                    canvas.width + 80 &&
-                b.y > -80 &&
-                b.y <
-                    canvas.height + 80
-        );
-
-
-    enemies.forEach(
-        enemy => {
-
-            const angle =
-                Math.atan2(
-
-                    player.y -
-                        enemy.y,
-
-                    player.x -
-                        enemy.x
-                );
-
-
-            enemy.x +=
-                Math.cos(angle) *
-                enemy.speed;
-
-
-            enemy.y +=
-                Math.sin(angle) *
-                enemy.speed;
-
-
-            const distance =
-                Math.hypot(
-
-                    player.x -
-                        enemy.x,
-
-                    player.y -
-                        enemy.y
-                );
-
-
-            if (
-                distance <
-                player.radius +
-                enemy.radius
-            ) {
-
-                player.hp -=
-                    enemy.damage * .03;
-            }
-        }
-    );
-
-
-    if (boss) {
-
-        const angle =
-            Math.atan2(
-
-                player.y -
-                    boss.y,
-
-                player.x -
-                    boss.x
-            );
-
-
-        boss.x +=
-            Math.cos(angle) *
-            boss.speed;
-
-
-        boss.y +=
-            Math.sin(angle) *
-            boss.speed;
-
-
-        const distance =
-            Math.hypot(
-
-                player.x -
-                    boss.x,
-
-                player.y -
-                    boss.y
-            );
-
-
-        if (
-            distance <
-            player.radius +
-            boss.radius
-        ) {
-
-            player.hp -=
-                boss.damage * .015;
-        }
-
-
-        document.getElementById(
-            "bossHealth"
-        ).style.width =
-
-            Math.max(
-                0,
-                boss.hp /
-                boss.maxHp *
-                100
-            ) + "%";
-    }
-
-
-    for (
-        let bi =
-            bullets.length - 1;
-
-        bi >= 0;
-
-        bi--
-    ) {
-
-        const bullet =
-            bullets[bi];
-
-        let hit = false;
-
-
-        for (
-            let ei =
-                enemies.length - 1;
-
-            ei >= 0;
-
-            ei--
-        ) {
-
-            const enemy =
-                enemies[ei];
-
-
-            const distance =
-                Math.hypot(
-
-                    bullet.x -
-                        enemy.x,
-
-                    bullet.y -
-                        enemy.y
-                );
-
-
-            if (
-                distance <
-                bullet.radius +
-                enemy.radius
-            ) {
-
-                enemy.hp -=
-                    bullet.damage;
-
-                hit = true;
-
-
-                createParticles(
-                    bullet.x,
-                    bullet.y,
-                    "#36d9ff"
-                );
-
-
-                if (
-                    enemy.hp <= 0
-                ) {
-
-                    enemies.splice(
-                        ei,
-                        1
-                    );
-
-                    kills++;
-
-                    addCoins(5);
-
-
-                    createParticles(
-                        enemy.x,
-                        enemy.y,
-                        "#ff4057"
-                    );
-                }
-
-                break;
-            }
-        }
-
-
-        if (
-            !hit &&
-            boss
-        ) {
-
-            const distance =
-                Math.hypot(
-
-                    bullet.x -
-                        boss.x,
-
-                    bullet.y -
-                        boss.y
-                );
-
-
-            if (
-                distance <
-                bullet.radius +
-                boss.radius
-            ) {
-
-                boss.hp -=
-                    bullet.damage;
-
-                hit = true;
-
-
-                if (
-                    boss.hp <= 0
-                ) {
-
-                    addCoins(100);
-
-                    kills += 10;
-
-                    boss = null;
-
-
-                    document.getElementById(
-                        "bossBar"
-                    ).style.display =
-                        "none";
-                }
-            }
-        }
-
-
-        if (hit) {
-
-            bullets.splice(
-                bi,
-                1
-            );
-        }
-    }
-
-
-    if (
-        kills >=
-            wave * 10 &&
-        !boss
-    ) {
-
-        wave++;
-
-
-        if (
-            wave % 10 === 0
-        ) {
-
-            spawnBoss();
-
-        } else {
-
-            gameRunning = false;
-
-
-            document.getElementById(
-                "upgrade"
-            ).classList.remove(
-                "hidden"
-            );
-        }
-    }
-
-
-    particles.forEach(
-        p => {
-
-            p.x += p.vx;
-
-            p.y += p.vy;
-
-            p.life--;
-        }
-    );
-
-
-    particles =
-        particles.filter(
-            p =>
-                p.life > 0
-        );
-
-
-    if (
-        player.hp <= 0
-    ) {
-
-        endGame();
-    }
-
-
-    updateHUD();
-}
-
-
-function addCoins(
-    amount
-) {
-
-    if (!profile) {
-        return;
-    }
-
-
-    /*
-       Voor deze versie wordt
-       de balans lokaal bijgehouden
-       tijdens de game.
-
-       We schrijven hem naar Supabase
-       bij game-over.
-    */
-
-    profile.coins += amount;
-}
-
-
-function updateHUD() {
-
-    if (!player) {
-        return;
-    }
-
-
-    document.getElementById(
-        "hp"
-    ).textContent =
-        Math.max(
-            0,
-            Math.floor(
-                player.hp
-            )
-        );
-
-
-    document.getElementById(
-        "coins"
-    ).textContent =
-        profile?.coins || 0;
-
-
-    document.getElementById(
-        "kills"
-    ).textContent =
-        kills;
-
-
-    document.getElementById(
-        "wave"
-    ).textContent =
-        wave;
-
-
-    document.getElementById(
-        "weaponName"
-    ).textContent =
-        weapons[
-            selectedWeapon
-        ]?.name ||
-        "Pistol";
-}
-
-
-function draw() {
-
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-
-    ctx.strokeStyle =
-        "rgba(70,100,140,.12)";
-
-
-    for (
-        let x = 0;
-
-        x < canvas.width;
-
-        x += 50
-    ) {
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            x,
-            0
-        );
-
-        ctx.lineTo(
-            x,
-            canvas.height
-        );
-
-        ctx.stroke();
-    }
-
-
-    for (
-        let y = 0;
-
-        y < canvas.height;
-
-        y += 50
-    ) {
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            0,
-            y
-        );
-
-        ctx.lineTo(
-            canvas.width,
-            y
-        );
-
-        ctx.stroke();
-    }
-
-
-    bullets.forEach(
-        bullet => {
-
-            ctx.beginPath();
-
-            ctx.arc(
-                bullet.x,
-                bullet.y,
-                bullet.radius,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.fillStyle =
-                "#36d9ff";
-
-            ctx.shadowColor =
-                "#36d9ff";
-
-            ctx.shadowBlur = 15;
-
-            ctx.fill();
-
-            ctx.shadowBlur = 0;
-        }
-    );
-
-
-    enemies.forEach(
-        enemy => {
-
-            ctx.beginPath();
-
-            ctx.arc(
-                enemy.x,
-                enemy.y,
-                enemy.radius,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.fillStyle =
-                "#ff4057";
-
-            ctx.shadowColor =
-                "#ff4057";
-
-            ctx.shadowBlur = 15;
-
-            ctx.fill();
-
-            ctx.shadowBlur = 0;
-        }
-    );
-
-
-    if (boss) {
-
-        ctx.beginPath();
-
-        ctx.arc(
-            boss.x,
-            boss.y,
-            boss.radius,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fillStyle =
-            "#a970ff";
-
-        ctx.shadowColor =
-            "#a970ff";
-
-        ctx.shadowBlur = 30;
-
-        ctx.fill();
-
-        ctx.shadowBlur = 0;
-    }
-
-
-    if (player) {
-
-        ctx.beginPath();
-
-        ctx.arc(
-            player.x,
-            player.y,
-            player.radius,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fillStyle =
-            "#36d9ff";
-
-        ctx.shadowColor =
-            "#36d9ff";
-
-        ctx.shadowBlur = 22;
-
-        ctx.fill();
-
-        ctx.shadowBlur = 0;
-
-
-        const angle =
-            Math.atan2(
-
-                mouse.y -
-                    player.y,
-
-                mouse.x -
-                    player.x
-            );
-
-
-        ctx.save();
-
-        ctx.translate(
-            player.x,
-            player.y
-        );
-
-        ctx.rotate(angle);
-
-        ctx.fillStyle =
-            "#fff";
-
-        ctx.fillRect(
-            5,
-            -4,
-            27,
-            8
-        );
-
-        ctx.restore();
-    }
-
-
-    particles.forEach(
-        particle => {
-
-            ctx.globalAlpha =
-                particle.life / 30;
-
-            ctx.fillStyle =
-                particle.color;
-
-            ctx.beginPath();
-
-            ctx.arc(
-                particle.x,
-                particle.y,
-                3,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.fill();
-        }
-    );
-
-
-    ctx.globalAlpha = 1;
-}
-
-
-function gameLoop() {
-
-    if (!gameRunning) {
-        return;
-    }
-
-
-    update();
-
-    draw();
-
-
-    requestAnimationFrame(
-        gameLoop
-    );
-}
-
-
-/* ============================================================
-   UPGRADES
-============================================================ */
-
-function chooseUpgrade(
-    type
-) {
-
-    if (
-        type ===
-        "damage"
-    ) {
-
-        upgradeStats.damage *=
-            1.3;
-    }
-
-
-    if (
-        type ===
-        "speed"
-    ) {
-
-        upgradeStats.speed *=
-            1.2;
-    }
-
-
-    if (
-        type ===
-        "fire"
-    ) {
-
-        upgradeStats.fire *=
-            1.25;
-    }
-
-
-    if (
-        type ===
-        "health"
-    ) {
-
-        player.maxHp += 30;
-
-        player.hp += 30;
-    }
-
-
-    const weapon =
-        weapons[
-            selectedWeapon
-        ];
-
-
-    player.damage =
-        Number(
-            weapon.damage
-        ) *
-        upgradeStats.damage;
-
-
-    player.speed =
-        4 *
-        upgradeStats.speed;
-
-
-    player.fireRate =
-        Number(
-            weapon.fire_rate
-        ) /
-        upgradeStats.fire;
-
-
-    document.getElementById(
-        "upgrade"
-    ).classList.add(
-        "hidden"
-    );
-
-
-    gameRunning = true;
-
-
-    requestAnimationFrame(
-        gameLoop
-    );
-}
-
-
-/* ============================================================
-   SAVE COINS
-============================================================ */
-
-async function saveProfileCoins() {
-
-    if (!profile ||
-        !currentUser) {
-
-        return;
-    }
-
-
-    const {
-        error
-    } =
-        await supabaseClient
-
-            .from("profiles")
-
-            .update({
-
-                coins:
-                    profile.coins
-            })
-
-            .eq(
-                "id",
-                currentUser.id
-            );
-
-
-    if (error) {
-
-        console.error(
-            "Coins opslaan:",
-            error
-        );
-    }
-}
-
-
-/* ============================================================
-   GAME OVER
-============================================================ */
-
-async function endGame() {
-
-    gameRunning = false;
-
-
-    await saveProfileCoins();
-
-
-    const score =
-        kills * 100 +
-        wave * 500;
-
-
-    document.getElementById(
-        "finalKills"
-    ).textContent =
-        kills;
-
-
-    document.getElementById(
-        "finalWave"
-    ).textContent =
-        wave;
-
-
-    document.getElementById(
-        "finalScore"
-    ).textContent =
-        score;
-
-
-    document.getElementById(
-        "gameOver"
-    ).classList.remove(
-        "hidden"
-    );
-}
-
-
-/* ============================================================
-   LEADERBOARD
-============================================================ */
-
-async function saveScore() {
-
-    if (!currentUser) {
-
-        alert(
-            "Je moet ingelogd zijn."
-        );
-
-        return;
-    }
-
-
-    const score =
-        kills * 100 +
-        wave * 500;
-
-
-    const {
-        error
-    } =
-        await supabaseClient
-
-            .from("leaderboard")
-
-            .insert({
-
-                user_id:
-                    currentUser.id,
-
-                player_name:
-                    profile.display_name ||
-                    currentUser.email
-                    .split("@")[0],
-
-                score,
-
-                kills,
-
-                wave
-            });
-
-
-    if (error) {
-
-        console.error(
-            error
-        );
-
-
-        alert(
-            "Score opslaan mislukt."
-        );
-
-        return;
-    }
-
-
-    alert(
-        "🏆 Score opgeslagen!"
-    );
-
-
-    openLeaderboard();
-}
-
-
-async function openLeaderboard() {
-
-    if (!currentUser) {
-
-        showLogin();
-
-        return;
-    }
-
-
-    hideAllScreens();
-
-
-    document.getElementById(
-        "leaderboard"
-    ).classList.remove(
-        "hidden"
-    );
-
-
-    const list =
-        document.getElementById(
-            "leaderboardList"
-        );
-
-
-    list.innerHTML =
-        "Scores laden...";
-
-
-    const {
-        data,
-        error
-    } =
+    const { data, error } =
         await supabaseClient
 
             .from("leaderboard")
@@ -3028,156 +871,586 @@ async function openLeaderboard() {
             .limit(10);
 
 
+    const body =
+        document.getElementById(
+            "leaderboardBody"
+        );
+
+
     if (error) {
 
-        console.error(
-            error
-        );
+        console.error(error);
 
-
-        list.innerHTML =
-            "Leaderboard kon niet worden geladen.";
-
-        return;
-    }
-
-
-    if (
-        !data ||
-        data.length === 0
-    ) {
-
-        list.innerHTML =
-            "Nog geen scores.";
+        body.innerHTML =
+            `<tr>
+                <td colspan="5">
+                    Leaderboard kon niet geladen worden.
+                </td>
+             </tr>`;
 
         return;
     }
 
 
-    list.innerHTML =
-        data
-            .map(
-                (row,index) => `
-
-                <div class="card">
-
-                    <b>
-                        #${index + 1}
-                        ${escapeHtml(
-                            row.player_name
-                        )}
-                    </b>
-
-                    <br><br>
-
-                    🏆 ${row.score}
-
-                    &nbsp; | &nbsp;
-
-                    👾 ${row.kills}
-
-                    &nbsp; | &nbsp;
-
-                    🌊 ${row.wave}
-
-                </div>
-
-                `
-            )
-            .join("");
-}
+    body.innerHTML = "";
 
 
-function closeLeaderboard() {
+    (data || []).forEach(
+        (row, index) => {
 
-    if (currentUser) {
+            body.innerHTML += `
 
-        showGameMenu();
+                <tr>
 
-    } else {
+                    <td>${index + 1}</td>
 
-        showMenu();
-    }
-}
+                    <td>${escapeHtml(row.player_name)}</td>
 
+                    <td>${row.score}</td>
 
-/* ============================================================
-   SECURITY
-============================================================ */
+                    <td>${row.kills}</td>
 
-function escapeHtml(
-    value
-) {
+                    <td>${row.wave}</td>
 
-    return String(value)
+                </tr>
 
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
+            `;
 
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
-}
-
-
-/* ============================================================
-   AUTH STATE
-============================================================ */
-
-supabaseClient
-    .auth
-    .onAuthStateChange(
-        async (
-            event,
-            session
-        ) => {
-
-            currentUser =
-                session?.user ||
-                null;
-
-
-            if (currentUser) {
-
-                await loadUser();
-            }
         }
     );
+}
 
 
-/* ============================================================
-   STARTUP
-============================================================ */
+// ============================================================
+// GAME
+// ============================================================
 
-console.log(
-    "Survive the Bots " +
-    GAME_VERSION +
-    " gestart."
+const game =
+    document.getElementById("game");
+
+const player =
+    document.getElementById("player");
+
+
+document.addEventListener(
+    "keydown",
+    e => {
+
+        keys[e.key.toLowerCase()] = true;
+
+    }
 );
 
 
-loadUser();
+document.addEventListener(
+    "keyup",
+    e => {
+
+        keys[e.key.toLowerCase()] = false;
+
+    }
+);
+
+
+game.addEventListener(
+    "click",
+    shoot
+);
+
+
+function startGame() {
+
+    gameRunning = true;
+
+    health = 100;
+
+    kills = 0;
+
+    wave = 1;
+
+    score = 0;
+
+    bots.forEach(bot =>
+        bot.element.remove()
+    );
+
+    bots = [];
+
+    updateHud();
+
+    spawnBots();
+
+    requestAnimationFrame(gameLoop);
+}
+
+
+function gameLoop() {
+
+    if (!gameRunning) return;
+
+
+    movePlayer();
+
+    moveBots();
+
+    checkCollisions();
+
+    requestAnimationFrame(gameLoop);
+}
+
+
+function movePlayer() {
+
+    const speed = 4;
+
+    let left =
+        parseFloat(player.style.left || "50%");
+
+    let top =
+        parseFloat(player.style.top || "50%");
+
+
+    if (keys["w"] || keys["arrowup"])
+        top -= speed;
+
+    if (keys["s"] || keys["arrowdown"])
+        top += speed;
+
+    if (keys["a"] || keys["arrowleft"])
+        left -= speed;
+
+    if (keys["d"] || keys["arrowright"])
+        left += speed;
+
+
+    left =
+        Math.max(
+            2,
+            Math.min(98, left)
+        );
+
+    top =
+        Math.max(
+            3,
+            Math.min(97, top)
+        );
+
+
+    player.style.left =
+        left + "%";
+
+    player.style.top =
+        top + "%";
+}
+
+
+function spawnBots() {
+
+    for (
+        let i = 0;
+        i < 5 + wave;
+        i++
+    ) {
+
+        const bot =
+            document.createElement("div");
+
+        bot.className = "bot";
+
+
+        const side =
+            Math.floor(
+                Math.random() * 4
+            );
+
+
+        let x;
+        let y;
+
+
+        if (side === 0) {
+
+            x = 2;
+            y = Math.random() * 95;
+
+        } else if (side === 1) {
+
+            x = 95;
+            y = Math.random() * 95;
+
+        } else if (side === 2) {
+
+            x = Math.random() * 95;
+            y = 2;
+
+        } else {
+
+            x = Math.random() * 95;
+            y = 95;
+
+        }
+
+
+        bot.style.left = x + "%";
+
+        bot.style.top = y + "%";
+
+
+        game.appendChild(bot);
+
+
+        bots.push({
+
+            element: bot,
+
+            x: x,
+
+            y: y,
+
+            speed:
+                .08 +
+                Math.random() * .08
+
+        });
+
+    }
+}
+
+
+function moveBots() {
+
+    const playerX =
+        parseFloat(player.style.left);
+
+    const playerY =
+        parseFloat(player.style.top);
+
+
+    bots.forEach(bot => {
+
+        const dx =
+            playerX - bot.x;
+
+        const dy =
+            playerY - bot.y;
+
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if (distance > 1) {
+
+            bot.x +=
+                dx / distance *
+                bot.speed;
+
+            bot.y +=
+                dy / distance *
+                bot.speed;
+
+        }
+
+
+        bot.element.style.left =
+            bot.x + "%";
+
+        bot.element.style.top =
+            bot.y + "%";
+
+    });
+}
+
+
+function checkCollisions() {
+
+    const px =
+        parseFloat(player.style.left);
+
+    const py =
+        parseFloat(player.style.top);
+
+
+    bots.forEach(bot => {
+
+        const dx =
+            px - bot.x;
+
+        const dy =
+            py - bot.y;
+
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if (distance < 3) {
+
+            health -= 0.5;
+
+            updateHud();
+
+
+            if (health <= 0) {
+
+                gameOver();
+
+            }
+
+        }
+
+    });
+}
+
+
+function shoot(e) {
+
+    if (!gameRunning) return;
+
+
+    const bullet =
+        document.createElement("div");
+
+    bullet.className =
+        "bullet";
+
+
+    const rect =
+        game.getBoundingClientRect();
+
+
+    const x =
+        e.clientX -
+        rect.left;
+
+
+    const y =
+        e.clientY -
+        rect.top;
+
+
+    bullet.style.left =
+        x + "px";
+
+    bullet.style.top =
+        y + "px";
+
+
+    game.appendChild(bullet);
+
+
+    setTimeout(
+        () => bullet.remove(),
+        500
+    );
+
+
+    // Simpele test-kill.
+    // Later kunnen we dit vervangen
+    // door echte projectile collision.
+
+    let closest = null;
+
+    let closestDistance = Infinity;
+
+
+    bots.forEach(bot => {
+
+        const dx =
+            x -
+            (
+                bot.x / 100 *
+                game.clientWidth
+            );
+
+        const dy =
+            y -
+            (
+                bot.y / 100 *
+                game.clientHeight
+            );
+
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if (distance < closestDistance) {
+
+            closestDistance = distance;
+
+            closest = bot;
+
+        }
+
+    });
+
+
+    if (
+        closest &&
+        closestDistance < 70
+    ) {
+
+        closest.element.remove();
+
+        bots =
+            bots.filter(
+                b => b !== closest
+            );
+
+
+        kills++;
+
+        score += 10;
+
+        updateHud();
+
+
+        if (bots.length === 0) {
+
+            wave++;
+
+            spawnBots();
+
+        }
+
+    }
+}
+
+
+function gameOver() {
+
+    gameRunning = false;
+
+    alert(
+        `Game over!\nScore: ${score}\nKills: ${kills}`
+    );
+
+
+    saveScore();
+}
+
+
+function updateHud() {
+
+    document
+        .getElementById("healthDisplay")
+        .textContent =
+        Math.max(
+            0,
+            Math.round(health)
+        );
+
+
+    document
+        .getElementById("killsDisplay")
+        .textContent =
+        kills;
+
+
+    document
+        .getElementById("waveDisplay")
+        .textContent =
+        wave;
+}
+
+
+// ============================================================
+// SAVE SCORE
+// ============================================================
+
+async function saveScore() {
+
+    const { error } =
+        await supabaseClient
+            .from("leaderboard")
+            .insert({
+
+                user_id:
+                    currentPlayer.id,
+
+                player_name:
+                    currentPlayer.username,
+
+                score: score,
+
+                kills: kills,
+
+                wave: wave
+
+            });
+
+
+    if (error) {
+
+        console.error(
+            "Score opslaan mislukt:",
+            error
+        );
+
+    } else {
+
+        loadLeaderboard();
+
+    }
+}
+
+
+// ============================================================
+// ESCAPE HTML
+// ============================================================
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+// ============================================================
+// AUTO LOGIN
+// ============================================================
+
+try {
+
+    const saved =
+        localStorage.getItem(
+            "stb_player"
+        );
+
+
+    if (saved) {
+
+        currentPlayer =
+            JSON.parse(saved);
+
+        showGame();
+
+    }
+
+} catch (error) {
+
+    console.error(error);
+
+    localStorage.removeItem(
+        "stb_player"
+    );
+}
 
 </script>
 
 </body>
-
 </html>
