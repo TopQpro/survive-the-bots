@@ -1,99 +1,233 @@
-<!DOCTYPE html> <html lang="nl"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Survive the Bots - Login</title> <style> * { box-sizing: border-box; } body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at top, #172554, #020617 65%); color: white; font-family: Arial, sans-serif; } .card { width: min(420px, 92%); padding: 30px; background: rgba(15, 23, 42, .96); border: 1px solid #334155; border-radius: 18px; box-shadow: 0 25px 80px rgba(0,0,0,.5); } .logo { text-align: center; margin-bottom: 25px; } .logo h1 { margin: 0; color: #38bdf8; font-size: 32px; } .logo p { color: #94a3b8; } .tabs { display: flex; gap: 5px; margin-bottom: 18px; } .tabs button { flex: 1; } button { cursor: pointer; border: 0; border-radius: 9px; padding: 12px; background: #0284c7; color: white; font-weight: bold; } button:hover { background: #0369a1; } .tabs button { background: #1e293b; } .tabs button.active { background: #0284c7; } input { width: 100%; margin: 7px 0; padding: 13px; background: #020617; color: white; border: 1px solid #475569; border-radius: 9px; outline: none; } input:focus { border-color: #38bdf8; } .submit { width: 100%; margin-top: 10px; } .message { margin-top: 15px; padding: 10px; border-radius: 8px; background: #1e293b; color: #cbd5e1; } .hidden { display: none; } .version { position: fixed; bottom: 10px; right: 12px; color: #64748b; font-size: 12px; } </style> </head> <body> <div class="card">
-<div class="logo">
+<!DOCTYPE html> <html lang="nl"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survive the Bots</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background:
+            radial-gradient(circle at top, #172554, #020617 70%);
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+
+    .version {
+        position: fixed;
+        top: 12px;
+        right: 15px;
+        color: #94a3b8;
+        font-size: 13px;
+    }
+
+    .card {
+        width: min(430px, 92%);
+        padding: 30px;
+        background: rgba(15, 23, 42, .96);
+        border: 1px solid #334155;
+        border-radius: 20px;
+        box-shadow: 0 25px 70px rgba(0,0,0,.45);
+    }
+
+    h1 {
+        text-align: center;
+        color: #38bdf8;
+        margin-top: 0;
+    }
+
+    h2 {
+        color: #e2e8f0;
+    }
+
+    input {
+        width: 100%;
+        padding: 13px;
+        margin: 7px 0;
+        background: #020617;
+        color: white;
+        border: 1px solid #475569;
+        border-radius: 9px;
+        outline: none;
+    }
+
+    input:focus {
+        border-color: #38bdf8;
+    }
+
+    button {
+        width: 100%;
+        padding: 13px;
+        margin-top: 10px;
+        border: 0;
+        border-radius: 9px;
+        background: #0284c7;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #0369a1;
+    }
+
+    .secondary {
+        background: #1e293b;
+    }
+
+    .secondary:hover {
+        background: #334155;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .message {
+        padding: 12px;
+        margin-top: 15px;
+        background: #1e293b;
+        border-radius: 9px;
+        color: #cbd5e1;
+    }
+
+    .menu {
+        display: grid;
+        gap: 10px;
+    }
+
+    .player-info {
+        padding: 15px;
+        background: #020617;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+</style>
+
+</head> <body> <div class="version"> Survive the Bots v1.3.0 </div> <div class="card">
+<!-- LOGIN -->
+
+<section id="loginSection">
 
     <h1>🎮 Survive the Bots</h1>
 
-    <p>Overleef de bots.</p>
-
-</div>
-
-
-<div class="tabs">
-
-    <button
-        id="loginTab"
-        class="active"
-        onclick="showLogin()">
-
-        Inloggen
-
-    </button>
-
-    <button
-        id="registerTab"
-        onclick="showRegister()">
-
-        Registreren
-
-    </button>
-
-</div>
-
-
-<div id="loginForm">
+    <h2>Inloggen</h2>
 
     <input
-        id="loginEmail"
-        type="email"
-        placeholder="E-mailadres"
-        autocomplete="email"
+        id="username"
+        placeholder="Gebruikersnaam"
+        autocomplete="username"
     >
 
     <input
-        id="loginPassword"
+        id="password"
         type="password"
         placeholder="Wachtwoord"
         autocomplete="current-password"
     >
 
-    <button
-        class="submit"
-        onclick="login()">
-
-        ▶ Inloggen
-
+    <button onclick="login()">
+        Inloggen
     </button>
 
-</div>
+    <button
+        class="secondary"
+        onclick="showRegister()"
+    >
+        Nieuw account maken
+    </button>
+
+</section>
 
 
-<div id="registerForm" class="hidden">
+<!-- REGISTER -->
+
+<section id="registerSection" class="hidden">
+
+    <h1>🎮 Account maken</h1>
 
     <input
         id="registerUsername"
-        type="text"
         placeholder="Gebruikersnaam"
-        maxlength="20"
-    >
-
-    <input
-        id="registerEmail"
-        type="email"
-        placeholder="E-mailadres"
-        autocomplete="email"
     >
 
     <input
         id="registerPassword"
         type="password"
         placeholder="Wachtwoord"
-        autocomplete="new-password"
     >
 
-    <button
-        class="submit"
-        onclick="register()">
-
-        📝 Account maken
-
+    <button onclick="register()">
+        Account maken
     </button>
 
-</div>
+    <button
+        class="secondary"
+        onclick="showLogin()"
+    >
+        Terug naar login
+    </button>
+
+</section>
+
+
+<!-- MENU -->
+
+<section id="menuSection" class="hidden">
+
+    <h1>🎮 Survive the Bots</h1>
+
+    <div class="player-info">
+
+        👤 <b id="playerName"></b><br><br>
+
+        💰 Coins:
+        <b id="playerCoins">0</b>
+
+    </div>
+
+    <div class="menu">
+
+        <button onclick="go('game.html')">
+            ▶ Spelen
+        </button>
+
+        <button onclick="go('shop.html')">
+            🛒 Shop
+        </button>
+
+        <button onclick="go('leaderboard.html')">
+            🏆 Leaderboard
+        </button>
+
+        <button
+            id="adminButton"
+            class="hidden"
+            onclick="go('admin.html')"
+        >
+            👑 Admin
+        </button>
+
+        <button
+            class="secondary"
+            onclick="logout()"
+        >
+            Uitloggen
+        </button>
+
+    </div>
+
+</section>
 
 
 <div
     id="message"
-    class="message hidden">
-</div>
+    class="message hidden"
+></div>
 
-</div> <div class="version"> v1.3.0 </div> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <script src="supabase-config.js"></script> <script> const supabaseClient = supabase.createClient( SUPABASE_URL, SUPABASE_KEY ); function showMessage(text) { const message = document.getElementById("message"); message.textContent = text; message.classList.remove("hidden"); } function showLogin() { document .getElementById("loginForm") .classList.remove("hidden"); document .getElementById("registerForm") .classList.add("hidden"); document .getElementById("loginTab") .classList.add("active"); document .getElementById("registerTab") .classList.remove("active"); } function showRegister() { document .getElementById("loginForm") .classList.add("hidden"); document .getElementById("registerForm") .classList.remove("hidden"); document .getElementById("registerTab") .classList.add("active"); document .getElementById("loginTab") .classList.remove("active"); } async function register() { const username = document .getElementById("registerUsername") .value .trim(); const email = document .getElementById("registerEmail") .value .trim(); const password = document .getElementById("registerPassword") .value; if (!username || !email || !password) { showMessage( "Vul alle velden in." ); return; } if (username.length < 3) { showMessage( "Je gebruikersnaam moet minimaal 3 tekens hebben." ); return; } if (password.length < 6) { showMessage( "Je wachtwoord moet minimaal 6 tekens hebben." ); return; } showMessage( "Account wordt aangemaakt..." ); const { data, error } = await supabaseClient.auth.signUp({ email: email, password: password, options: { data: { username: username } } }); if (error) { console.error(error); showMessage( error.message ); return; } if (data.session) { location.href = "game.html"; return; } showMessage( "Account aangemaakt. Controleer eventueel je e-mail en log daarna in." ); showLogin(); document .getElementById("loginEmail") .value = email; } async function login() { const email = document .getElementById("loginEmail") .value .trim(); const password = document .getElementById("loginPassword") .value; if (!email || !password) { showMessage( "Vul je e-mailadres en wachtwoord in." ); return; } showMessage( "Inloggen..." ); const { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: password }); if (error) { console.error(error); showMessage( error.message ); return; } if (data.session) { location.href = "game.html"; } } // ============================================================ // AL INGLOGD? // ============================================================ (async function() { const { data } = await supabaseClient.auth.getSession(); if (data.session) { location.href = "game.html"; } })(); </script> </body> </html>
+</div> <script src="supabase-config.js"></script> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <script> const supabaseClient = supabase.createClient( SUPABASE_URL, SUPABASE_KEY ); let currentPlayer = null; function showMessage(text) { const message = document.getElementById("message"); message.textContent = text; message.classList.remove("hidden"); } function showLogin() { document .getElementById("loginSection") .classList.remove("hidden"); document .getElementById("registerSection") .classList.add("hidden"); document .getElementById("menuSection") .classList.add("hidden"); } function showRegister() { document .getElementById("loginSection") .classList.add("hidden"); document .getElementById("registerSection") .classList.remove("hidden"); document .getElementById("menuSection") .classList.add("hidden"); } async function register() { const username = document .getElementById("registerUsername") .value .trim(); const password = document .getElementById("registerPassword") .value; if (!username || !password) { showMessage( "Vul een gebruikersnaam en wachtwoord in." ); return; } const { data, error } = await supabaseClient.rpc( "register_player", { p_username: username, p_password: password } ); if (error) { console.error(error); showMessage(error.message); return; } showMessage( "Account aangemaakt! Je kunt nu inloggen." ); document.getElementById( "username" ).value = username; showLogin(); } async function login() { const username = document .getElementById("username") .value .trim(); const password = document .getElementById("password") .value; if (!username || !password) { showMessage( "Vul je gebruikersnaam en wachtwoord in." ); return; } const { data, error } = await supabaseClient.rpc( "login_player", { p_username: username, p_password: password } ); if (error) { console.error(error); showMessage(error.message); return; } currentPlayer = typeof data === "string" ? JSON.parse(data) : data; localStorage.setItem( "stb_player", JSON.stringify(currentPlayer) ); showMenu(); } function showMenu() { document .getElementById("loginSection") .classList.add("hidden"); document .getElementById("registerSection") .classList.add("hidden"); document .getElementById("menuSection") .classList.remove("hidden"); document .getElementById("playerName") .textContent = currentPlayer.username; document .getElementById("playerCoins") .textContent = currentPlayer.coins; if (currentPlayer.role === "admin") { document .getElementById("adminButton") .classList.remove("hidden"); } else { document .getElementById("adminButton") .classList.add("hidden"); } } function go(page) { window.location.href = page; } function logout() { localStorage.removeItem("stb_player"); currentPlayer = null; showLogin(); } try { const saved = localStorage.getItem("stb_player"); if (saved) { currentPlayer = JSON.parse(saved); showMenu(); } } catch (error) { console.error(error); localStorage.removeItem("stb_player"); } </script> </body> </html>

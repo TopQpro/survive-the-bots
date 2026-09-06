@@ -1,161 +1,219 @@
-<!DOCTYPE html> <html lang="nl"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Survive the Bots - Admin</title> <style> body { margin: 0; min-height: 100vh; background: radial-gradient( circle at top, #172554, #020617 65% ); color: white; font-family: Arial,sans-serif; } header { padding: 18px; background: #020617; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 10px; } header h1 { margin-right: auto; color: #facc15; } button { padding: 10px 14px; border: 0; border-radius: 8px; background: #0284c7; color: white; font-weight: bold; cursor: pointer; } .container { width: min(1100px,92%); margin: 30px auto; } .card { background: rgba(15,23,42,.96); border: 1px solid #334155; border-radius: 15px; padding: 20px; margin-bottom: 20px; } input, select { width: 100%; padding: 11px; margin: 5px 0 12px; background: #020617; color: white; border: 1px solid #475569; border-radius: 8px; } .weapons { display: grid; grid-template-columns: repeat( auto-fit, minmax(230px,1fr) ); gap: 15px; } .weapon { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 15px; } .message { padding: 12px; background: #1e293b; border-radius: 8px; margin-bottom: 15px; } .danger { background: #dc2626; } </style> </head> <body> <header>
-<h1>
-    👑 Admin
-</h1>
+<!DOCTYPE html> <html lang="nl"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survive the Bots - Admin</title>
 
-<button onclick="location.href='game.html'">
-    🎮 Game
-</button>
+<style>
+    * {
+        box-sizing: border-box;
+    }
 
-<button onclick="location.href='shop.html'">
-    🛒 Shop
-</button>
+    body {
+        margin: 0;
+        background:
+            radial-gradient(circle at top, #172554, #020617 70%);
+        color: white;
+        font-family: Arial, sans-serif;
+    }
 
-</header> <div class="container">
+    .container {
+        width: min(1100px, 94%);
+        margin: auto;
+        padding: 30px 0;
+    }
+
+    .card {
+        background: rgba(15,23,42,.96);
+        border: 1px solid #334155;
+        border-radius: 18px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+
+    h1 {
+        color: #38bdf8;
+    }
+
+    input,
+    select {
+        padding: 11px;
+        background: #020617;
+        color: white;
+        border: 1px solid #475569;
+        border-radius: 8px;
+        margin: 4px;
+    }
+
+    button {
+        padding: 10px 15px;
+        border: 0;
+        border-radius: 8px;
+        background: #0284c7;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 3px;
+    }
+
+    button:hover {
+        background: #0369a1;
+    }
+
+    .danger {
+        background: #dc2626;
+    }
+
+    .danger:hover {
+        background: #b91c1c;
+    }
+
+    .success {
+        background: #16a34a;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 12px 8px;
+        border-bottom: 1px solid #334155;
+        text-align: left;
+    }
+
+    th {
+        color: #38bdf8;
+    }
+
+    .message {
+        padding: 12px;
+        background: #1e293b;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+
+    @media(max-width:700px) {
+
+        table {
+            font-size: 13px;
+        }
+
+        .desktop-only {
+            display: none;
+        }
+
+    }
+</style>
+
+</head> <body> <div class="container">
+<div class="card">
+
+    <h1>👑 Adminpaneel</h1>
+
+    <button onclick="location.href='index.html'">
+        ← Menu
+    </button>
+
+    <button onclick="location.href='game.html'">
+        🎮 Game
+    </button>
+
+</div>
+
+
 <div
     id="message"
-    class="message">
-
-    Admin controleren...
-
-</div>
+    class="message"
+    style="display:none"
+></div>
 
 
-<div
-    id="adminArea"
-    style="display:none">
+<!-- NIEUWE USER -->
 
+<div class="card">
 
-    <div class="card">
+    <h2>➕ Nieuwe gebruiker</h2>
 
-        <h2>
-            🔫 Nieuw wapen
-        </h2>
+    <input
+        id="newUsername"
+        placeholder="Gebruikersnaam"
+    >
 
-        <input
-            id="weaponId"
-            placeholder="ID bijvoorbeeld laser"
-        >
+    <input
+        id="newPassword"
+        type="text"
+        placeholder="Wachtwoord"
+    >
 
-        <input
-            id="weaponName"
-            placeholder="Naam"
-        >
+    <select id="newRole">
 
-        <input
-            id="weaponDescription"
-            placeholder="Beschrijving"
-        >
+        <option value="player">
+            Player
+        </option>
 
-        <input
-            id="damage"
-            type="number"
-            placeholder="Damage"
-            value="25"
-        >
+        <option value="admin">
+            Admin
+        </option>
 
-        <input
-            id="fireRate"
-            type="number"
-            placeholder="Fire rate"
-            value="300"
-        >
+    </select>
 
-        <input
-            id="bullets"
-            type="number"
-            placeholder="Aantal kogels"
-            value="1"
-        >
+    <input
+        id="newCoins"
+        type="number"
+        value="0"
+        min="0"
+        placeholder="Coins"
+    >
 
-        <input
-            id="spread"
-            type="number"
-            step="0.01"
-            placeholder="Spread"
-            value="0"
-        >
-
-        <input
-            id="bulletSpeed"
-            type="number"
-            step="0.1"
-            placeholder="Bullet speed"
-            value="12"
-        >
-
-        <input
-            id="price"
-            type="number"
-            placeholder="Prijs"
-            value="500"
-        >
-
-        <input
-            id="icon"
-            placeholder="Emoji bijvoorbeeld 🔥"
-            value="🔫"
-        >
-
-        <input
-            id="imageUrl"
-            placeholder="Afbeelding URL (optioneel)"
-        >
-
-        <label>
-            <input
-                id="isDefault"
-                type="checkbox"
-                style="width:auto">
-
-            Standaard aan iedereen geven
-
-        </label>
-
-        <br><br>
-
-        <button onclick="createWeapon()">
-            ➕ Wapen maken
-        </button>
-
-    </div>
-
-
-    <div class="card">
-
-        <h2>
-            📋 Bestaande wapens
-        </h2>
-
-        <div
-            id="weapons"
-            class="weapons">
-
-            Laden...
-
-        </div>
-
-    </div>
-
+    <button
+        class="success"
+        onclick="createPlayer()"
+    >
+        Gebruiker aanmaken
+    </button>
 
 </div>
 
-</div> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <script src="supabase-config.js"></script> <script> const supabaseClient = supabase.createClient( SUPABASE_URL, SUPABASE_KEY ); let user = null; async function init() { const { data } = await supabaseClient.auth.getSession(); if (!data.session) { location.href = "index.html"; return; } user = data.session.user; const { data: profile, error } = await supabaseClient .from("profiles") .select("role") .eq("id",user.id) .single(); if ( error || !profile || profile.role !== "admin" ) { showMessage( "⛔ Je hebt geen toegang tot de adminpagina." ); return; } document.getElementById( "adminArea" ).style.display = "block"; showMessage( "✅ Admin toegang toegestaan." ); loadWeapons(); } async function loadWeapons() { const { data, error } = await supabaseClient .from("weapons") .select("*") .order("name"); const container = document.getElementById( "weapons" ); if (error) { console.error(error); container.innerHTML = "Wapens konden niet geladen worden."; return; } container.innerHTML = ""; data.forEach( weapon => { const div = document.createElement( "div" ); div.className = "weapon"; div.innerHTML = ` <h3> ${escapeHtml( weapon.icon )} ${escapeHtml( weapon.name )} </h3> <p> ID: ${escapeHtml( weapon.id )} </p> <p> Damage: ${weapon.damage} <br> Fire rate: ${weapon.fire_rate} <br> Prijs: ${weapon.price} <br> Default: ${ weapon.is_default ? "Ja" : "Nee" } <br> Actief: ${ weapon.is_active ? "Ja" : "Nee" } </p> `; container.appendChild( div ); } ); } async function createWeapon() { const weapon = { id: document .getElementById("weaponId") .value .trim(), name: document .getElementById("weaponName") .value .trim(), description: document .getElementById( "weaponDescription" ) .value .trim(), damage: Number( document .getElementById("damage") .value ), fire_rate: Number( document .getElementById("fireRate") .value ), bullets: Number( document .getElementById("bullets") .value ), spread: Number( document .getElementById("spread") .value ), bullet_speed: Number( document .getElementById( "bulletSpeed" ) .value ), price: Number( document .getElementById("price") .value ), icon: document .getElementById("icon") .value .trim(), image_url: document .getElementById("imageUrl") .value .trim() || null, is_default: document .getElementById( "isDefault" ) .checked, is_active: true }; if ( !weapon.id || !weapon.name ) { showMessage( "Vul minimaal een ID en naam in." ); return; } const { error } =
-    await supabaseClient.rpc(
-        "admin_create_weapon",
-        {
-            p_id: weapon.id,
-            p_name: weapon.name,
-            p_description: weapon.description,
-            p_damage: weapon.damage,
-            p_fire_rate: weapon.fire_rate,
-            p_bullets: weapon.bullets,
-            p_spread: weapon.spread,
-            p_bullet_speed: weapon.bullet_speed,
-            p_price: weapon.price,
-            p_icon: weapon.icon,
-            p_image_url: weapon.image_url,
-            p_is_default: weapon.is_default
-        }
-    );
- if (error) { console.error(error); showMessage( error.message ); return; } showMessage( "✅ Wapen aangemaakt." ); loadWeapons(); } function showMessage(text) { document.getElementById( "message" ).textContent = text; } function escapeHtml(value) { return String(value ?? "") .replaceAll("&","&amp;") .replaceAll("<","&lt;") .replaceAll(">","&gt;") .replaceAll('"',"&quot;") .replaceAll("'","&#039;"); } init(); </script> </body> </html>
+
+<!-- USERS -->
+
+<div class="card">
+
+    <h2>👥 Gebruikers</h2>
+
+    <button onclick="loadPlayers()">
+        🔄 Vernieuwen
+    </button>
+
+    <div style="overflow-x:auto">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Username</th>
+                    <th>Rol</th>
+                    <th>Coins</th>
+                    <th>Acties</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="playersBody">
+
+                <tr>
+                    <td colspan="4">
+                        Laden...
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</div> <script src="supabase-config.js"></script> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <script> const supabaseClient = supabase.createClient( SUPABASE_URL, SUPABASE_KEY ); let currentPlayer = null; function message(text) { const box = document.getElementById("message"); box.textContent = text; box.style.display = "block"; } function isAdmin() { return ( currentPlayer && currentPlayer.role === "admin" ); } async function createPlayer() { if (!isAdmin()) { message("Geen adminrechten."); return; } const username = document .getElementById("newUsername") .value .trim(); const password = document .getElementById("newPassword") .value; const role = document .getElementById("newRole") .value; const coins = Number( document .getElementById("newCoins") .value ); const { error } = await supabaseClient.rpc( "admin_create_player", { p_username: username, p_password: password, p_role: role, p_coins: coins } ); if (error) { console.error(error); message(error.message); return; } message( "Gebruiker succesvol aangemaakt." ); document.getElementById( "newUsername" ).value = ""; document.getElementById( "newPassword" ).value = ""; document.getElementById( "newCoins" ).value = "0"; loadPlayers(); } async function loadPlayers() { if (!isAdmin()) { message("Geen adminrechten."); return; } const { data, error } = await supabaseClient.rpc( "admin_get_players" ); if (error) { console.error(error); message(error.message); return; } const body = document.getElementById( "playersBody" ); body.innerHTML = ""; (data || []).forEach(player => { const row = document.createElement("tr"); row.innerHTML = ` <td> ${escapeHtml(player.username)} </td> <td> <select id="role-${player.id}"> <option value="player" ${player.role === "player" ? "selected" : ""} > Player </option> <option value="admin" ${player.role === "admin" ? "selected" : ""} > Admin </option> </select> </td> <td> <input id="coins-${player.id}" type="number" value="${player.coins}" min="0" style="width:100px" > </td> <td> <button onclick="savePlayer('${player.id}')" > 💾 Opslaan </button> <button onclick="changePassword('${player.id}')" > 🔑 Wachtwoord </button> <button class="danger" onclick="deletePlayer('${player.id}')" > 🗑 Verwijderen </button> </td> `; body.appendChild(row); }); } async function savePlayer(id) { const role = document.getElementById( `role-${id}` ).value; const coins = Number( document.getElementById( `coins-${id}` ).value ); const { error } = await supabaseClient.rpc( "admin_update_player", { p_id: id, p_role: role, p_coins: coins } ); if (error) { message(error.message); return; } message( "Gebruiker bijgewerkt." ); loadPlayers(); } async function changePassword(id) { const password = prompt( "Nieuw wachtwoord:" ); if (!password) return; const { error } = await supabaseClient.rpc( "admin_change_password", { p_id: id, p_password: password } ); if (error) { message(error.message); return; } message( "Wachtwoord gewijzigd." ); } async function deletePlayer(id) { if ( !confirm( "Deze gebruiker definitief verwijderen?" ) ) { return; } const { error } = await supabaseClient.rpc( "admin_delete_player", { p_id: id } ); if (error) { message(error.message); return; } message( "Gebruiker verwijderd." ); loadPlayers(); } function escapeHtml(value) { return String(value ?? "") .replaceAll("&", "&amp;") .replaceAll("<", "&lt;") .replaceAll(">", "&gt;") .replaceAll('"', "&quot;") .replaceAll("'", "&#039;"); } try { const saved = localStorage.getItem("stb_player"); if (!saved) { location.href = "index.html"; } else { currentPlayer = JSON.parse(saved); if (!isAdmin()) { alert( "Je hebt geen adminrechten." ); location.href = "index.html"; } else { loadPlayers(); } } } catch (error) { console.error(error); location.href = "index.html"; } </script> </body> </html>
