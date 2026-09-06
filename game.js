@@ -1587,3 +1587,6 @@ checkAuth();
 // in game.html.
 //
 // ============================================================
+
+window.startGame = startGame;
+window.logout = logout;
