@@ -1,0 +1,38 @@
+<!DOCTYPE html> <html lang="nl"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Weapon Shop</title> <style> body { margin: 0; min-height: 100vh; background: radial-gradient( circle at top, #172554, #020617 65% ); color: white; font-family: Arial,sans-serif; } header { padding: 18px; background: #020617; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 10px; } header h1 { margin-right: auto; color: #38bdf8; } button { padding: 10px 14px; border: 0; border-radius: 8px; background: #0284c7; color: white; font-weight: bold; cursor: pointer; } .container { width: min(1100px,92%); margin: 30px auto; } .coins { margin-bottom: 20px; padding: 15px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; font-size: 18px; } .shop { display: grid; grid-template-columns: repeat( auto-fit, minmax(220px,1fr) ); gap: 15px; } .card { background: rgba(15,23,42,.96); border: 1px solid #334155; border-radius: 14px; padding: 18px; } .icon { text-align: center; font-size: 65px; } .stats { color: #cbd5e1; line-height: 1.7; } .price { color: #facc15; font-size: 20px; font-weight: bold; } .buy { width: 100%; margin-top: 10px; } .buy:disabled { background: #475569; cursor: not-allowed; } .message { padding: 15px; background: #1e293b; border-radius: 8px; margin-bottom: 15px; } </style> </head> <body> <header>
+<h1>
+    🛒 Weapon Shop
+</h1>
+
+<button onclick="location.href='game.html'">
+    🎮 Game
+</button>
+
+<button onclick="location.href='inventory.html'">
+    🔫 Wapens
+</button>
+
+<button onclick="location.href='leaderboard.html'">
+    🏆 Scores
+</button>
+
+</header> <div class="container">
+<div class="coins">
+    💰 Coins:
+    <span id="coins">
+        0
+    </span>
+</div>
+
+
+<div
+    id="message"
+    class="message">
+</div>
+
+
+<div
+    id="shop"
+    class="shop">
+</div>
+
+</div> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <script src="supabase-config.js"></script> <script> const supabaseClient = supabase.createClient( SUPABASE_URL, SUPABASE_KEY ); let user = null; let coins = 0; let owned = new Set(); async function init() { const { data } = await supabaseClient.auth.getSession(); if (!data.session) { location.href = "index.html"; return; } user = data.session.user; await loadProfile(); await loadOwned(); await loadShop(); } async function loadProfile() { const { data, error } = await supabaseClient .from("profiles") .select("coins") .eq("id",user.id) .single(); if (error) { console.error(error); return; } coins = Number(data.coins || 0); updateCoins(); } async function loadOwned() { const { data, error } = await supabaseClient .from("user_weapons") .select("weapon_id") .eq("user_id",user.id); if (error) { console.error(error); return; } owned = new Set( (data || []) .map(x => x.weapon_id) ); } async function loadShop() { const { data, error } = await supabaseClient .from("weapons") .select("*") .eq("is_active",true) .order("price"); const shop = document.getElementById( "shop" ); if (error) { console.error(error); showMessage( "Shop kon niet geladen worden." ); return; } shop.innerHTML = ""; data.forEach( weapon => { const isOwned = owned.has( weapon.id ); const card = document.createElement( "div" ); card.className = "card"; card.innerHTML = ` <div class="icon"> ${escapeHtml( weapon.icon || "🔫" )} </div> <h2> ${escapeHtml( weapon.name )} </h2> <p> ${escapeHtml( weapon.description )} </p> <div class="stats"> 💥 Damage: ${weapon.damage} <br> ⚡ Fire rate: ${weapon.fire_rate} ms <br> 🔫 Kogels: ${weapon.bullets} </div> <p class="price"> 💰 ${weapon.price} </p> <button class="buy" ${isOwned ? "disabled" : ""} onclick="buyWeapon('${escapeHtml(weapon.id)}')"> ${ isOwned ? "✓ In bezit" : "Kopen" } </button> `; shop.appendChild( card ); } ); } async function buyWeapon(id) { showMessage( "Aankoop wordt verwerkt..." ); const { data, error } = await supabaseClient.rpc( "buy_weapon", { p_weapon_id: id } ); if (error) { console.error(error); showMessage( error.message ); return; } showMessage( "✅ Wapen gekocht!" ); await loadProfile(); await loadOwned(); await loadShop(); } function updateCoins() { document.getElementById( "coins" ).textContent = coins; } function showMessage(text) { document.getElementById( "message" ).textContent = text; } function escapeHtml(value) { return String(value ?? "") .replaceAll("&","&amp;") .replaceAll("<","&lt;") .replaceAll(">","&gt;") .replaceAll('"',"&quot;") .replaceAll("'","&#039;"); } init(); </script> </body> </html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html> <html lang="nl"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Mijn wapens</title> <style> body { margin: 0; background: radial-gradient( circle at top, #172554, #020617 65% ); color: white; font-family: Arial, sans-serif; } header { padding: 18px; background: #020617; border-bottom: 1px solid #334155; display: flex; gap: 10px; align-items: center; } header h1 { margin-right: auto; color: #38bdf8; } button { padding: 10px 14px; border: 0; border-radius: 8px; background: #0284c7; color: white; font-weight: bold; cursor: pointer; } .container { width: min(1000px,92%); margin: 30px auto; } .weapons { display: grid; grid-template-columns: repeat( auto-fit, minmax(220px,1fr) ); gap: 15px; } .card { background: rgba(15,23,42,.96); border: 1px solid #334155; border-radius: 14px; padding: 18px; } .icon { font-size: 65px; text-align: center; padding: 15px; } .stat { color: #cbd5e1; line-height: 1.7; } .hidden { display: none; } .message { padding: 15px; background: #1e293b; border-radius: 8px; } </style> </head> <body> <header>
+<h1>
+    🔫 Mijn wapens
+</h1>
+
+<button onclick="location.href='game.html'">
+    🎮 Game
+</button>
+
+<button onclick="location.href='shop.html'">
+    🛒 Shop
+</button>
+
+<button onclick="location.href='leaderboard.html'">
+    🏆 Scores
+</button>
+
+</header> <div class="container">
+<div id="message" class="message">
+    Wapens laden...
+</div>
+
+<div
+    id="weapons"
+    class="weapons">
+</div>
+
+</div> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <script src="supabase-config.js"></script> <script> const supabaseClient = supabase.createClient( SUPABASE_URL, SUPABASE_KEY ); async function init() { const { data } = await supabaseClient.auth.getSession(); if (!data.session) { location.href = "index.html"; return; } await supabaseClient.rpc( "give_default_weapons", { p_user_id: data.session.user.id } ); loadWeapons(); } async function loadWeapons() { const { data, error } = await supabaseClient.rpc( "get_my_weapons" ); const container = document.getElementById( "weapons" ); const message = document.getElementById( "message" ); if (error) { console.error(error); message.textContent = "Wapens konden niet geladen worden."; return; } message.classList.add( "hidden" ); if (!data || !data.length) { message.textContent = "Je hebt nog geen wapens."; message.classList.remove( "hidden" ); return; } container.innerHTML = ""; data.forEach( weapon => { const card = document.createElement( "div" ); card.className = "card"; card.innerHTML = ` <div class="icon"> ${escapeHtml( weapon.icon || "🔫" )} </div> <h2> ${escapeHtml( weapon.name )} </h2> <p> ${escapeHtml( weapon.description )} </p> <div class="stat"> 💥 Damage: ${weapon.damage} <br> ⚡ Fire rate: ${weapon.fire_rate} ms <br> 🔫 Kogels: ${weapon.bullets} <br> 🎯 Snelheid: ${weapon.bullet_speed} <br> 📦 Verkregen via: ${escapeHtml( weapon.source )} </div> `; container.appendChild( card ); } ); } function escapeHtml(value) { return String(value ?? "") .replaceAll("&","&amp;") .replaceAll("<","&lt;") .replaceAll(">","&gt;") .replaceAll('"',"&quot;") .replaceAll("'","&#039;"); } init(); </script> </body> </html>
