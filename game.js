@@ -1699,26 +1699,19 @@ async function saveScore() {
     try {
 
         const {
-            data,
-            error
-        } = await supabaseClient.rpc(
-            "save_game_score",
-            {
-                p_user_id: user.id,
-                p_score: Math.max(
-                    0,
-                    Math.floor(score)
-                ),
-                p_kills: Math.max(
-                    0,
-                    Math.floor(kills)
-                ),
-                p_wave: Math.max(
-                    1,
-                    Math.floor(wave)
-                )
-            }
-        );
+    data,
+    error
+} = await supabaseClient.rpc(
+    "save_game_score",
+    {
+        p_user_id: user.id,
+        p_score: score,
+        p_kills: kills,
+        p_wave: wave
+    }
+);
+
+
 
 
         if (error) {
