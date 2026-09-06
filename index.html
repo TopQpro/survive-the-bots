@@ -9,40 +9,54 @@
     body {
         margin: 0;
         min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
         background:
-            radial-gradient(circle at top, #172554, #020617 70%);
+            radial-gradient(circle at top, #172554, #020617 65%);
         color: white;
         font-family: Arial, sans-serif;
+    }
+
+    button,
+    input {
+        font: inherit;
+    }
+
+    button {
+        cursor: pointer;
     }
 
     .version {
         position: fixed;
         top: 12px;
         right: 15px;
-        color: #94a3b8;
-        font-size: 13px;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .container {
+        width: min(1000px, 94%);
+        margin: auto;
+        padding: 60px 0 40px;
     }
 
     .card {
-        width: min(430px, 92%);
-        padding: 30px;
         background: rgba(15, 23, 42, .96);
         border: 1px solid #334155;
-        border-radius: 20px;
-        box-shadow: 0 25px 70px rgba(0,0,0,.45);
+        border-radius: 18px;
+        padding: 25px;
+        box-shadow: 0 20px 60px rgba(0,0,0,.35);
     }
 
     h1 {
-        text-align: center;
-        color: #38bdf8;
         margin-top: 0;
+        color: #38bdf8;
     }
 
     h2 {
         color: #e2e8f0;
+    }
+
+    p {
+        color: #cbd5e1;
     }
 
     input {
@@ -61,162 +75,235 @@
     }
 
     button {
-        width: 100%;
-        padding: 13px;
-        margin-top: 10px;
+        padding: 12px 18px;
         border: 0;
         border-radius: 9px;
         background: #0284c7;
         color: white;
         font-weight: bold;
-        cursor: pointer;
+        margin: 5px;
     }
 
     button:hover {
         background: #0369a1;
     }
 
-    .secondary {
-        background: #1e293b;
+    .success {
+        background: #16a34a;
     }
 
-    .secondary:hover {
-        background: #334155;
+    .success:hover {
+        background: #15803d;
+    }
+
+    .danger {
+        background: #dc2626;
     }
 
     .hidden {
         display: none !important;
     }
 
-    .message {
-        padding: 12px;
-        margin-top: 15px;
+    .auth {
+        max-width: 430px;
+        margin: 50px auto;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 15px;
+    }
+
+    .tabs button {
+        flex: 1;
         background: #1e293b;
-        border-radius: 9px;
+    }
+
+    .tabs button.active {
+        background: #0284c7;
+    }
+
+    .message {
+        padding: 10px;
+        margin-top: 12px;
+        border-radius: 8px;
+        background: #1e293b;
         color: #cbd5e1;
     }
 
     .menu {
-        display: grid;
-        gap: 10px;
+        max-width: 650px;
+        margin: 40px auto;
     }
 
-    .player-info {
-        padding: 15px;
-        background: #020617;
-        border-radius: 10px;
-        margin-bottom: 20px;
+    .menu-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .menu-buttons button {
+        margin: 0;
+        min-height: 55px;
+    }
+
+    .welcome {
+        color: #94a3b8;
+    }
+
+    @media (max-width: 600px) {
+        .menu-buttons {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
-</head> <body> <div class="version"> Survive the Bots v1.3.0 </div> <div class="card">
-<!-- LOGIN -->
+</head> <body> <div class="version"> Survive the Bots v1.3.0 </div> <div class="container">
+<!-- LOGIN / REGISTRATIE -->
 
-<section id="loginSection">
+<section id="authSection" class="auth card">
 
     <h1>🎮 Survive the Bots</h1>
 
-    <h2>Inloggen</h2>
+    <p>
+        Log in om te spelen.
+    </p>
 
-    <input
-        id="username"
-        placeholder="Gebruikersnaam"
-        autocomplete="username"
-    >
+    <div class="tabs">
 
-    <input
-        id="password"
-        type="password"
-        placeholder="Wachtwoord"
-        autocomplete="current-password"
-    >
+        <button
+            id="loginTab"
+            class="active"
+            type="button">
+            Inloggen
+        </button>
 
-    <button onclick="login()">
-        Inloggen
-    </button>
+        <button
+            id="registerTab"
+            type="button">
+            Registreren
+        </button>
 
-    <button
-        class="secondary"
-        onclick="showRegister()"
-    >
-        Nieuw account maken
-    </button>
-
-</section>
+    </div>
 
 
-<!-- REGISTER -->
+    <!-- LOGIN -->
 
-<section id="registerSection" class="hidden">
+    <div id="loginForm">
 
-    <h1>🎮 Account maken</h1>
+        <input
+            id="loginUsername"
+            type="text"
+            placeholder="Gebruikersnaam"
+            autocomplete="username"
+        >
 
-    <input
-        id="registerUsername"
-        placeholder="Gebruikersnaam"
-    >
+        <input
+            id="loginPassword"
+            type="password"
+            placeholder="Wachtwoord"
+            autocomplete="current-password"
+        >
 
-    <input
-        id="registerPassword"
-        type="password"
-        placeholder="Wachtwoord"
-    >
+        <button
+            class="success"
+            type="button"
+            onclick="login()">
+            🎮 Inloggen
+        </button>
 
-    <button onclick="register()">
-        Account maken
-    </button>
+    </div>
 
-    <button
-        class="secondary"
-        onclick="showLogin()"
-    >
-        Terug naar login
-    </button>
+
+    <!-- REGISTRATIE -->
+
+    <div
+        id="registerForm"
+        class="hidden">
+
+        <input
+            id="registerUsername"
+            type="text"
+            placeholder="Gebruikersnaam"
+            autocomplete="username"
+        >
+
+        <input
+            id="registerPassword"
+            type="password"
+            placeholder="Wachtwoord"
+            autocomplete="new-password"
+        >
+
+        <button
+            type="button"
+            onclick="register()">
+            ✨ Account maken
+        </button>
+
+    </div>
+
+
+    <div
+        id="authMessage"
+        class="message hidden">
+    </div>
 
 </section>
 
 
 <!-- MENU -->
 
-<section id="menuSection" class="hidden">
+<section
+    id="menuSection"
+    class="menu card hidden">
 
     <h1>🎮 Survive the Bots</h1>
 
-    <div class="player-info">
+    <p class="welcome">
+        Welkom, <b id="menuUsername">-</b>!
+    </p>
 
-        👤 <b id="playerName"></b><br><br>
+    <p>
+        Klaar om de bots te overleven?
+    </p>
 
-        💰 Coins:
-        <b id="playerCoins">0</b>
 
-    </div>
+    <div class="menu-buttons">
 
-    <div class="menu">
-
-        <button onclick="go('game.html')">
+        <button
+            class="success"
+            onclick="location.href='game.html'">
             ▶ Spelen
         </button>
 
-        <button onclick="go('shop.html')">
+        <button
+            onclick="location.href='shop.html'">
             🛒 Shop
         </button>
 
-        <button onclick="go('leaderboard.html')">
+        <button
+            onclick="location.href='inventory.html'">
+            🔫 Mijn wapens
+        </button>
+
+        <button
+            onclick="location.href='leaderboard.html'">
             🏆 Leaderboard
         </button>
 
         <button
             id="adminButton"
             class="hidden"
-            onclick="go('admin.html')"
-        >
+            onclick="location.href='admin.html'">
             👑 Admin
         </button>
 
         <button
-            class="secondary"
-            onclick="logout()"
-        >
+            class="danger"
+            onclick="logout()">
             Uitloggen
         </button>
 
@@ -224,10 +311,4 @@
 
 </section>
 
-
-<div
-    id="message"
-    class="message hidden"
-></div>
-
-</div> <script src="supabase-config.js"></script> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <script> const supabaseClient = supabase.createClient( SUPABASE_URL, SUPABASE_KEY ); let currentPlayer = null; function showMessage(text) { const message = document.getElementById("message"); message.textContent = text; message.classList.remove("hidden"); } function showLogin() { document .getElementById("loginSection") .classList.remove("hidden"); document .getElementById("registerSection") .classList.add("hidden"); document .getElementById("menuSection") .classList.add("hidden"); } function showRegister() { document .getElementById("loginSection") .classList.add("hidden"); document .getElementById("registerSection") .classList.remove("hidden"); document .getElementById("menuSection") .classList.add("hidden"); } async function register() { const username = document .getElementById("registerUsername") .value .trim(); const password = document .getElementById("registerPassword") .value; if (!username || !password) { showMessage( "Vul een gebruikersnaam en wachtwoord in." ); return; } const { data, error } = await supabaseClient.rpc( "register_player", { p_username: username, p_password: password } ); if (error) { console.error(error); showMessage(error.message); return; } showMessage( "Account aangemaakt! Je kunt nu inloggen." ); document.getElementById( "username" ).value = username; showLogin(); } async function login() { const username = document .getElementById("username") .value .trim(); const password = document .getElementById("password") .value; if (!username || !password) { showMessage( "Vul je gebruikersnaam en wachtwoord in." ); return; } const { data, error } = await supabaseClient.rpc( "login_player", { p_username: username, p_password: password } ); if (error) { console.error(error); showMessage(error.message); return; } currentPlayer = typeof data === "string" ? JSON.parse(data) : data; localStorage.setItem( "stb_player", JSON.stringify(currentPlayer) ); showMenu(); } function showMenu() { document .getElementById("loginSection") .classList.add("hidden"); document .getElementById("registerSection") .classList.add("hidden"); document .getElementById("menuSection") .classList.remove("hidden"); document .getElementById("playerName") .textContent = currentPlayer.username; document .getElementById("playerCoins") .textContent = currentPlayer.coins; if (currentPlayer.role === "admin") { document .getElementById("adminButton") .classList.remove("hidden"); } else { document .getElementById("adminButton") .classList.add("hidden"); } } function go(page) { window.location.href = page; } function logout() { localStorage.removeItem("stb_player"); currentPlayer = null; showLogin(); } try { const saved = localStorage.getItem("stb_player"); if (saved) { currentPlayer = JSON.parse(saved); showMenu(); } } catch (error) { console.error(error); localStorage.removeItem("stb_player"); } </script> </body> </html>
+</div> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <script src="supabase-config.js"></script> <script> const supabaseClient = supabase.createClient( SUPABASE_URL, SUPABASE_KEY ); // ============================================================ // MESSAGE // ============================================================ function showMessage(message) { const box = document.getElementById( "authMessage" ); box.textContent = message; box.classList.remove( "hidden" ); } // ============================================================ // TABS // ============================================================ document .getElementById("loginTab") .addEventListener( "click", function() { document .getElementById("loginTab") .classList.add("active"); document .getElementById("registerTab") .classList.remove("active"); document .getElementById("loginForm") .classList.remove("hidden"); document .getElementById("registerForm") .classList.add("hidden"); document .getElementById("authMessage") .classList.add("hidden"); } ); document .getElementById("registerTab") .addEventListener( "click", function() { document .getElementById("registerTab") .classList.add("active"); document .getElementById("loginTab") .classList.remove("active"); document .getElementById("registerForm") .classList.remove("hidden"); document .getElementById("loginForm") .classList.add("hidden"); document .getElementById("authMessage") .classList.add("hidden"); } ); // ============================================================ // REGISTER // ============================================================ async function register() { const username = document .getElementById( "registerUsername" ) .value .trim(); const password = document .getElementById( "registerPassword" ) .value; if (!username || !password) { showMessage( "Vul een gebruikersnaam en wachtwoord in." ); return; } if (username.length < 3) { showMessage( "De gebruikersnaam moet minstens 3 tekens bevatten." ); return; } if (password.length < 3) { showMessage( "Het wachtwoord moet minstens 3 tekens bevatten." ); return; } try { const { data, error } = await supabaseClient.rpc( "register_player", { p_username: username, p_password: password } ); if (error) { console.error( "Registratie:", error ); showMessage( error.message ); return; } showMessage( "Account aangemaakt! Je kunt nu inloggen." ); document .getElementById( "loginTab" ) .click(); document .getElementById( "loginUsername" ) .value = username; document .getElementById( "loginPassword" ) .value = ""; } catch (error) { console.error(error); showMessage( "Er ging iets mis bij het registreren." ); } } // ============================================================ // LOGIN // ============================================================ async function login() { const username = document .getElementById( "loginUsername" ) .value .trim(); const password = document .getElementById( "loginPassword" ) .value; if (!username || !password) { showMessage( "Vul je gebruikersnaam en wachtwoord in." ); return; } try { const { data, error } = await supabaseClient.rpc( "login_player", { p_username: username, p_password: password } ); if (error) { console.error( "Login:", error ); showMessage( error.message ); return; } let player = data; if (typeof player === "string") { try { player = JSON.parse(player); } catch { player = null; } } if (!player) { showMessage( "Ongeldige gebruikersnaam of wachtwoord." ); return; } /* * Verschillende SQL-functies kunnen * een array teruggeven. */ if (Array.isArray(player)) { player = player[0]; } currentPlayer = player; localStorage.setItem( "stb_player", JSON.stringify( currentPlayer ) ); showMenu(); } catch (error) { console.error(error); showMessage( "Er ging iets mis bij het inloggen." ); } } // ============================================================ // PLAYER // ============================================================ let currentPlayer = null; // ============================================================ // MENU // ============================================================ function showMenu() { document .getElementById( "authSection" ) .classList.add("hidden"); document .getElementById( "menuSection" ) .classList.remove("hidden"); document .getElementById( "menuUsername" ) .textContent = currentPlayer.username; if ( currentPlayer.role === "admin" ) { document .getElementById( "adminButton" ) .classList.remove( "hidden" ); } } // ============================================================ // LOGOUT // ============================================================ function logout() { currentPlayer = null; localStorage.removeItem( "stb_player" ); location.reload(); } // ============================================================ // AUTO LOGIN // ============================================================ try { const saved = localStorage.getItem( "stb_player" ); if (saved) { currentPlayer = JSON.parse(saved); if ( currentPlayer && currentPlayer.username ) { showMenu(); } } } catch (error) { console.error( "Auto login:", error ); localStorage.removeItem( "stb_player" ); } </script> </body> </html>
