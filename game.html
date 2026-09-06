@@ -1,126 +1,621 @@
-<!DOCTYPE html> <html lang="nl"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Survive the Bots</title> <style> * { box-sizing: border-box; } html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #020617; color: white; font-family: Arial, sans-serif; } /* ============================================================ TOPBAR ============================================================ */ #topbar { position: fixed; z-index: 1000; top: 0; left: 0; right: 0; min-height: 60px; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(2,6,23,.96); border-bottom: 1px solid #334155; } .logo { color: #38bdf8; font-size: 18px; font-weight: bold; margin-right: auto; } .hud { display: flex; gap: 6px; flex-wrap: wrap; } .hud-item { background: #0f172a; border: 1px solid #334155; border-radius: 7px; padding: 7px 9px; font-size: 13px; } button { cursor: pointer; border: 0; border-radius: 8px; padding: 9px 12px; background: #0284c7; color: white; font-weight: bold; } button:hover { background: #0369a1; } .logout { background: #dc2626; } .logout:hover { background: #b91c1c; } /* ============================================================ GAME ============================================================ */ #game { position: absolute; top: 60px; bottom: 0; left: 0; right: 0; overflow: hidden; background: linear-gradient( rgba(30,41,59,.5) 1px, transparent 1px ), linear-gradient( 90deg, rgba(30,41,59,.5) 1px, transparent 1px ), #030712; background-size: 40px 40px; } /* ============================================================ PLAYER ============================================================ */ #player { position: absolute; width: 30px; height: 30px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 10px #22c55e, 0 0 25px rgba(34,197,94,.7); transform: translate(-50%,-50%); z-index: 20; } /* ============================================================ BOTS ============================================================ */ .bot { position: absolute; width: 28px; height: 28px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 14px #ef4444; transform: translate(-50%,-50%); z-index: 10; } .bot.fast { width: 22px; height: 22px; background: #f97316; } .bot.tank { width: 42px; height: 42px; background: #a855f7; } /* ============================================================ BULLET ============================================================ */ .bullet { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #facc15; box-shadow: 0 0 9px #facc15; transform: translate(-50%,-50%); } /* ============================================================ OVERLAYS ============================================================ */ .overlay { position: fixed; z-index: 500; top: 60px; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; align-items: center; background: rgba(2,6,23,.75); } .overlay-box { width: min(430px,90%); padding: 30px; text-align: center; background: rgba(15,23,42,.98); border: 1px solid #334155; border-radius: 18px; box-shadow: 0 25px 70px rgba(0,0,0,.6); } .overlay-box h1 { color: #38bdf8; } .hidden { display: none !important; } .version { position: fixed; z-index: 2000; right: 10px; bottom: 7px; color: #64748b; font-size: 11px; } #crosshair { position: fixed; z-index: 3000; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.8); border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; display: none; } #damageFlash { position: fixed; z-index: 200; top: 60px; left: 0; right: 0; bottom: 0; background: rgba(239,68,68,.3); pointer-events: none; display: none; } </style> </head> <body> <div id="topbar">
-<div class="logo">
-    🎮 Survive the Bots
-</div>
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+<title>Survive the Bots</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+
+    margin: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    background: #020617;
+
+    color: white;
+
+    font-family: Arial, sans-serif;
+}
 
 
-<div class="hud">
+/* ============================================================
+   TOPBAR
+============================================================ */
 
-    <div class="hud-item">
-        👤 <span id="username">-</span>
-    </div>
+#topbar {
 
-    <div class="hud-item">
-        ❤️ <span id="health">100</span>
-    </div>
+    position: fixed;
 
-    <div class="hud-item">
-        💀 <span id="kills">0</span>
-    </div>
+    z-index: 1000;
 
-    <div class="hud-item">
-        🌊 <span id="wave">1</span>
-    </div>
+    top: 0;
+    left: 0;
+    right: 0;
 
-    <div class="hud-item">
-        ⭐ <span id="score">0</span>
-    </div>
+    min-height: 60px;
 
-    <div class="hud-item">
-        💰 <span id="coins">0</span>
-    </div>
+    display: flex;
 
-</div>
+    align-items: center;
 
+    gap: 8px;
 
-<button onclick="location.href='shop.html'">
-    🛒 Shop
-</button>
+    padding: 8px 12px;
+
+    background:
+        rgba(2,6,23,.96);
+
+    border-bottom:
+        1px solid #334155;
+}
 
 
-<button onclick="location.href='inventory.html'">
-    🔫 Wapens
-</button>
+.logo {
+
+    color: #38bdf8;
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    margin-right: auto;
+}
 
 
-<button onclick="location.href='leaderboard.html'">
-    🏆 Scores
-</button>
+.hud {
+
+    display: flex;
+
+    gap: 6px;
+
+    flex-wrap: wrap;
+}
 
 
-<button
-    id="adminButton"
-    class="hidden"
-    onclick="location.href='admin.html'">
+.hud-item {
 
-    👑 Admin
+    background: #0f172a;
 
-</button>
+    border:
+        1px solid #334155;
+
+    border-radius: 7px;
+
+    padding: 7px 9px;
+
+    font-size: 13px;
+}
 
 
-<button
-    class="logout"
-    onclick="logout()">
+button {
 
-    Uitloggen
+    cursor: pointer;
 
-</button>
+    border: 0;
 
-</div> <div id="game">
-<div id="player"></div>
+    border-radius: 8px;
 
-</div> <div id="crosshair"></div> <div id="damageFlash"></div> <div id="startOverlay" class="overlay">
-<div class="overlay-box">
+    padding: 9px 12px;
 
-    <h1>
+    background: #0284c7;
+
+    color: white;
+
+    font-weight: bold;
+}
+
+
+button:hover {
+
+    background: #0369a1;
+}
+
+
+.logout {
+
+    background: #dc2626;
+}
+
+
+.logout:hover {
+
+    background: #b91c1c;
+}
+
+
+/* ============================================================
+   GAME
+============================================================ */
+
+#game {
+
+    position: absolute;
+
+    top: 60px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    overflow: hidden;
+
+    background:
+
+        linear-gradient(
+            rgba(30,41,59,.5) 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            90deg,
+            rgba(30,41,59,.5) 1px,
+            transparent 1px
+        ),
+
+        #030712;
+
+    background-size: 40px 40px;
+}
+
+
+/* ============================================================
+   PLAYER
+============================================================ */
+
+#player {
+
+    position: absolute;
+
+    width: 30px;
+    height: 30px;
+
+    border-radius: 50%;
+
+    background: #22c55e;
+
+    box-shadow:
+        0 0 10px #22c55e,
+        0 0 25px
+        rgba(34,197,94,.7);
+
+    transform:
+        translate(-50%,-50%);
+
+    z-index: 20;
+}
+
+
+/* ============================================================
+   BOTS
+============================================================ */
+
+.bot {
+
+    position: absolute;
+
+    width: 28px;
+    height: 28px;
+
+    border-radius: 50%;
+
+    background: #ef4444;
+
+    box-shadow:
+        0 0 14px #ef4444;
+
+    transform:
+        translate(-50%,-50%);
+
+    z-index: 10;
+}
+
+
+.bot.fast {
+
+    width: 22px;
+    height: 22px;
+
+    background: #f97316;
+}
+
+
+.bot.tank {
+
+    width: 42px;
+    height: 42px;
+
+    background: #a855f7;
+}
+
+
+/* ============================================================
+   BULLET
+============================================================ */
+
+.bullet {
+
+    position: absolute;
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #facc15;
+
+    box-shadow:
+        0 0 9px #facc15;
+
+    transform:
+        translate(-50%,-50%);
+}
+
+
+/* ============================================================
+   OVERLAY
+============================================================ */
+
+.overlay {
+
+    position: fixed;
+
+    z-index: 500;
+
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background:
+        rgba(2,6,23,.75);
+}
+
+
+.overlay-box {
+
+    width: min(430px,90%);
+
+    padding: 30px;
+
+    text-align: center;
+
+    background:
+        rgba(15,23,42,.98);
+
+    border:
+        1px solid #334155;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 25px 70px
+        rgba(0,0,0,.6);
+}
+
+
+.overlay-box h1 {
+
+    color: #38bdf8;
+}
+
+
+.hidden {
+
+    display: none !important;
+}
+
+
+.version {
+
+    position: fixed;
+
+    z-index: 2000;
+
+    right: 10px;
+
+    bottom: 7px;
+
+    color: #64748b;
+
+    font-size: 11px;
+}
+
+
+#crosshair {
+
+    position: fixed;
+
+    z-index: 3000;
+
+    width: 18px;
+    height: 18px;
+
+    border:
+        2px solid
+        rgba(255,255,255,.8);
+
+    border-radius: 50%;
+
+    transform:
+        translate(-50%,-50%);
+
+    pointer-events: none;
+
+    display: none;
+}
+
+
+#damageFlash {
+
+    position: fixed;
+
+    z-index: 200;
+
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background:
+        rgba(239,68,68,.3);
+
+    pointer-events: none;
+
+    display: none;
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 850px) {
+
+    #topbar {
+
+        min-height: auto;
+
+        flex-wrap: wrap;
+    }
+
+    .logo {
+
+        width: 100%;
+
+        margin-right: 0;
+    }
+
+    .hud {
+
+        width: 100%;
+    }
+
+    #topbar > button {
+
+        font-size: 11px;
+
+        padding: 7px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<!-- ==========================================================
+     TOPBAR
+========================================================== -->
+
+<div id="topbar">
+
+    <div class="logo">
         🎮 Survive the Bots
-    </h1>
+    </div>
 
-    <p>
-        Overleef zoveel mogelijk waves.
-    </p>
 
-    <p>
-        <b>WASD</b> of pijltjestoetsen<br>
-        Muis om te richten en te schieten
-    </p>
+    <div class="hud">
 
-    <button onclick="startGame()">
-        ▶ Start Game
+        <div class="hud-item">
+            👤 <span id="username">-</span>
+        </div>
+
+        <div class="hud-item">
+            ❤️ <span id="health">100</span>
+        </div>
+
+        <div class="hud-item">
+            💀 <span id="kills">0</span>
+        </div>
+
+        <div class="hud-item">
+            🌊 <span id="wave">1</span>
+        </div>
+
+        <div class="hud-item">
+            ⭐ <span id="score">0</span>
+        </div>
+
+        <div class="hud-item">
+            💰 <span id="coins">0</span>
+        </div>
+
+    </div>
+
+
+    <button onclick="location.href='shop.html'">
+        🛒 Shop
     </button>
 
-</div>
 
-</div> <div id="gameOverOverlay" class="overlay hidden">
-<div class="overlay-box">
-
-    <h1>
-        💀 Game Over
-    </h1>
-
-    <p>
-        Score:
-        <b id="finalScore">0</b>
-    </p>
-
-    <p>
-        Kills:
-        <b id="finalKills">0</b>
-    </p>
-
-    <p>
-        Wave:
-        <b id="finalWave">1</b>
-    </p>
-
-    <button onclick="startGame()">
-        🔄 Opnieuw
+    <button onclick="location.href='inventory.html'">
+        🔫 Wapens
     </button>
+
 
     <button onclick="location.href='leaderboard.html'">
-        🏆 Leaderboard
+        🏆 Scores
+    </button>
+
+
+    <button
+        id="adminButton"
+        class="hidden"
+        onclick="location.href='admin.html'">
+
+        👑 Admin
+
+    </button>
+
+
+    <button
+        class="logout"
+        onclick="logout()">
+
+        Uitloggen
+
     </button>
 
 </div>
 
-</div> <div class="version"> v1.3.0 </div> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <script src="supabase-config.js"></script>  </body> </html>
+
+<!-- ==========================================================
+     GAME
+========================================================== -->
+
+<div id="game">
+
+    <div id="player"></div>
+
+</div>
+
+
+<div id="crosshair"></div>
+
+<div id="damageFlash"></div>
+
+
+<!-- ==========================================================
+     START
+========================================================== -->
+
+<div
+    id="startOverlay"
+    class="overlay">
+
+    <div class="overlay-box">
+
+        <h1>
+            🎮 Survive the Bots
+        </h1>
+
+        <p>
+            Overleef zoveel mogelijk waves.
+        </p>
+
+        <p>
+            <b>WASD</b> of pijltjestoetsen<br>
+            Muis om te richten en te schieten
+        </p>
+
+        <button
+            onclick="startGame()">
+
+            ▶ Start Game
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================================
+     GAME OVER
+========================================================== -->
+
+<div
+    id="gameOverOverlay"
+    class="overlay hidden">
+
+    <div class="overlay-box">
+
+        <h1>
+            💀 Game Over
+        </h1>
+
+        <p>
+            Score:
+            <b id="finalScore">0</b>
+        </p>
+
+        <p>
+            Kills:
+            <b id="finalKills">0</b>
+        </p>
+
+        <p>
+            Wave:
+            <b id="finalWave">1</b>
+        </p>
+
+        <button
+            onclick="startGame()">
+
+            🔄 Opnieuw
+
+        </button>
+
+        <button
+            onclick="location.href='leaderboard.html'">
+
+            🏆 Leaderboard
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="version">
+    v1.3.1
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="supabase-config.js"></script>
+
+<script src="auth.js"></script>
+
+<script src="game.js"></script>
+
+</body>
+
+</html>

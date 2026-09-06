@@ -1,219 +1,1406 @@
-<!DOCTYPE html> <html lang="nl"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Survive the Bots - Admin</title>
+<!DOCTYPE html>
+<html lang="nl">
 
-<style>
-    * {
-        box-sizing: border-box;
-    }
+<head>
 
-    body {
-        margin: 0;
-        background:
-            radial-gradient(circle at top, #172554, #020617 70%);
-        color: white;
-        font-family: Arial, sans-serif;
-    }
+    <meta charset="UTF-8">
 
-    .container {
-        width: min(1100px, 94%);
-        margin: auto;
-        padding: 30px 0;
-    }
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-    .card {
-        background: rgba(15,23,42,.96);
-        border: 1px solid #334155;
-        border-radius: 18px;
-        padding: 25px;
-        margin-bottom: 20px;
-    }
+    <title>Survive the Bots - Admin</title>
 
-    h1 {
-        color: #38bdf8;
-    }
+    <style>
 
-    input,
-    select {
-        padding: 11px;
-        background: #020617;
-        color: white;
-        border: 1px solid #475569;
-        border-radius: 8px;
-        margin: 4px;
-    }
-
-    button {
-        padding: 10px 15px;
-        border: 0;
-        border-radius: 8px;
-        background: #0284c7;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-        margin: 3px;
-    }
-
-    button:hover {
-        background: #0369a1;
-    }
-
-    .danger {
-        background: #dc2626;
-    }
-
-    .danger:hover {
-        background: #b91c1c;
-    }
-
-    .success {
-        background: #16a34a;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th,
-    td {
-        padding: 12px 8px;
-        border-bottom: 1px solid #334155;
-        text-align: left;
-    }
-
-    th {
-        color: #38bdf8;
-    }
-
-    .message {
-        padding: 12px;
-        background: #1e293b;
-        border-radius: 8px;
-        margin-bottom: 15px;
-    }
-
-    @media(max-width:700px) {
-
-        table {
-            font-size: 13px;
+        * {
+            box-sizing: border-box;
         }
 
-        .desktop-only {
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+
+            background:
+                radial-gradient(
+                    circle at top,
+                    #172554,
+                    #020617 70%
+                );
+
+            color: white;
+
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: min(1100px, 94%);
+
+            margin: auto;
+
+            padding: 30px 0;
+        }
+
+        .card {
+            background:
+                rgba(15, 23, 42, .96);
+
+            border:
+                1px solid #334155;
+
+            border-radius: 18px;
+
+            padding: 25px;
+
+            margin-bottom: 20px;
+
+            box-shadow:
+                0 15px 40px rgba(0, 0, 0, .25);
+        }
+
+        h1 {
+            margin-top: 0;
+
+            color: #38bdf8;
+        }
+
+        h2 {
+            margin-top: 0;
+
+            color: #e2e8f0;
+        }
+
+        input,
+        select {
+            padding: 11px;
+
+            background: #020617;
+
+            color: white;
+
+            border:
+                1px solid #475569;
+
+            border-radius: 8px;
+
+            margin: 4px;
+
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #38bdf8;
+        }
+
+        button {
+            padding: 10px 15px;
+
+            border: 0;
+
+            border-radius: 8px;
+
+            background: #0284c7;
+
+            color: white;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            margin: 3px;
+        }
+
+        button:hover {
+            background: #0369a1;
+        }
+
+        button:disabled {
+            opacity: .5;
+
+            cursor: not-allowed;
+        }
+
+        .danger {
+            background: #dc2626;
+        }
+
+        .danger:hover {
+            background: #b91c1c;
+        }
+
+        .success {
+            background: #16a34a;
+        }
+
+        .success:hover {
+            background: #15803d;
+        }
+
+        .message {
+            padding: 12px;
+
+            background: #1e293b;
+
+            border-radius: 8px;
+
+            margin-bottom: 15px;
+
             display: none;
         }
 
-    }
-</style>
+        .message.show {
+            display: block;
+        }
 
-</head> <body> <div class="container">
-<div class="card">
+        .message.error {
+            background: #451a1a;
 
-    <h1>👑 Adminpaneel</h1>
+            color: #fecaca;
+        }
 
-    <button onclick="location.href='index.html'">
-        ← Menu
-    </button>
+        .message.success {
+            background: #052e16;
 
-    <button onclick="location.href='game.html'">
-        🎮 Game
-    </button>
+            color: #bbf7d0;
+        }
 
-</div>
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 650px;
+        }
+
+        th,
+        td {
+            padding: 12px 8px;
+
+            border-bottom:
+                1px solid #334155;
+
+            text-align: left;
+
+            vertical-align: middle;
+        }
+
+        th {
+            color: #38bdf8;
+        }
+
+        td input,
+        td select {
+            margin: 0;
+        }
+
+        .empty {
+            color: #94a3b8;
+
+            text-align: center;
+        }
+
+        .version {
+            position: fixed;
+
+            right: 15px;
+
+            bottom: 10px;
+
+            color: #64748b;
+
+            font-size: 11px;
+        }
+
+        .top-actions {
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 5px;
+        }
+
+        .create-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(180px, 1fr)
+                );
+
+            gap: 8px;
+
+            align-items: center;
+        }
+
+        .create-grid input,
+        .create-grid select {
+            width: 100%;
+
+            margin: 0;
+        }
+
+        .create-grid button {
+            width: 100%;
+
+            margin: 0;
+        }
+
+        .user-count {
+            color: #94a3b8;
+
+            font-size: 14px;
+
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 700px) {
+
+            .container {
+                width: 94%;
+
+                padding:
+                    15px 0 40px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .top-actions button {
+                flex: 1;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- ==================================================
+             HEADER
+        ================================================== -->
+
+        <div class="card">
+
+            <h1>
+                👑 Adminpaneel
+            </h1>
+
+            <div class="top-actions">
+
+                <button
+                    type="button"
+                    onclick="location.href='game.html'">
+
+                    🎮 Game
+
+                </button>
+
+                <button
+                    type="button"
+                    onclick="location.href='shop.html'">
+
+                    🛒 Shop
+
+                </button>
+
+                <button
+                    type="button"
+                    onclick="location.href='inventory.html'">
+
+                    🔫 Wapens
+
+                </button>
+
+                <button
+                    type="button"
+                    onclick="location.href='leaderboard.html'">
+
+                    🏆 Scores
+
+                </button>
+
+                <button
+                    type="button"
+                    class="danger"
+                    onclick="logout()">
+
+                    Uitloggen
+
+                </button>
+
+            </div>
+
+        </div>
 
 
-<div
-    id="message"
-    class="message"
-    style="display:none"
-></div>
+        <!-- ==================================================
+             MESSAGE
+        ================================================== -->
+
+        <div
+            id="message"
+            class="message">
+        </div>
 
 
-<!-- NIEUWE USER -->
+        <!-- ==================================================
+             NIEUWE GEBRUIKER
+        ================================================== -->
 
-<div class="card">
+        <div class="card">
 
-    <h2>➕ Nieuwe gebruiker</h2>
+            <h2>
+                ➕ Nieuwe gebruiker
+            </h2>
 
-    <input
-        id="newUsername"
-        placeholder="Gebruikersnaam"
-    >
+            <div class="create-grid">
 
-    <input
-        id="newPassword"
-        type="text"
-        placeholder="Wachtwoord"
-    >
+                <input
+                    id="newUsername"
+                    type="text"
+                    placeholder="Gebruikersnaam"
+                    autocomplete="off">
 
-    <select id="newRole">
+                <input
+                    id="newPassword"
+                    type="text"
+                    placeholder="Wachtwoord"
+                    autocomplete="new-password">
 
-        <option value="player">
-            Player
-        </option>
+                <select id="newRole">
 
-        <option value="admin">
-            Admin
-        </option>
+                    <option value="player">
+                        Player
+                    </option>
 
-    </select>
+                    <option value="admin">
+                        Admin
+                    </option>
 
-    <input
-        id="newCoins"
-        type="number"
-        value="0"
-        min="0"
-        placeholder="Coins"
-    >
+                </select>
 
-    <button
-        class="success"
-        onclick="createPlayer()"
-    >
-        Gebruiker aanmaken
-    </button>
+                <input
+                    id="newCoins"
+                    type="number"
+                    min="0"
+                    value="0"
+                    placeholder="Coins">
 
-</div>
+                <button
+                    id="createButton"
+                    type="button"
+                    class="success"
+                    onclick="createPlayer()">
+
+                    ➕ Gebruiker aanmaken
+
+                </button>
+
+            </div>
+
+        </div>
 
 
-<!-- USERS -->
+        <!-- ==================================================
+             GEBRUIKERS
+        ================================================== -->
 
-<div class="card">
+        <div class="card">
 
-    <h2>👥 Gebruikers</h2>
+            <h2>
+                👥 Gebruikers
+            </h2>
 
-    <button onclick="loadPlayers()">
-        🔄 Vernieuwen
-    </button>
+            <div class="user-count">
+                Totaal:
+                <span id="userCount">0</span>
+            </div>
 
-    <div style="overflow-x:auto">
+            <button
+                type="button"
+                onclick="loadPlayers()">
 
-        <table>
+                🔄 Vernieuwen
 
-            <thead>
+            </button>
 
-                <tr>
-                    <th>Username</th>
-                    <th>Rol</th>
-                    <th>Coins</th>
-                    <th>Acties</th>
-                </tr>
+            <br>
+            <br>
 
-            </thead>
+            <div class="table-wrapper">
 
-            <tbody id="playersBody">
+                <table>
 
-                <tr>
-                    <td colspan="4">
-                        Laden...
-                    </td>
-                </tr>
+                    <thead>
 
-            </tbody>
+                        <tr>
 
-        </table>
+                            <th>
+                                Username
+                            </th>
+
+                            <th>
+                                Rol
+                            </th>
+
+                            <th>
+                                Coins
+                            </th>
+
+                            <th>
+                                Acties
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="playersBody">
+
+                        <tr>
+
+                            <td
+                                colspan="4"
+                                class="empty">
+
+                                Laden...
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
 
     </div>
 
-</div>
 
-</div> <script src="supabase-config.js"></script> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <script> const supabaseClient = supabase.createClient( SUPABASE_URL, SUPABASE_KEY ); let currentPlayer = null; function message(text) { const box = document.getElementById("message"); box.textContent = text; box.style.display = "block"; } function isAdmin() { return ( currentPlayer && currentPlayer.role === "admin" ); } async function createPlayer() { if (!isAdmin()) { message("Geen adminrechten."); return; } const username = document .getElementById("newUsername") .value .trim(); const password = document .getElementById("newPassword") .value; const role = document .getElementById("newRole") .value; const coins = Number( document .getElementById("newCoins") .value ); const { error } = await supabaseClient.rpc( "admin_create_player", { p_username: username, p_password: password, p_role: role, p_coins: coins } ); if (error) { console.error(error); message(error.message); return; } message( "Gebruiker succesvol aangemaakt." ); document.getElementById( "newUsername" ).value = ""; document.getElementById( "newPassword" ).value = ""; document.getElementById( "newCoins" ).value = "0"; loadPlayers(); } async function loadPlayers() { if (!isAdmin()) { message("Geen adminrechten."); return; } const { data, error } = await supabaseClient.rpc( "admin_get_players" ); if (error) { console.error(error); message(error.message); return; } const body = document.getElementById( "playersBody" ); body.innerHTML = ""; (data || []).forEach(player => { const row = document.createElement("tr"); row.innerHTML = ` <td> ${escapeHtml(player.username)} </td> <td> <select id="role-${player.id}"> <option value="player" ${player.role === "player" ? "selected" : ""} > Player </option> <option value="admin" ${player.role === "admin" ? "selected" : ""} > Admin </option> </select> </td> <td> <input id="coins-${player.id}" type="number" value="${player.coins}" min="0" style="width:100px" > </td> <td> <button onclick="savePlayer('${player.id}')" > 💾 Opslaan </button> <button onclick="changePassword('${player.id}')" > 🔑 Wachtwoord </button> <button class="danger" onclick="deletePlayer('${player.id}')" > 🗑 Verwijderen </button> </td> `; body.appendChild(row); }); } async function savePlayer(id) { const role = document.getElementById( `role-${id}` ).value; const coins = Number( document.getElementById( `coins-${id}` ).value ); const { error } = await supabaseClient.rpc( "admin_update_player", { p_id: id, p_role: role, p_coins: coins } ); if (error) { message(error.message); return; } message( "Gebruiker bijgewerkt." ); loadPlayers(); } async function changePassword(id) { const password = prompt( "Nieuw wachtwoord:" ); if (!password) return; const { error } = await supabaseClient.rpc( "admin_change_password", { p_id: id, p_password: password } ); if (error) { message(error.message); return; } message( "Wachtwoord gewijzigd." ); } async function deletePlayer(id) { if ( !confirm( "Deze gebruiker definitief verwijderen?" ) ) { return; } const { error } = await supabaseClient.rpc( "admin_delete_player", { p_id: id } ); if (error) { message(error.message); return; } message( "Gebruiker verwijderd." ); loadPlayers(); } function escapeHtml(value) { return String(value ?? "") .replaceAll("&", "&amp;") .replaceAll("<", "&lt;") .replaceAll(">", "&gt;") .replaceAll('"', "&quot;") .replaceAll("'", "&#039;"); } try { const saved = localStorage.getItem("stb_player"); if (!saved) { location.href = "index.html"; } else { currentPlayer = JSON.parse(saved); if (!isAdmin()) { alert( "Je hebt geen adminrechten." ); location.href = "index.html"; } else { loadPlayers(); } } } catch (error) { console.error(error); location.href = "index.html"; } </script> </body> </html>
+    <div class="version">
+        Survive the Bots v1.3.2
+    </div>
+
+
+    <!-- ======================================================
+         SUPABASE
+    ====================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="supabase-config.js"></script>
+
+    <script src="auth.js"></script>
+
+
+    <script>
+
+        "use strict";
+
+
+        /* ====================================================
+           SUPABASE
+        ==================================================== */
+
+        const supabaseClient =
+            supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
+            );
+
+
+        let currentPlayer = null;
+
+
+        /* ====================================================
+           MESSAGE
+        ==================================================== */
+
+        function showMessage(
+            text,
+            type = ""
+        ) {
+
+            const box =
+                document.getElementById(
+                    "message"
+                );
+
+            box.textContent = text;
+
+            box.className =
+                "message show";
+
+            if (type) {
+
+                box.classList.add(type);
+
+            }
+
+        }
+
+
+        /* ====================================================
+           ADMIN CHECK
+        ==================================================== */
+
+        function isAdmin() {
+
+            return (
+                currentPlayer &&
+                currentPlayer.role === "admin"
+            );
+
+        }
+
+
+        /* ====================================================
+           CREATE PLAYER
+        ==================================================== */
+
+        async function createPlayer() {
+
+            if (!isAdmin()) {
+
+                showMessage(
+                    "Geen adminrechten.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const username =
+                document
+                    .getElementById(
+                        "newUsername"
+                    )
+                    .value
+                    .trim();
+
+            const password =
+                document
+                    .getElementById(
+                        "newPassword"
+                    )
+                    .value;
+
+            const role =
+                document
+                    .getElementById(
+                        "newRole"
+                    )
+                    .value;
+
+            const coins =
+                Number(
+                    document
+                        .getElementById(
+                            "newCoins"
+                        )
+                        .value
+                );
+
+
+            if (!username) {
+
+                showMessage(
+                    "Vul een gebruikersnaam in.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            if (username.length < 3) {
+
+                showMessage(
+                    "De gebruikersnaam moet minstens 3 tekens bevatten.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            if (!password) {
+
+                showMessage(
+                    "Vul een wachtwoord in.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            if (password.length < 4) {
+
+                showMessage(
+                    "Het wachtwoord moet minstens 4 tekens bevatten.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            if (
+                !Number.isFinite(coins) ||
+                coins < 0
+            ) {
+
+                showMessage(
+                    "Ongeldig aantal coins.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const button =
+                document.getElementById(
+                    "createButton"
+                );
+
+            button.disabled = true;
+
+            button.textContent =
+                "Bezig...";
+
+
+            try {
+
+                const {
+                    error
+                } =
+                    await supabaseClient.rpc(
+                        "admin_create_player",
+                        {
+                            p_username:
+                                username,
+
+                            p_password:
+                                password,
+
+                            p_role:
+                                role,
+
+                            p_coins:
+                                coins
+                        }
+                    );
+
+
+                if (error) {
+
+                    console.error(error);
+
+                    showMessage(
+                        error.message,
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                showMessage(
+                    "Gebruiker succesvol aangemaakt.",
+                    "success"
+                );
+
+
+                document
+                    .getElementById(
+                        "newUsername"
+                    )
+                    .value = "";
+
+                document
+                    .getElementById(
+                        "newPassword"
+                    )
+                    .value = "";
+
+                document
+                    .getElementById(
+                        "newRole"
+                    )
+                    .value = "player";
+
+                document
+                    .getElementById(
+                        "newCoins"
+                    )
+                    .value = "0";
+
+
+                await loadPlayers();
+
+            } catch (error) {
+
+                console.error(error);
+
+                showMessage(
+                    "Er ging iets mis bij het aanmaken.",
+                    "error"
+                );
+
+            } finally {
+
+                button.disabled = false;
+
+                button.textContent =
+                    "➕ Gebruiker aanmaken";
+
+            }
+
+        }
+
+
+        /* ====================================================
+           LOAD PLAYERS
+        ==================================================== */
+
+        async function loadPlayers() {
+
+            if (!isAdmin()) {
+
+                showMessage(
+                    "Geen adminrechten.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const body =
+                document.getElementById(
+                    "playersBody"
+                );
+
+
+            body.innerHTML = `
+                <tr>
+                    <td
+                        colspan="4"
+                        class="empty">
+                        Laden...
+                    </td>
+                </tr>
+            `;
+
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.rpc(
+                    "admin_get_players"
+                );
+
+
+            if (error) {
+
+                console.error(error);
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+                body.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="4"
+                            class="empty">
+                            Gebruikers konden niet geladen worden.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+
+            const players =
+                data || [];
+
+
+            document
+                .getElementById(
+                    "userCount"
+                )
+                .textContent =
+                players.length;
+
+
+            if (!players.length) {
+
+                body.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="4"
+                            class="empty">
+                            Geen gebruikers gevonden.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+
+            body.innerHTML = "";
+
+
+            players.forEach(
+                player => {
+
+                    const row =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    const safeUsername =
+                        escapeHtml(
+                            player.username
+                        );
+
+
+                    const role =
+                        player.role === "admin"
+                            ? "admin"
+                            : "player";
+
+
+                    const safeCoins =
+                        Number(
+                            player.coins || 0
+                        );
+
+
+                    row.innerHTML = `
+
+                        <td>
+                            ${safeUsername}
+                        </td>
+
+                        <td>
+
+                            <select
+                                id="role-${player.id}">
+
+                                <option
+                                    value="player"
+                                    ${role === "player"
+                                        ? "selected"
+                                        : ""}>
+
+                                    Player
+
+                                </option>
+
+                                <option
+                                    value="admin"
+                                    ${role === "admin"
+                                        ? "selected"
+                                        : ""}>
+
+                                    Admin
+
+                                </option>
+
+                            </select>
+
+                        </td>
+
+                        <td>
+
+                            <input
+                                id="coins-${player.id}"
+                                type="number"
+                                min="0"
+                                value="${safeCoins}"
+                                style="width:100px">
+
+                        </td>
+
+                        <td>
+
+                            <button
+                                type="button"
+                                onclick="savePlayer('${escapeAttribute(player.id)}')">
+
+                                💾 Opslaan
+
+                            </button>
+
+                            <button
+                                type="button"
+                                onclick="changePassword('${escapeAttribute(player.id)}')">
+
+                                🔑 Wachtwoord
+
+                            </button>
+
+                            <button
+                                type="button"
+                                class="danger"
+                                onclick="deletePlayer('${escapeAttribute(player.id)}')">
+
+                                🗑 Verwijderen
+
+                            </button>
+
+                        </td>
+
+                    `;
+
+
+                    body.appendChild(row);
+
+                }
+            );
+
+        }
+
+
+        /* ====================================================
+           SAVE PLAYER
+        ==================================================== */
+
+        async function savePlayer(id) {
+
+            if (!isAdmin()) {
+
+                showMessage(
+                    "Geen adminrechten.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const roleElement =
+                document.getElementById(
+                    `role-${id}`
+                );
+
+            const coinsElement =
+                document.getElementById(
+                    `coins-${id}`
+                );
+
+
+            if (
+                !roleElement ||
+                !coinsElement
+            ) {
+
+                showMessage(
+                    "Gebruiker kon niet gevonden worden.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const role =
+                roleElement.value;
+
+
+            const coins =
+                Number(
+                    coinsElement.value
+                );
+
+
+            if (
+                !Number.isFinite(coins) ||
+                coins < 0
+            ) {
+
+                showMessage(
+                    "Ongeldig aantal coins.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const {
+                error
+            } =
+                await supabaseClient.rpc(
+                    "admin_update_player",
+                    {
+                        p_id: id,
+
+                        p_role: role,
+
+                        p_coins: coins
+                    }
+                );
+
+
+            if (error) {
+
+                console.error(error);
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+                return;
+            }
+
+
+            showMessage(
+                "Gebruiker bijgewerkt.",
+                "success"
+            );
+
+
+            await loadPlayers();
+
+        }
+
+
+        /* ====================================================
+           CHANGE PASSWORD
+        ==================================================== */
+
+        async function changePassword(id) {
+
+            if (!isAdmin()) {
+
+                showMessage(
+                    "Geen adminrechten.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const password =
+                prompt(
+                    "Nieuw wachtwoord:"
+                );
+
+
+            if (!password) {
+                return;
+            }
+
+
+            if (password.length < 4) {
+
+                showMessage(
+                    "Het wachtwoord moet minstens 4 tekens bevatten.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const {
+                error
+            } =
+                await supabaseClient.rpc(
+                    "admin_change_password",
+                    {
+                        p_id: id,
+
+                        p_password:
+                            password
+                    }
+                );
+
+
+            if (error) {
+
+                console.error(error);
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+                return;
+            }
+
+
+            showMessage(
+                "Wachtwoord gewijzigd.",
+                "success"
+            );
+
+        }
+
+
+        /* ====================================================
+           DELETE PLAYER
+        ==================================================== */
+
+        async function deletePlayer(id) {
+
+            if (!isAdmin()) {
+
+                showMessage(
+                    "Geen adminrechten.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const confirmed =
+                confirm(
+                    "Deze gebruiker definitief verwijderen?"
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            const {
+                error
+            } =
+                await supabaseClient.rpc(
+                    "admin_delete_player",
+                    {
+                        p_id: id
+                    }
+                );
+
+
+            if (error) {
+
+                console.error(error);
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+                return;
+            }
+
+
+            showMessage(
+                "Gebruiker verwijderd.",
+                "success"
+            );
+
+
+            await loadPlayers();
+
+        }
+
+
+        /* ====================================================
+           ESCAPE HTML
+        ==================================================== */
+
+        function escapeHtml(value) {
+
+            return String(
+                value ?? ""
+            )
+
+                .replaceAll(
+                    "&",
+                    "&amp;"
+                )
+
+                .replaceAll(
+                    "<",
+                    "&lt;"
+                )
+
+                .replaceAll(
+                    ">",
+                    "&gt;"
+                )
+
+                .replaceAll(
+                    '"',
+                    "&quot;"
+                )
+
+                .replaceAll(
+                    "'",
+                    "&#039;"
+                );
+
+        }
+
+
+        /* ====================================================
+           ESCAPE ATTRIBUTE
+        ==================================================== */
+
+        function escapeAttribute(value) {
+
+            return String(
+                value ?? ""
+            )
+                .replaceAll(
+                    "\\",
+                    "\\\\"
+                )
+                .replaceAll(
+                    "'",
+                    "\\'"
+                );
+
+        }
+
+
+        /* ====================================================
+           LOGOUT
+        ==================================================== */
+
+        function logout() {
+
+            if (
+                typeof window.logout ===
+                "function"
+            ) {
+
+                window.logout();
+
+                return;
+            }
+
+
+            localStorage.removeItem(
+                "stb_player"
+            );
+
+            location.href =
+                "index.html";
+
+        }
+
+
+        /* ====================================================
+           INIT
+        ==================================================== */
+
+        function init() {
+
+            try {
+
+                currentPlayer =
+                    getCurrentPlayer();
+
+
+                if (!currentPlayer) {
+
+                    location.href =
+                        "index.html";
+
+                    return;
+                }
+
+
+                if (!isAdmin()) {
+
+                    alert(
+                        "Je hebt geen adminrechten."
+                    );
+
+                    location.href =
+                        "game.html";
+
+                    return;
+                }
+
+
+                loadPlayers();
+
+            } catch (error) {
+
+                console.error(
+                    "Admin init:",
+                    error
+                );
+
+                location.href =
+                    "index.html";
+
+            }
+
+        }
+
+
+        /* ====================================================
+           GLOBAL FUNCTIONS
+        ==================================================== */
+
+        window.createPlayer =
+            createPlayer;
+
+        window.loadPlayers =
+            loadPlayers;
+
+        window.savePlayer =
+            savePlayer;
+
+        window.changePassword =
+            changePassword;
+
+        window.deletePlayer =
+            deletePlayer;
+
+        window.logout =
+            logout;
+
+
+        /* ====================================================
+           START
+        ==================================================== */
+
+        init();
+
+    </script>
+
+</body>
+
+</html>

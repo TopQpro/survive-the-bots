@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Leaderboard - Survive the Bots</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #172554 0%,
+            #020617 65%
+        );
+
+    color: white;
+
+    font-family: Arial, sans-serif;
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+header {
+
+    padding: 18px;
+
+    background:
+        rgba(2, 6, 23, .96);
+
+    border-bottom:
+        1px solid #334155;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+}
+
+header h1 {
+
+    margin: 0;
+
+    margin-right: auto;
+
+    color: #38bdf8;
+
+    font-size: 24px;
+}
+
+
+/* ============================================================
+   BUTTONS
+============================================================ */
+
+button {
+
+    padding: 10px 14px;
+
+    border: 0;
+
+    border-radius: 8px;
+
+    background: #0284c7;
+
+    color: white;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+button:hover {
+
+    background: #0369a1;
+}
+
+
+/* ============================================================
+   CONTAINER
+============================================================ */
+
+.container {
+
+    width: min(900px, 92%);
+
+    margin: 30px auto;
+}
+
+
+/* ============================================================
+   CARD
+============================================================ */
+
+.card {
+
+    background:
+        rgba(15, 23, 42, .96);
+
+    border:
+        1px solid #334155;
+
+    border-radius: 15px;
+
+    padding: 20px;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, .35);
+}
+
+
+/* ============================================================
+   TITLE
+============================================================ */
+
+.page-title {
+
+    margin-bottom: 20px;
+
+    text-align: center;
+}
+
+.page-title h2 {
+
+    margin: 0 0 8px;
+
+    color: #38bdf8;
+}
+
+.page-title p {
+
+    margin: 0;
+
+    color: #94a3b8;
+}
+
+
+/* ============================================================
+   TABLE
+============================================================ */
+
+.table-wrapper {
+
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 550px;
+}
+
+th,
+td {
+
+    padding: 13px 12px;
+
+    border-bottom:
+        1px solid #334155;
+
+    text-align: left;
+}
+
+th {
+
+    color: #38bdf8;
+
+    font-size: 13px;
+
+    text-transform: uppercase;
+}
+
+td {
+
+    color: #e2e8f0;
+}
+
+tbody tr:hover {
+
+    background:
+        rgba(30, 41, 59, .7);
+}
+
+
+/* ============================================================
+   RANK
+============================================================ */
+
+.rank {
+
+    width: 55px;
+
+    font-weight: bold;
+
+    color: #94a3b8;
+}
+
+.rank.first {
+
+    color: #facc15;
+
+    font-size: 18px;
+}
+
+.rank.second {
+
+    color: #cbd5e1;
+
+    font-size: 17px;
+}
+
+.rank.third {
+
+    color: #cd7f32;
+
+    font-size: 17px;
+}
+
+
+/* ============================================================
+   PLAYER
+============================================================ */
+
+.player-name {
+
+    font-weight: bold;
+}
+
+
+/* ============================================================
+   SCORE
+============================================================ */
+
+.score {
+
+    color: #facc15;
+
+    font-weight: bold;
+}
+
+
+/* ============================================================
+   EMPTY / ERROR
+============================================================ */
+
+.status {
+
+    padding: 20px;
+
+    text-align: center;
+
+    color: #94a3b8;
+}
+
+.status.error {
+
+    color: #fca5a5;
+
+    background:
+        rgba(127, 29, 29, .25);
+
+    border-radius: 10px;
+}
+
+
+/* ============================================================
+   CURRENT PLAYER
+============================================================ */
+
+.current-player {
+
+    background:
+        rgba(2, 132, 199, .12);
+}
+
+.current-player td {
+
+    border-bottom-color:
+        rgba(56, 189, 248, .35);
+}
+
+
+/* ============================================================
+   VERSION
+============================================================ */
+
+.version {
+
+    position: fixed;
+
+    right: 12px;
+
+    bottom: 8px;
+
+    color: #64748b;
+
+    font-size: 11px;
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 700px) {
+
+    header {
+
+        padding: 12px;
+    }
+
+    header h1 {
+
+        width: 100%;
+
+        margin-right: 0;
+
+        font-size: 21px;
+    }
+
+    header button {
+
+        flex: 1;
+
+        padding: 9px 8px;
+
+        font-size: 12px;
+    }
+
+    .container {
+
+        width: 95%;
+
+        margin: 20px auto;
+    }
+
+    .card {
+
+        padding: 12px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<!-- ==========================================================
+     HEADER
+========================================================== -->
+
+<header>
+
+    <h1>
+        🏆 Leaderboard
+    </h1>
+
+
+    <button
+        type="button"
+        onclick="goTo('game.html')">
+
+        🎮 Game
+
+    </button>
+
+
+    <button
+        type="button"
+        onclick="goTo('shop.html')">
+
+        🛒 Shop
+
+    </button>
+
+
+    <button
+        type="button"
+        onclick="goTo('inventory.html')">
+
+        🔫 Wapens
+
+    </button>
+
+
+</header>
+
+
+<!-- ==========================================================
+     CONTENT
+========================================================== -->
+
+<div class="container">
+
+    <div class="page-title">
+
+        <h2>
+            🏆 Top 100 spelers
+        </h2>
+
+        <p>
+            Wie overleeft de meeste waves?
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <div
+            id="status"
+            class="status">
+
+            Leaderboard laden...
+
+        </div>
+
+
+        <div
+            id="tableWrapper"
+            class="table-wrapper"
+            style="display: none;">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            #
+                        </th>
+
+                        <th>
+                            Speler
+                        </th>
+
+                        <th>
+                            Score
+                        </th>
+
+                        <th>
+                            Kills
+                        </th>
+
+                        <th>
+                            Wave
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody
+                    id="leaderboard">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="version">
+    Survive the Bots v1.3.1
+</div>
+
+
+<!-- ==========================================================
+     SUPABASE
+========================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="supabase-config.js"></script>
+
+<script src="auth.js"></script>
+
+
+<script>
+
+"use strict";
+
+
+/* ============================================================
+   SUPABASE
+============================================================ */
+
+const supabaseClient =
+    supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+
+function goTo(page) {
+
+    const player =
+        getCurrentPlayer();
+
+    if (!player) {
+
+        window.location.href =
+            "index.html";
+
+        return;
+    }
+
+    window.location.href =
+        page;
+}
+
+
+/* ============================================================
+   INIT
+============================================================ */
+
+async function init() {
+
+    const player =
+        requireLogin();
+
+    if (!player) {
+        return;
+    }
+
+    await loadLeaderboard(player);
+}
+
+
+/* ============================================================
+   LEADERBOARD LADEN
+============================================================ */
+
+async function loadLeaderboard(currentPlayer) {
+
+    const status =
+        document.getElementById("status");
+
+    const tableWrapper =
+        document.getElementById("tableWrapper");
+
+    const body =
+        document.getElementById("leaderboard");
+
+
+    try {
+
+        const { data, error } =
+            await supabaseClient
+                .from("leaderboard")
+                .select(
+                    "player_name,score,kills,wave"
+                )
+                .order(
+                    "score",
+                    {
+                        ascending: false
+                    }
+                )
+                .limit(100);
+
+
+        if (error) {
+
+            console.error(
+                "Leaderboard error:",
+                error
+            );
+
+            status.textContent =
+                "Leaderboard kon niet geladen worden.";
+
+            status.classList.add("error");
+
+            return;
+        }
+
+
+        if (!data || data.length === 0) {
+
+            status.textContent =
+                "Er zijn nog geen scores.";
+
+            return;
+        }
+
+
+        body.innerHTML = "";
+
+
+        data.forEach(
+            (row, index) => {
+
+                const tr =
+                    document.createElement("tr");
+
+
+                /*
+                    Probeer de huidige speler
+                    te herkennen aan de naam.
+                */
+
+                const isCurrentPlayer =
+                    String(
+                        row.player_name
+                    ).toLowerCase() ===
+                    String(
+                        currentPlayer.username || ""
+                    ).toLowerCase();
+
+
+                if (isCurrentPlayer) {
+
+                    tr.classList.add(
+                        "current-player"
+                    );
+                }
+
+
+                let rankClass = "";
+
+
+                if (index === 0) {
+
+                    rankClass = "first";
+
+                } else if (index === 1) {
+
+                    rankClass = "second";
+
+                } else if (index === 2) {
+
+                    rankClass = "third";
+                }
+
+
+                const rank =
+                    document.createElement("td");
+
+                rank.className =
+                    `rank ${rankClass}`;
+
+                rank.textContent =
+                    getRankIcon(index);
+
+
+                const player =
+                    document.createElement("td");
+
+                player.className =
+                    "player-name";
+
+                player.textContent =
+                    row.player_name || "-";
+
+
+                const score =
+                    document.createElement("td");
+
+                score.className =
+                    "score";
+
+                score.textContent =
+                    Number(row.score || 0);
+
+
+                const kills =
+                    document.createElement("td");
+
+                kills.textContent =
+                    Number(row.kills || 0);
+
+
+                const wave =
+                    document.createElement("td");
+
+                wave.textContent =
+                    Number(row.wave || 0);
+
+
+                tr.appendChild(rank);
+
+                tr.appendChild(player);
+
+                tr.appendChild(score);
+
+                tr.appendChild(kills);
+
+                tr.appendChild(wave);
+
+
+                body.appendChild(tr);
+
+            }
+        );
+
+
+        status.style.display =
+            "none";
+
+        tableWrapper.style.display =
+            "block";
+
+
+    } catch (error) {
+
+        console.error(
+            "Leaderboard fout:",
+            error
+        );
+
+        status.textContent =
+            "Er ging iets mis bij het laden van de leaderboard.";
+
+        status.classList.add("error");
+    }
+}
+
+
+/* ============================================================
+   RANK ICON
+============================================================ */
+
+function getRankIcon(index) {
+
+    if (index === 0) {
+        return "🥇";
+    }
+
+    if (index === 1) {
+        return "🥈";
+    }
+
+    if (index === 2) {
+        return "🥉";
+    }
+
+    return index + 1;
+}
+
+
+/* ============================================================
+   HTML ESCAPE
+============================================================ */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+}
+
+
+/* ============================================================
+   START
+============================================================ */
+
+init();
+
+</script>
+
+</body>
+
+</html>

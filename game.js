@@ -1,31 +1,31 @@
-/*
+"use strict";
 
+/*
 ============================================================
-SURVIVE THE BOTS
-Game JavaScript
-Version 1.3.1
+ SURVIVE THE BOTS
+ game.js
+ Version: 1.3.2
 ============================================================
 */
+
+
 // ============================================================
 // SUPABASE
 // ============================================================
 
-const supabaseClient =
-supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
+const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
 );
 
+
 // ============================================================
-// PLAYER
+// STATE
 // ============================================================
 
-let currentPlayer = null;
+let session = null;
+let user = null;
 let profile = null;
-
-// ============================================================
-// GAME STATE
-// ============================================================
 
 let gameRunning = false;
 
@@ -45,492 +45,576 @@ let mouseY = 0;
 
 let lastShot = 0;
 
-let animationFrame = null;
+let waveTimer = null;
+
 
 // ============================================================
-// DEFAULT WEAPON
+// WEAPON
 // ============================================================
 
 let weapon = {
-
-damage: 25,
-
-fire_rate: 300,
-
-bullets: 1,
-
-spread: 0,
-
-bullet_speed: 12,
-
-name: "Pistol"
-
+    id: "pistol",
+    name: "Pistol",
+    damage: 25,
+    fire_rate: 300,
+    bullets: 1,
+    spread: 0,
+    bullet_speed: 12
 };
+
 
 // ============================================================
 // ELEMENTS
 // ============================================================
 
-const game =
-document.getElementById(
-"game"
-);
+const game = document.getElementById("game");
+const player = document.getElementById("player");
 
-const player =
-document.getElementById(
-"player"
-);
+const usernameElement =
+    document.getElementById("username");
+
+const healthElement =
+    document.getElementById("health");
+
+const killsElement =
+    document.getElementById("kills");
+
+const waveElement =
+    document.getElementById("wave");
+
+const scoreElement =
+    document.getElementById("score");
+
+const coinsElement =
+    document.getElementById("coins");
+
+const startOverlay =
+    document.getElementById("startOverlay");
+
+const gameOverOverlay =
+    document.getElementById("gameOverOverlay");
+
+const finalScore =
+    document.getElementById("finalScore");
+
+const finalKills =
+    document.getElementById("finalKills");
+
+const finalWave =
+    document.getElementById("finalWave");
+
+const crosshair =
+    document.getElementById("crosshair");
+
+const damageFlash =
+    document.getElementById("damageFlash");
+
+const adminButton =
+    document.getElementById("adminButton");
+
 
 // ============================================================
-// AUTH / PLAYER
+// AUTHENTICATIE
 // ============================================================
 
 async function checkAuth() {
 
-let saved;
+    try {
 
-try {
+        const {
+            data,
+            error
+        } = await supabaseClient.auth.getSession();
 
-    saved =
-        localStorage.getItem(
-            "stb_player"
+        if (error) {
+
+            console.error(
+                "Auth fout:",
+                error
+            );
+
+            location.href = "index.html";
+
+            return false;
+        }
+
+        session = data.session;
+
+        /*
+         * We ondersteunen ook de oude lokale login.
+         * Daardoor kunnen we tijdelijk verder werken
+         * terwijl de authenticatie later wordt verbeterd.
+         */
+
+        if (session) {
+
+            user = session.user;
+
+            await loadProfile();
+
+        } else {
+
+            const saved =
+                localStorage.getItem(
+                    "stb_player"
+                );
+
+            if (!saved) {
+
+                location.href = "index.html";
+
+                return false;
+            }
+
+            try {
+
+                const playerData =
+                    JSON.parse(saved);
+
+                if (!playerData || !playerData.id) {
+
+                    throw new Error(
+                        "Ongeldige lokale gebruiker."
+                    );
+                }
+
+                user = {
+                    id: playerData.id
+                };
+
+                profile = playerData;
+
+                coins =
+                    Number(
+                        playerData.coins || 0
+                    );
+
+                usernameElement.textContent =
+                    playerData.username || "-";
+
+                coinsElement.textContent =
+                    coins;
+
+                if (
+                    playerData.role === "admin"
+                    &&
+                    adminButton
+                ) {
+
+                    adminButton.classList.remove(
+                        "hidden"
+                    );
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Lokale login fout:",
+                    error
+                );
+
+                localStorage.removeItem(
+                    "stb_player"
+                );
+
+                location.href = "index.html";
+
+                return false;
+            }
+        }
+
+        /*
+         * Deze functies mogen falen zonder dat
+         * de game daardoor stopt.
+         */
+
+        await giveDefaultWeapons();
+        await loadWeapon();
+
+        updateHud();
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "checkAuth fout:",
+            error
         );
 
-} catch (error) {
+        location.href = "index.html";
 
-    console.error(error);
-
-    location.href =
-        "index.html";
-
-    return false;
-
+        return false;
+    }
 }
 
-if (!saved) {
-
-    location.href =
-        "index.html";
-
-    return false;
-
-}
-
-try {
-
-    currentPlayer =
-        JSON.parse(saved);
-
-} catch (error) {
-
-    console.error(error);
-
-    localStorage.removeItem(
-        "stb_player"
-    );
-
-    location.href =
-        "index.html";
-
-    return false;
-
-}
-
-if (
-    !currentPlayer ||
-    !currentPlayer.id
-) {
-
-    localStorage.removeItem(
-        "stb_player"
-    );
-
-    location.href =
-        "index.html";
-
-    return false;
-
-}
-
-document
-    .getElementById(
-        "username"
-    )
-    .textContent =
-    currentPlayer.username ||
-    "-";
-
-await loadProfile();
-
-await giveDefaults();
-
-await loadWeapon();
-
-updateHud();
-
-return true;
-
-}
 
 // ============================================================
-// PROFILE
+// PROFIEL LADEN
 // ============================================================
 
 async function loadProfile() {
 
-/*
- * We proberen eerst profiles.
- * Als jouw project alleen players gebruikt,
- * proberen we daarna players.
- */
+    if (!user || !user.id) {
+        return;
+    }
 
-let result =
-    await supabaseClient
+    /*
+     * Eerst proberen we profiles.
+     */
+
+    const {
+        data,
+        error
+    } = await supabaseClient
         .from("profiles")
         .select(
-            "username,coins,role"
+            "id,username,coins,role"
         )
         .eq(
             "id",
-            currentPlayer.id
+            user.id
         )
-        .single();
+        .maybeSingle();
 
-if (
-    result.error ||
-    !result.data
-) {
 
-    result =
-        await supabaseClient
-            .from("players")
-            .select(
-                "username,coins,role"
-            )
-            .eq(
-                "id",
-                currentPlayer.id
-            )
-            .single();
+    if (!error && data) {
 
-}
+        profile = data;
 
-if (
-    result.error ||
-    !result.data
-) {
+        coins =
+            Number(
+                data.coins || 0
+            );
 
-    console.error(
-        "Profiel laden:",
-        result.error
-    );
+        usernameElement.textContent =
+            data.username || "-";
 
-    return;
+        coinsElement.textContent =
+            coins;
 
-}
+        if (
+            data.role === "admin"
+            &&
+            adminButton
+        ) {
 
-profile =
-    result.data;
-
-coins =
-    Number(
-        profile.coins || 0
-    );
-
-document
-    .getElementById(
-        "username"
-    )
-    .textContent =
-    profile.username ||
-    currentPlayer.username ||
-    "-";
-
-document
-    .getElementById(
-        "coins"
-    )
-    .textContent =
-    coins;
-
-if (
-    profile.role ===
-    "admin"
-) {
-
-    document
-        .getElementById(
-            "adminButton"
-        )
-        .classList.remove(
-            "hidden"
-        );
-
-}
-
-}
-
-// ============================================================
-// DEFAULT WEAPONS
-// ============================================================
-
-async function giveDefaults() {
-
-const {
-    error
-} =
-    await supabaseClient.rpc(
-        "give_default_weapons",
-        {
-            p_user_id:
-                currentPlayer.id
+            adminButton.classList.remove(
+                "hidden"
+            );
         }
-    );
 
-if (error) {
+        return;
+    }
+
 
     /*
-     * Dit mag de game niet stoppen.
+     * Als profiles niet bestaat of geen record bevat,
+     * proberen we de lokale gebruiker te gebruiken.
      */
 
-    console.warn(
-        "Default weapons:",
-        error
-    );
+    const saved =
+        localStorage.getItem(
+            "stb_player"
+        );
 
+    if (saved) {
+
+        try {
+
+            profile =
+                JSON.parse(saved);
+
+            coins =
+                Number(
+                    profile.coins || 0
+                );
+
+            usernameElement.textContent =
+                profile.username || "-";
+
+            coinsElement.textContent =
+                coins;
+
+            if (
+                profile.role === "admin"
+                &&
+                adminButton
+            ) {
+
+                adminButton.classList.remove(
+                    "hidden"
+                );
+            }
+
+        } catch (e) {
+
+            console.error(e);
+
+        }
+    }
 }
 
-}
 
 // ============================================================
-// LOAD WEAPON
+// DEFAULT WAPENS
+// ============================================================
+
+async function giveDefaultWeapons() {
+
+    if (!user || !user.id) {
+        return;
+    }
+
+    try {
+
+        const {
+            error
+        } = await supabaseClient.rpc(
+            "give_default_weapons",
+            {
+                p_user_id: user.id
+            }
+        );
+
+        if (error) {
+
+            console.warn(
+                "Default wapens:",
+                error.message
+            );
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Default wapens konden niet worden geladen:",
+            error
+        );
+    }
+}
+
+
+// ============================================================
+// WAPEN LADEN
 // ============================================================
 
 async function loadWeapon() {
 
-const {
-    data,
-    error
-} =
-    await supabaseClient.rpc(
-        "get_my_weapons"
-    );
+    if (!user) {
+        return;
+    }
 
-if (error) {
+    try {
 
-    console.warn(
-        "Wapens laden:",
-        error
-    );
-
-    return;
-
-}
-
-if (
-    !data ||
-    !data.length
-) {
-
-    return;
-
-}
-
-/*
- * Probeer het momenteel geselecteerde
- * wapen te vinden.
- */
-
-let selected =
-    localStorage.getItem(
-        "stb_selected_weapon"
-    );
-
-let found =
-    data.find(
-        item =>
-            item.weapon_id ===
-            selected
-    );
-
-/*
- * Als er geen geselecteerd wapen is,
- * gebruik pistol als die bestaat.
- */
-
-if (!found) {
-
-    found =
-        data.find(
-            item =>
-                item.weapon_id ===
-                "pistol"
+        const {
+            data,
+            error
+        } = await supabaseClient.rpc(
+            "get_my_weapons"
         );
 
+        if (error) {
+
+            console.warn(
+                "Wapens laden:",
+                error.message
+            );
+
+            return;
+        }
+
+        if (
+            !data
+            ||
+            !Array.isArray(data)
+            ||
+            data.length === 0
+        ) {
+
+            return;
+        }
+
+        /*
+         * We proberen eerst het geselecteerde wapen
+         * uit localStorage.
+         */
+
+        let selectedId =
+            localStorage.getItem(
+                "stb_selected_weapon"
+            );
+
+        let selected =
+            data.find(
+                weaponData =>
+                    weaponData.weapon_id === selectedId
+            );
+
+
+        /*
+         * Anders pistol.
+         */
+
+        if (!selected) {
+
+            selected =
+                data.find(
+                    weaponData =>
+                        weaponData.weapon_id === "pistol"
+                );
+        }
+
+
+        /*
+         * Anders eerste wapen.
+         */
+
+        if (!selected) {
+
+            selected = data[0];
+
+        }
+
+
+        if (selected) {
+
+            weapon = {
+
+                id:
+                    selected.weapon_id ||
+                    "pistol",
+
+                name:
+                    selected.name ||
+                    "Wapen",
+
+                damage:
+                    Number(
+                        selected.damage || 25
+                    ),
+
+                fire_rate:
+                    Number(
+                        selected.fire_rate || 300
+                    ),
+
+                bullets:
+                    Number(
+                        selected.bullets || 1
+                    ),
+
+                spread:
+                    Number(
+                        selected.spread || 0
+                    ),
+
+                bullet_speed:
+                    Number(
+                        selected.bullet_speed || 12
+                    )
+
+            };
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Wapen fout:",
+            error
+        );
+    }
 }
 
-/*
- * Anders gebruiken we het eerste wapen.
- */
-
-if (!found) {
-
-    found =
-        data[0];
-
-}
-
-if (found) {
-
-    weapon = {
-
-        damage:
-            Number(
-                found.damage ??
-                25
-            ),
-
-        fire_rate:
-            Number(
-                found.fire_rate ??
-                300
-            ),
-
-        bullets:
-            Number(
-                found.bullets ??
-                1
-            ),
-
-        spread:
-            Number(
-                found.spread ??
-                0
-            ),
-
-        bullet_speed:
-            Number(
-                found.bullet_speed ??
-                12
-            ),
-
-        name:
-            found.name ||
-            "Wapen"
-
-    };
-
-}
-
-const weaponElement =
-    document.getElementById(
-        "weapon"
-    );
-
-if (weaponElement) {
-
-    weaponElement.textContent =
-        weapon.name;
-
-}
-
-}
 
 // ============================================================
-// KEYBOARD
+// INPUT
 // ============================================================
 
 document.addEventListener(
-"keydown",
-function(event) {
+    "keydown",
+    function(event) {
 
-    keys[
-        event.key.toLowerCase()
-    ] = true;
+        keys[
+            event.key.toLowerCase()
+        ] = true;
 
-}
-
+    }
 );
+
 
 document.addEventListener(
-"keyup",
-function(event) {
+    "keyup",
+    function(event) {
 
-    keys[
-        event.key.toLowerCase()
-    ] = false;
+        keys[
+            event.key.toLowerCase()
+        ] = false;
 
-}
-
+    }
 );
+
 
 // ============================================================
 // MOUSE
 // ============================================================
 
 game.addEventListener(
-"mousemove",
-function(event) {
+    "mousemove",
+    function(event) {
 
-    const rect =
-        game.getBoundingClientRect();
+        const rect =
+            game.getBoundingClientRect();
 
-    mouseX =
-        event.clientX -
-        rect.left;
+        mouseX =
+            event.clientX -
+            rect.left;
 
-    mouseY =
-        event.clientY -
-        rect.top;
+        mouseY =
+            event.clientY -
+            rect.top;
 
-    const crosshair =
-        document.getElementById(
-            "crosshair"
-        );
 
-    crosshair.style.display =
-        "block";
+        if (crosshair) {
 
-    crosshair.style.left =
-        event.clientX + "px";
+            crosshair.style.display =
+                "block";
 
-    crosshair.style.top =
-        event.clientY + "px";
+            crosshair.style.left =
+                event.clientX + "px";
 
-}
-
-);
-
-game.addEventListener(
-"mouseleave",
-function() {
-
-    document
-        .getElementById(
-            "crosshair"
-        )
-        .style.display =
-        "none";
-
-}
-
-);
-
-game.addEventListener(
-"mousedown",
-function(event) {
-
-    if (
-        event.button === 0
-    ) {
-
-        shoot();
-
+            crosshair.style.top =
+                event.clientY + "px";
+        }
     }
-
-}
-
 );
+
+
+game.addEventListener(
+    "mouseleave",
+    function() {
+
+        if (crosshair) {
+
+            crosshair.style.display =
+                "none";
+        }
+    }
+);
+
+
+game.addEventListener(
+    "mousedown",
+    function(event) {
+
+        if (event.button === 0) {
+
+            shoot();
+        }
+    }
+);
+
 
 // ============================================================
 // START GAME
@@ -538,64 +622,65 @@ function(event) {
 
 function startGame() {
 
-console.log(
-    "Survive the Bots v1.3.1 gestart."
-);
+    /*
+     * Heel belangrijk:
+     * deze functie staat bewust globaal.
+     *
+     * Daardoor werkt:
+     *
+     * onclick="startGame()"
+     *
+     * uit game.html ook.
+     */
 
-clearObjects();
+    clearObjects();
 
-health = 100;
+    if (waveTimer) {
 
-kills = 0;
+        clearTimeout(
+            waveTimer
+        );
 
-wave = 1;
+        waveTimer = null;
+    }
 
-score = 0;
 
-gameRunning = true;
+    health = 100;
+    kills = 0;
+    wave = 1;
+    score = 0;
 
-lastShot = 0;
+    gameRunning = true;
 
-player.style.left =
-    "50%";
+    lastShot = 0;
 
-player.style.top =
-    "50%";
 
-document
-    .getElementById(
-        "startOverlay"
-    )
-    .classList.add(
+    player.style.left =
+        "50%";
+
+    player.style.top =
+        "50%";
+
+
+    startOverlay.classList.add(
         "hidden"
     );
 
-document
-    .getElementById(
-        "gameOverOverlay"
-    )
-    .classList.add(
+    gameOverOverlay.classList.add(
         "hidden"
     );
 
-updateHud();
 
-spawnWave();
+    updateHud();
 
-if (animationFrame) {
+    spawnWave();
 
-    cancelAnimationFrame(
-        animationFrame
-    );
 
-}
-
-animationFrame =
     requestAnimationFrame(
         gameLoop
     );
-
 }
+
 
 // ============================================================
 // GAME LOOP
@@ -603,130 +688,131 @@ animationFrame =
 
 function gameLoop() {
 
-if (!gameRunning) {
+    if (!gameRunning) {
+        return;
+    }
 
-    return;
+    movePlayer();
 
-}
+    moveBots();
 
-movePlayer();
+    moveBullets();
 
-moveBots();
+    botCollision();
 
-moveBullets();
-
-botCollision();
-
-animationFrame =
     requestAnimationFrame(
         gameLoop
     );
-
 }
 
+
 // ============================================================
-// PLAYER MOVEMENT
+// PLAYER BEWEGEN
 // ============================================================
 
 function movePlayer() {
 
-const speed = 5;
+    const speed = 5;
 
-let x =
-    parseFloat(
-        player.style.left
-    );
+    let x =
+        parseFloat(
+            player.style.left
+        );
 
-let y =
-    parseFloat(
-        player.style.top
-    );
+    let y =
+        parseFloat(
+            player.style.top
+        );
 
-if (isNaN(x)) {
 
-    x = 50;
+    if (Number.isNaN(x)) {
+        x = 50;
+    }
 
+    if (Number.isNaN(y)) {
+        y = 50;
+    }
+
+
+    if (
+        keys["w"]
+        ||
+        keys["arrowup"]
+    ) {
+
+        y -=
+            speed /
+            game.clientHeight *
+            100;
+    }
+
+
+    if (
+        keys["s"]
+        ||
+        keys["arrowdown"]
+    ) {
+
+        y +=
+            speed /
+            game.clientHeight *
+            100;
+    }
+
+
+    if (
+        keys["a"]
+        ||
+        keys["arrowleft"]
+    ) {
+
+        x -=
+            speed /
+            game.clientWidth *
+            100;
+    }
+
+
+    if (
+        keys["d"]
+        ||
+        keys["arrowright"]
+    ) {
+
+        x +=
+            speed /
+            game.clientWidth *
+            100;
+    }
+
+
+    x =
+        Math.max(
+            2,
+            Math.min(
+                98,
+                x
+            )
+        );
+
+
+    y =
+        Math.max(
+            3,
+            Math.min(
+                97,
+                y
+            )
+        );
+
+
+    player.style.left =
+        x + "%";
+
+    player.style.top =
+        y + "%";
 }
 
-if (isNaN(y)) {
-
-    y = 50;
-
-}
-
-if (
-    keys["w"] ||
-    keys["arrowup"]
-) {
-
-    y -=
-        speed /
-        game.clientHeight *
-        100;
-
-}
-
-if (
-    keys["s"] ||
-    keys["arrowdown"]
-) {
-
-    y +=
-        speed /
-        game.clientHeight *
-        100;
-
-}
-
-if (
-    keys["a"] ||
-    keys["arrowleft"]
-) {
-
-    x -=
-        speed /
-        game.clientWidth *
-        100;
-
-}
-
-if (
-    keys["d"] ||
-    keys["arrowright"]
-) {
-
-    x +=
-        speed /
-        game.clientWidth *
-        100;
-
-}
-
-x =
-    Math.max(
-        2,
-        Math.min(
-            98,
-            x
-        )
-    );
-
-y =
-    Math.max(
-        3,
-        Math.min(
-            97,
-            y
-        )
-    );
-
-player.style.left =
-    x + "%";
-
-player.style.top =
-    y + "%";
-
-}
 
 // ============================================================
 // WAVE
@@ -734,346 +820,371 @@ player.style.top =
 
 function spawnWave() {
 
-const count =
-    5 + wave * 2;
+    const count =
+        5 +
+        wave * 2;
 
-for (
-    let i = 0;
-    i < count;
-    i++
-) {
 
-    spawnBot();
+    for (
+        let i = 0;
+        i < count;
+        i++
+    ) {
 
+        spawnBot();
+
+    }
 }
 
-}
 
 // ============================================================
-// SPAWN BOT
+// BOT SPAWNEN
 // ============================================================
 
 function spawnBot() {
 
-const element =
-    document.createElement(
-        "div"
-    );
-
-let type =
-    "normal";
-
-let hp =
-    1 +
-    Math.floor(
-        wave / 4
-    );
-
-let speed =
-    .7 +
-    Math.random() *
-    .35;
-
-const random =
-    Math.random();
-
-if (
-    random < .18 &&
-    wave >= 2
-) {
-
-    type =
-        "tank";
-
-    hp =
-        5 + wave;
-
-    speed =
-        .45 +
-        Math.random() *
-        .2;
-
-    element.className =
-        "bot tank";
-
-}
-
-else if (
-    random < .38 &&
-    wave >= 2
-) {
-
-    type =
-        "fast";
-
-    hp = 1;
-
-    speed =
-        1.1 +
-        Math.random() *
-        .4;
-
-    element.className =
-        "bot fast";
-
-}
-
-else {
-
-    element.className =
-        "bot";
-
-}
-
-let x;
-
-let y;
-
-const side =
-    Math.floor(
-        Math.random() * 4
-    );
-
-if (side === 0) {
-
-    x =
-        Math.random() *
-        game.clientWidth;
-
-    y = -30;
-
-}
-
-else if (side === 1) {
-
-    x =
-        game.clientWidth +
-        30;
-
-    y =
-        Math.random() *
-        game.clientHeight;
-
-}
-
-else if (side === 2) {
-
-    x =
-        Math.random() *
-        game.clientWidth;
-
-    y =
-        game.clientHeight +
-        30;
-
-}
-
-else {
-
-    x = -30;
-
-    y =
-        Math.random() *
-        game.clientHeight;
-
-}
-
-element.style.left =
-    x + "px";
-
-element.style.top =
-    y + "px";
-
-game.appendChild(
-    element
-);
-
-bots.push({
-
-    element,
-
-    x,
-
-    y,
-
-    hp,
-
-    type,
-
-    speed
-
-});
-
-}
-
-// ============================================================
-// MOVE BOTS
-// ============================================================
-
-function moveBots() {
-
-const px =
-    game.clientWidth *
-    parseFloat(
-        player.style.left
-    ) /
-    100;
-
-const py =
-    game.clientHeight *
-    parseFloat(
-        player.style.top
-    ) /
-    100;
-
-bots.forEach(
-    bot => {
-
-        const dx =
-            px - bot.x;
-
-        const dy =
-            py - bot.y;
-
-        const distance =
-            Math.sqrt(
-                dx * dx +
-                dy * dy
-            );
-
-        if (
-            distance > 1
-        ) {
-
-            bot.x +=
-                dx /
-                distance *
-                bot.speed;
-
-            bot.y +=
-                dy /
-                distance *
-                bot.speed;
-
-        }
-
-        bot.element.style.left =
-            bot.x + "px";
-
-        bot.element.style.top =
-            bot.y + "px";
-
-    }
-);
-
-}
-
-// ============================================================
-// SHOOT
-// ============================================================
-
-function shoot() {
-
-if (!gameRunning) {
-
-    return;
-
-}
-
-const now =
-    Date.now();
-
-if (
-    now - lastShot <
-    weapon.fire_rate
-) {
-
-    return;
-
-}
-
-lastShot =
-    now;
-
-const px =
-    game.clientWidth *
-    parseFloat(
-        player.style.left
-    ) /
-    100;
-
-const py =
-    game.clientHeight *
-    parseFloat(
-        player.style.top
-    ) /
-    100;
-
-const angle =
-    Math.atan2(
-        mouseY - py,
-        mouseX - px
-    );
-
-for (
-    let i = 0;
-    i < weapon.bullets;
-    i++
-) {
-
-    const spread =
-        (
-            Math.random() -
-            .5
-        ) *
-        weapon.spread;
-
-    const a =
-        angle + spread;
-
-    const bullet =
+    const element =
         document.createElement(
             "div"
         );
 
-    bullet.className =
-        "bullet";
 
-    bullet.style.left =
-        px + "px";
+    let type =
+        "normal";
 
-    bullet.style.top =
-        py + "px";
+    let hp =
+        1 +
+        Math.floor(
+            wave / 4
+        );
+
+    let speed =
+        .7 +
+        Math.random() *
+        .35;
+
+
+    const random =
+        Math.random();
+
+
+    if (
+        random < .18
+        &&
+        wave >= 2
+    ) {
+
+        type = "tank";
+
+        hp =
+            5 +
+            wave;
+
+        speed =
+            .45 +
+            Math.random() *
+            .2;
+
+        element.className =
+            "bot tank";
+
+    }
+
+    else if (
+        random < .38
+        &&
+        wave >= 2
+    ) {
+
+        type = "fast";
+
+        hp = 1;
+
+        speed =
+            1.1 +
+            Math.random() *
+            .4;
+
+        element.className =
+            "bot fast";
+
+    }
+
+    else {
+
+        element.className =
+            "bot";
+
+    }
+
+
+    let x;
+    let y;
+
+
+    const side =
+        Math.floor(
+            Math.random() * 4
+        );
+
+
+    if (side === 0) {
+
+        x =
+            Math.random() *
+            game.clientWidth;
+
+        y = -30;
+
+    }
+
+    else if (side === 1) {
+
+        x =
+            game.clientWidth +
+            30;
+
+        y =
+            Math.random() *
+            game.clientHeight;
+
+    }
+
+    else if (side === 2) {
+
+        x =
+            Math.random() *
+            game.clientWidth;
+
+        y =
+            game.clientHeight +
+            30;
+
+    }
+
+    else {
+
+        x = -30;
+
+        y =
+            Math.random() *
+            game.clientHeight;
+    }
+
+
+    element.style.left =
+        x + "px";
+
+    element.style.top =
+        y + "px";
+
 
     game.appendChild(
-        bullet
+        element
     );
 
-    bullets.push({
 
-        element:
-            bullet,
+    bots.push({
 
-        x: px,
-
-        y: py,
-
-        vx:
-            Math.cos(a) *
-            weapon.bullet_speed,
-
-        vy:
-            Math.sin(a) *
-            weapon.bullet_speed,
-
-        damage:
-            weapon.damage
+        element,
+        x,
+        y,
+        hp,
+        type,
+        speed
 
     });
-
 }
 
+
+// ============================================================
+// BOT MOVEMENT
+// ============================================================
+
+function moveBots() {
+
+    const px =
+        game.clientWidth *
+        parseFloat(
+            player.style.left
+        ) /
+        100;
+
+
+    const py =
+        game.clientHeight *
+        parseFloat(
+            player.style.top
+        ) /
+        100;
+
+
+    bots.forEach(
+        function(bot) {
+
+            const dx =
+                px -
+                bot.x;
+
+            const dy =
+                py -
+                bot.y;
+
+
+            const distance =
+                Math.sqrt(
+                    dx * dx +
+                    dy * dy
+                );
+
+
+            if (
+                distance > 1
+            ) {
+
+                bot.x +=
+                    dx /
+                    distance *
+                    bot.speed;
+
+                bot.y +=
+                    dy /
+                    distance *
+                    bot.speed;
+            }
+
+
+            bot.element.style.left =
+                bot.x + "px";
+
+            bot.element.style.top =
+                bot.y + "px";
+
+        }
+    );
 }
+
+
+// ============================================================
+// SCHIETEN
+// ============================================================
+
+function shoot() {
+
+    if (!gameRunning) {
+        return;
+    }
+
+
+    const now =
+        Date.now();
+
+
+    if (
+        now -
+        lastShot <
+        weapon.fire_rate
+    ) {
+
+        return;
+    }
+
+
+    lastShot =
+        now;
+
+
+    const px =
+        game.clientWidth *
+        parseFloat(
+            player.style.left
+        ) /
+        100;
+
+
+    const py =
+        game.clientHeight *
+        parseFloat(
+            player.style.top
+        ) /
+        100;
+
+
+    const angle =
+        Math.atan2(
+            mouseY - py,
+            mouseX - px
+        );
+
+
+    for (
+        let i = 0;
+        i < weapon.bullets;
+        i++
+    ) {
+
+        const spread =
+            (
+                Math.random() -
+                .5
+            ) *
+            weapon.spread;
+
+
+        const bulletAngle =
+            angle +
+            spread;
+
+
+        const element =
+            document.createElement(
+                "div"
+            );
+
+
+        element.className =
+            "bullet";
+
+
+        element.style.left =
+            px + "px";
+
+        element.style.top =
+            py + "px";
+
+
+        game.appendChild(
+            element
+        );
+
+
+        bullets.push({
+
+            element,
+
+            x: px,
+
+            y: py,
+
+            vx:
+                Math.cos(
+                    bulletAngle
+                ) *
+                weapon.bullet_speed,
+
+            vy:
+                Math.sin(
+                    bulletAngle
+                ) *
+                weapon.bullet_speed,
+
+            damage:
+                weapon.damage
+
+        });
+    }
+}
+
 
 // ============================================================
 // BULLETS
@@ -1081,66 +1192,117 @@ for (
 
 function moveBullets() {
 
-for (
-    let i =
-        bullets.length - 1;
-    i >= 0;
-    i--
-) {
-
-    const bullet =
-        bullets[i];
-
-    bullet.x +=
-        bullet.vx;
-
-    bullet.y +=
-        bullet.vy;
-
-    bullet.element.style.left =
-        bullet.x + "px";
-
-    bullet.element.style.top =
-        bullet.y + "px";
-
-    let hit = false;
-
     for (
-        let j =
-            bots.length - 1;
-        j >= 0;
-        j--
+        let i = bullets.length - 1;
+        i >= 0;
+        i--
     ) {
 
-        const bot =
-            bots[j];
+        const bullet =
+            bullets[i];
 
-        const dx =
-            bullet.x -
-            bot.x;
 
-        const dy =
-            bullet.y -
-            bot.y;
+        bullet.x +=
+            bullet.vx;
 
-        const distance =
-            Math.sqrt(
-                dx * dx +
-                dy * dy
-            );
+        bullet.y +=
+            bullet.vy;
 
-        const hitDistance =
-            bot.type === "tank"
-                ? 35
-                : 25;
 
-        if (
-            distance <
-            hitDistance
+        bullet.element.style.left =
+            bullet.x + "px";
+
+        bullet.element.style.top =
+            bullet.y + "px";
+
+
+        let hit =
+            false;
+
+
+        for (
+            let j = bots.length - 1;
+            j >= 0;
+            j--
         ) {
 
-            bot.hp -=
-                bullet.damage;
+            const bot =
+                bots[j];
+
+
+            const dx =
+                bullet.x -
+                bot.x;
+
+            const dy =
+                bullet.y -
+                bot.y;
+
+
+            const distance =
+                Math.sqrt(
+                    dx * dx +
+                    dy * dy
+                );
+
+
+            const hitDistance =
+                bot.type === "tank"
+                    ? 35
+                    : bot.type === "fast"
+                        ? 20
+                        : 25;
+
+
+            if (
+                distance <
+                hitDistance
+            ) {
+
+                bot.hp -=
+                    bullet.damage;
+
+
+                bullet.element.remove();
+
+                bullets.splice(
+                    i,
+                    1
+                );
+
+
+                hit = true;
+
+
+                if (
+                    bot.hp <= 0
+                ) {
+
+                    killBot(j);
+
+                }
+
+                break;
+            }
+        }
+
+
+        if (hit) {
+            continue;
+        }
+
+
+        if (
+            bullet.x < -50
+            ||
+            bullet.y < -50
+            ||
+            bullet.x >
+                game.clientWidth + 50
+            ||
+            bullet.y >
+                game.clientHeight + 50
+        ) {
 
             bullet.element.remove();
 
@@ -1148,211 +1310,192 @@ for (
                 i,
                 1
             );
-
-            hit = true;
-
-            if (
-                bot.hp <= 0
-            ) {
-
-                killBot(j);
-
-            }
-
-            break;
-
         }
-
     }
-
-    if (hit) {
-
-        continue;
-
-    }
-
-    if (
-        bullet.x < -50 ||
-        bullet.y < -50 ||
-        bullet.x >
-            game.clientWidth + 50 ||
-        bullet.y >
-            game.clientHeight + 50
-    ) {
-
-        bullet.element.remove();
-
-        bullets.splice(
-            i,
-            1
-        );
-
-    }
-
 }
 
-}
 
 // ============================================================
-// KILL BOT
+// BOT DODEN
 // ============================================================
 
 function killBot(index) {
 
-const bot =
-    bots[index];
+    const bot =
+        bots[index];
 
-if (!bot) {
 
-    return;
+    if (!bot) {
+        return;
+    }
 
-}
 
-bot.element.remove();
+    bot.element.remove();
 
-bots.splice(
-    index,
-    1
-);
 
-kills++;
+    bots.splice(
+        index,
+        1
+    );
 
-if (
-    bot.type ===
-    "tank"
-) {
 
-    score += 40;
+    kills++;
 
-}
 
-else if (
-    bot.type ===
-    "fast"
-) {
+    if (
+        bot.type === "tank"
+    ) {
 
-    score += 15;
+        score += 40;
 
-}
+    }
 
-else {
+    else if (
+        bot.type === "fast"
+    ) {
 
-    score += 10;
+        score += 15;
 
-}
+    }
 
-updateHud();
+    else {
 
-if (
-    bots.length === 0
-) {
+        score += 10;
 
-    wave++;
+    }
 
-    score +=
-        wave * 20;
 
     updateHud();
 
-    setTimeout(
-        function() {
 
-            if (gameRunning) {
+    if (
+        bots.length === 0
+    ) {
 
-                spawnWave();
+        wave++;
 
-            }
+        score +=
+            wave * 20;
 
-        },
-        600
-    );
 
+        updateHud();
+
+
+        waveTimer =
+            setTimeout(
+                function() {
+
+                    if (
+                        gameRunning
+                    ) {
+
+                        spawnWave();
+
+                    }
+
+                },
+                700
+            );
+    }
 }
 
-}
 
 // ============================================================
-// COLLISION
+// BOT COLLISION
 // ============================================================
 
 function botCollision() {
 
-const px =
-    game.clientWidth *
-    parseFloat(
-        player.style.left
-    ) /
-    100;
+    const px =
+        game.clientWidth *
+        parseFloat(
+            player.style.left
+        ) /
+        100;
 
-const py =
-    game.clientHeight *
-    parseFloat(
-        player.style.top
-    ) /
-    100;
 
-bots.forEach(
-    bot => {
+    const py =
+        game.clientHeight *
+        parseFloat(
+            player.style.top
+        ) /
+        100;
 
-        const dx =
-            px - bot.x;
 
-        const dy =
-            py - bot.y;
+    bots.forEach(
+        function(bot) {
 
-        const distance =
-            Math.sqrt(
-                dx * dx +
-                dy * dy
-            );
+            const dx =
+                px -
+                bot.x;
 
-        if (
-            distance < 28
-        ) {
+            const dy =
+                py -
+                bot.y;
 
-            health -=
-                bot.type ===
-                "tank"
-                    ? .9
-                    : .45;
 
-            const flash =
-                document
-                    .getElementById(
-                        "damageFlash"
-                    );
+            const distance =
+                Math.sqrt(
+                    dx * dx +
+                    dy * dy
+                );
 
-            flash.style.display =
-                "block";
-
-            setTimeout(
-                function() {
-
-                    flash.style.display =
-                        "none";
-
-                },
-                70
-            );
 
             if (
-                health <= 0
+                distance < 28
             ) {
 
-                health = 0;
+                if (
+                    bot.type === "tank"
+                ) {
 
-                endGame();
+                    health -= .9;
 
+                }
+
+                else {
+
+                    health -= .45;
+
+                }
+
+
+                if (damageFlash) {
+
+                    damageFlash.style.display =
+                        "block";
+
+
+                    setTimeout(
+                        function() {
+
+                            damageFlash.style.display =
+                                "none";
+
+                        },
+                        70
+                    );
+                }
+
+
+                if (
+                    health <= 0
+                ) {
+
+                    health = 0;
+
+                    endGame();
+
+                }
+
+
+                updateHud();
             }
 
-            updateHud();
-
         }
-
-    }
-);
-
+    );
 }
+
 
 // ============================================================
 // HUD
@@ -1360,44 +1503,43 @@ bots.forEach(
 
 function updateHud() {
 
-document
-    .getElementById(
-        "health"
-    )
-    .textContent =
-    Math.round(
-        health
-    );
+    if (healthElement) {
 
-document
-    .getElementById(
-        "kills"
-    )
-    .textContent =
-    kills;
+        healthElement.textContent =
+            Math.round(
+                health
+            );
+    }
 
-document
-    .getElementById(
-        "wave"
-    )
-    .textContent =
-    wave;
 
-document
-    .getElementById(
-        "score"
-    )
-    .textContent =
-    score;
+    if (killsElement) {
 
-document
-    .getElementById(
-        "coins"
-    )
-    .textContent =
-    coins;
+        killsElement.textContent =
+            kills;
+    }
 
+
+    if (waveElement) {
+
+        waveElement.textContent =
+            wave;
+    }
+
+
+    if (scoreElement) {
+
+        scoreElement.textContent =
+            score;
+    }
+
+
+    if (coinsElement) {
+
+        coinsElement.textContent =
+            coins;
+    }
 }
+
 
 // ============================================================
 // GAME OVER
@@ -1405,154 +1547,145 @@ document
 
 async function endGame() {
 
-if (!gameRunning) {
+    if (!gameRunning) {
+        return;
+    }
 
-    return;
 
-}
+    gameRunning = false;
 
-gameRunning = false;
 
-if (animationFrame) {
+    if (waveTimer) {
 
-    cancelAnimationFrame(
-        animationFrame
-    );
+        clearTimeout(
+            waveTimer
+        );
 
-    animationFrame =
-        null;
+        waveTimer = null;
+    }
 
-}
 
-document
-    .getElementById(
-        "finalScore"
-    )
-    .textContent =
-    score;
+    finalScore.textContent =
+        score;
 
-document
-    .getElementById(
-        "finalKills"
-    )
-    .textContent =
-    kills;
+    finalKills.textContent =
+        kills;
 
-document
-    .getElementById(
-        "finalWave"
-    )
-    .textContent =
-    wave;
+    finalWave.textContent =
+        wave;
 
-document
-    .getElementById(
-        "gameOverOverlay"
-    )
-    .classList.remove(
+
+    gameOverOverlay.classList.remove(
         "hidden"
     );
 
-await saveScore();
 
+    await saveScore();
 }
 
+
 // ============================================================
-// SAVE SCORE
+// SCORE OPSLAAN
 // ============================================================
 
 async function saveScore() {
 
-if (
-    !currentPlayer ||
-    !currentPlayer.id
-) {
+    if (!user) {
+        return;
+    }
 
-    return;
 
-}
+    try {
 
-const {
-    error
-} =
-    await supabaseClient.rpc(
-        "save_game_score",
-        {
-            p_score: score,
-            p_kills: kills,
-            p_wave: wave
+        const {
+            error
+        } = await supabaseClient.rpc(
+            "save_game_score",
+            {
+                p_score: score,
+                p_kills: kills,
+                p_wave: wave
+            }
+        );
+
+
+        if (error) {
+
+            console.error(
+                "Score opslaan:",
+                error
+            );
+
+            return;
         }
-    );
 
-if (error) {
 
-    console.error(
-        "Score opslaan:",
-        error
-    );
+        /*
+         * Coins lokaal bijwerken.
+         * De databasefunctie kan dit later ook
+         * definitief regelen.
+         */
 
-    return;
+        coins +=
+            kills +
+            wave * 5;
 
+
+        updateHud();
+
+    } catch (error) {
+
+        console.error(
+            "Score fout:",
+            error
+        );
+    }
 }
 
-/*
- * Voorlopig geven we lokaal de verdiende
- * coins weer. Je bestaande databasefunctie
- * kan dit eventueel al verwerken.
- */
-
-coins +=
-    kills +
-    wave * 5;
-
-document
-    .getElementById(
-        "coins"
-    )
-    .textContent =
-    coins;
-
-}
 
 // ============================================================
-// CLEAR OBJECTS
+// OBJECTEN OPRUIMEN
 // ============================================================
 
 function clearObjects() {
 
-bots.forEach(
-    bot => {
+    bots.forEach(
+        function(bot) {
 
-        if (
-            bot.element
-        ) {
+            if (
+                bot.element
+                &&
+                bot.element.remove
+            ) {
 
-            bot.element.remove();
+                bot.element.remove();
 
+            }
         }
+    );
 
-    }
-);
 
-bullets.forEach(
-    bullet => {
+    bullets.forEach(
+        function(bullet) {
 
-        if (
-            bullet.element
-        ) {
+            if (
+                bullet.element
+                &&
+                bullet.element.remove
+            ) {
 
-            bullet.element.remove();
+                bullet.element.remove();
 
+            }
         }
+    );
 
-    }
-);
 
-bots = [];
+    bots = [];
 
-bullets = [];
-
+    bullets = [];
 }
+
 
 // ============================================================
 // LOGOUT
@@ -1560,33 +1693,81 @@ bullets = [];
 
 async function logout() {
 
-localStorage.removeItem(
-    "stb_player"
-);
+    try {
 
-location.href =
-    "index.html";
+        if (gameRunning) {
 
+            gameRunning = false;
+
+        }
+
+
+        await supabaseClient.auth.signOut();
+
+    } catch (error) {
+
+        console.warn(
+            "Uitloggen:",
+            error
+        );
+
+    }
+
+
+    localStorage.removeItem(
+        "stb_player"
+    );
+
+
+    location.href =
+        "index.html";
 }
 
-// ============================================================
-// START
-// ============================================================
-
-checkAuth();
 
 // ============================================================
-// BELANGRIJK
-// ============================================================
-//
-// startGame() staat bewust globaal.
-// Daardoor werkt:
-//
-// onclick="startGame()"
-//
-// in game.html.
-//
+// GLOBALE FUNCTIES
 // ============================================================
 
-window.startGame = startGame;
-window.logout = logout;
+/*
+ * Dit is belangrijk voor de onclick="" knoppen
+ * in game.html.
+ */
+
+window.startGame =
+    startGame;
+
+window.logout =
+    logout;
+
+window.shoot =
+    shoot;
+
+
+// ============================================================
+// INITIALISATIE
+// ============================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async function() {
+
+        const authenticated =
+            await checkAuth();
+
+
+        if (!authenticated) {
+            return;
+        }
+
+
+        /*
+         * Startscherm blijft zichtbaar.
+         *
+         * De speler moet zelf op
+         * "Start Game" klikken.
+         */
+
+        updateHud();
+
+    }
+);

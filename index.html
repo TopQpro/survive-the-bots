@@ -15,34 +15,47 @@
         body {
             margin: 0;
             min-height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+
             background:
-                radial-gradient(circle at top, #172554, #020617 70%);
+                radial-gradient(
+                    circle at top,
+                    #172554 0%,
+                    #020617 65%
+                );
+
             color: white;
             font-family: Arial, sans-serif;
         }
 
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 30px 15px;
-        }
-
         .version {
             position: fixed;
-            right: 14px;
+            right: 15px;
             bottom: 10px;
+
             color: #64748b;
             font-size: 12px;
         }
 
-        .auth-card {
+        .card {
             width: min(430px, 100%);
-            background: rgba(15, 23, 42, .97);
+
+            padding: 30px;
+
+            background: rgba(15, 23, 42, .96);
+
             border: 1px solid #334155;
             border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 25px 80px rgba(0,0,0,.5);
+
+            box-shadow:
+                0 25px 80px rgba(0, 0, 0, .55);
         }
 
         .logo {
@@ -58,7 +71,7 @@
 
         .logo p {
             color: #94a3b8;
-            margin-bottom: 0;
+            line-height: 1.5;
         }
 
         .tabs {
@@ -67,56 +80,83 @@
             margin-bottom: 20px;
         }
 
-        .tabs button {
-            flex: 1;
-        }
-
         button {
-            width: 100%;
-            padding: 12px 15px;
             border: 0;
             border-radius: 9px;
+
+            padding: 12px 16px;
+
             background: #0284c7;
             color: white;
+
             font-weight: bold;
             cursor: pointer;
-            margin-top: 8px;
+
+            transition:
+                background .15s ease,
+                transform .1s ease;
         }
 
         button:hover {
             background: #0369a1;
         }
 
-        .tab {
+        button:active {
+            transform: scale(.98);
+        }
+
+        .tabs button {
+            flex: 1;
             background: #1e293b;
         }
 
-        .tab.active {
+        .tabs button.active {
             background: #0284c7;
         }
 
         input {
             width: 100%;
+
             padding: 13px;
             margin: 7px 0;
-            background: #020617;
-            color: white;
+
             border: 1px solid #475569;
             border-radius: 9px;
+
+            background: #020617;
+            color: white;
+
             outline: none;
         }
 
         input:focus {
             border-color: #38bdf8;
+
+            box-shadow:
+                0 0 0 2px rgba(56, 189, 248, .1);
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        .submit {
+            width: 100%;
+            margin-top: 10px;
         }
 
         .message {
+            display: none;
+
             margin-top: 15px;
             padding: 11px;
+
             border-radius: 8px;
+
             background: #1e293b;
             color: #cbd5e1;
-            display: none;
+
+            line-height: 1.4;
         }
 
         .message.show {
@@ -143,38 +183,67 @@
             opacity: .6;
             pointer-events: none;
         }
+
+        .hint {
+            margin-top: 12px;
+            color: #64748b;
+            font-size: 12px;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
 
-<div class="auth-card">
+<div class="card">
+
+    <!-- ======================================================
+         LOGO
+    ======================================================= -->
 
     <div class="logo">
-        <h1>🎮 Survive the Bots</h1>
-        <p>Overleef de bots en bereik de hoogste score!</p>
+
+        <h1>
+            🎮 Survive the Bots
+        </h1>
+
+        <p>
+            Overleef de bots en bereik de hoogste score!
+        </p>
+
     </div>
+
+
+    <!-- ======================================================
+         TABS
+    ======================================================= -->
 
     <div class="tabs">
 
         <button
             id="loginTab"
-            class="tab active"
+            class="active"
             type="button">
+
             Inloggen
+
         </button>
+
 
         <button
             id="registerTab"
-            class="tab"
             type="button">
+
             Registreren
+
         </button>
 
     </div>
 
 
-    <!-- LOGIN -->
+    <!-- ======================================================
+         LOGIN
+    ======================================================= -->
 
     <div id="loginForm">
 
@@ -182,67 +251,96 @@
             id="loginUsername"
             type="text"
             placeholder="Gebruikersnaam"
-            autocomplete="username">
+            autocomplete="username"
+            maxlength="50"
+        >
 
         <input
             id="loginPassword"
             type="password"
             placeholder="Wachtwoord"
-            autocomplete="current-password">
+            autocomplete="current-password"
+        >
 
         <button
             id="loginButton"
+            class="submit"
             type="button">
+
             🎮 Inloggen
+
         </button>
 
     </div>
 
 
-    <!-- REGISTER -->
+    <!-- ======================================================
+         REGISTER
+    ======================================================= -->
 
-    <div id="registerForm" class="hidden">
+    <div
+        id="registerForm"
+        class="hidden">
 
         <input
             id="registerUsername"
             type="text"
             placeholder="Gebruikersnaam"
-            autocomplete="username">
+            autocomplete="username"
+            maxlength="50"
+        >
 
         <input
             id="registerPassword"
             type="password"
             placeholder="Wachtwoord"
-            autocomplete="new-password">
+            autocomplete="new-password"
+        >
 
         <input
             id="registerPasswordConfirm"
             type="password"
             placeholder="Wachtwoord opnieuw"
-            autocomplete="new-password">
+            autocomplete="new-password"
+        >
 
         <button
             id="registerButton"
+            class="submit"
             type="button">
+
             ✨ Account maken
+
         </button>
 
     </div>
 
+
+    <!-- ======================================================
+         MESSAGE
+    ======================================================= -->
 
     <div
         id="authMessage"
         class="message">
     </div>
 
+
+    <div class="hint">
+        Survive the Bots v1.3.2
+    </div>
+
 </div>
+
 
 <div class="version">
-    Survive the Bots v1.3.1
+    Survive the Bots v1.3.2
 </div>
 
 
-<!-- Supabase -->
+<!-- ==========================================================
+     SUPABASE
+=========================================================== -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -254,37 +352,49 @@
 "use strict";
 
 
-/* ============================================================
-   SUPABASE
-============================================================ */
+// ============================================================
+// SUPABASE CLIENT
+// ============================================================
 
-if (
-    typeof SUPABASE_URL === "undefined" ||
-    typeof SUPABASE_KEY === "undefined"
-) {
+let supabaseClient = null;
 
-    console.error(
-        "SUPABASE_URL of SUPABASE_KEY ontbreekt."
-    );
+try {
 
-    showMessage(
-        "Supabase configuratie ontbreekt. Controleer supabase-config.js.",
-        "error"
-    );
+    if (
+        typeof SUPABASE_URL === "undefined" ||
+        typeof SUPABASE_KEY === "undefined"
+    ) {
+        throw new Error(
+            "SUPABASE_URL of SUPABASE_KEY ontbreekt."
+        );
+    }
 
-}
-
-
-const supabaseClient =
-    supabase.createClient(
+    supabaseClient = supabase.createClient(
         SUPABASE_URL,
         SUPABASE_KEY
     );
 
+} catch (error) {
 
-/* ============================================================
-   ELEMENTEN
-============================================================ */
+    console.error(
+        "Supabase initialisatie mislukt:",
+        error
+    );
+
+    const box =
+        document.getElementById("authMessage");
+
+    box.textContent =
+        "Databaseverbinding kon niet worden gestart. Controleer supabase-config.js.";
+
+    box.className =
+        "message show error";
+}
+
+
+// ============================================================
+// ELEMENTEN
+// ============================================================
 
 const loginTab =
     document.getElementById("loginTab");
@@ -304,67 +414,98 @@ const loginButton =
 const registerButton =
     document.getElementById("registerButton");
 
+const authMessage =
+    document.getElementById("authMessage");
 
-/* ============================================================
-   MESSAGE
-============================================================ */
 
-function showMessage(message, type = "") {
+// ============================================================
+// MESSAGE
+// ============================================================
 
-    const box =
-        document.getElementById("authMessage");
+function showMessage(
+    message,
+    type = ""
+) {
 
-    box.textContent = message;
+    authMessage.textContent = message;
 
-    box.className = "message show";
+    authMessage.className =
+        "message show";
 
     if (type) {
-        box.classList.add(type);
+        authMessage.classList.add(type);
     }
 }
 
 
-/* ============================================================
-   TABS
-============================================================ */
+function clearMessage() {
+
+    authMessage.textContent = "";
+
+    authMessage.className =
+        "message";
+}
+
+
+// ============================================================
+// LOGIN TAB
+// ============================================================
+
+function showLogin() {
+
+    loginTab.classList.add("active");
+
+    registerTab.classList.remove("active");
+
+    loginForm.classList.remove("hidden");
+
+    registerForm.classList.add("hidden");
+
+    clearMessage();
+
+    document
+        .getElementById("loginUsername")
+        .focus();
+}
+
 
 loginTab.addEventListener(
     "click",
-    function () {
-
-        loginTab.classList.add("active");
-        registerTab.classList.remove("active");
-
-        loginForm.classList.remove("hidden");
-        registerForm.classList.add("hidden");
-
-        document
-            .getElementById("authMessage")
-            .className = "message";
-    }
+    showLogin
 );
+
+
+// ============================================================
+// REGISTER TAB
+// ============================================================
+
+function showRegister() {
+
+    registerTab.classList.add("active");
+
+    loginTab.classList.remove("active");
+
+    registerForm.classList.remove("hidden");
+
+    loginForm.classList.add("hidden");
+
+    clearMessage();
+
+    document
+        .getElementById("registerUsername")
+        .focus();
+}
 
 
 registerTab.addEventListener(
     "click",
-    function () {
-
-        registerTab.classList.add("active");
-        loginTab.classList.remove("active");
-
-        registerForm.classList.remove("hidden");
-        loginForm.classList.add("hidden");
-
-        document
-            .getElementById("authMessage")
-            .className = "message";
-    }
+    showRegister
 );
 
 
-/* ============================================================
-   LOGIN
-============================================================ */
+// ============================================================
+// LOGIN
+// ============================================================
 
 async function login() {
 
@@ -391,20 +532,29 @@ async function login() {
     }
 
 
+    if (!supabaseClient) {
+
+        showMessage(
+            "Databaseverbinding is niet beschikbaar.",
+            "error"
+        );
+
+        return;
+    }
+
+
     loginButton.classList.add("loading");
 
-    loginButton.textContent = "Bezig met inloggen...";
+    loginButton.textContent =
+        "Bezig met inloggen...";
 
 
     try {
 
-        /*
-         * We gebruiken hier de eigen database-login.
-         *
-         * Dit voorkomt de Supabase email-rate-limit.
-         */
-
-        const { data, error } =
+        const {
+            data,
+            error
+        } =
             await supabaseClient.rpc(
                 "login_player",
                 {
@@ -412,6 +562,12 @@ async function login() {
                     p_password: password
                 }
             );
+
+
+        console.log(
+            "Login response:",
+            data
+        );
 
 
         if (error) {
@@ -422,8 +578,8 @@ async function login() {
             );
 
             showMessage(
-                "Inloggen mislukt: " +
-                error.message,
+                error.message ||
+                "Inloggen mislukt.",
                 "error"
             );
 
@@ -442,38 +598,37 @@ async function login() {
         }
 
 
-        let player;
+        let player = data;
 
 
-        try {
+        if (typeof player === "string") {
 
-            player =
-                typeof data === "string"
-                    ? JSON.parse(data)
-                    : data;
+            try {
 
-        } catch (e) {
+                player =
+                    JSON.parse(player);
 
-            console.error(
-                "Login response:",
-                data
-            );
+            } catch (parseError) {
 
-            showMessage(
-                "Ongeldige login-response.",
-                "error"
-            );
+                console.error(
+                    "JSON parse error:",
+                    parseError
+                );
 
-            return;
+                showMessage(
+                    "Ongeldige gegevens ontvangen van de database.",
+                    "error"
+                );
+
+                return;
+            }
         }
 
 
-        /*
-         * Sommige RPC's geven een array terug.
-         */
-
         if (Array.isArray(player)) {
-            player = player[0];
+
+            player =
+                player[0];
         }
 
 
@@ -491,11 +646,6 @@ async function login() {
         }
 
 
-        /*
-         * Bewaar de speler zodat game.html
-         * weet wie er ingelogd is.
-         */
-
         localStorage.setItem(
             "stb_player",
             JSON.stringify(player)
@@ -509,7 +659,7 @@ async function login() {
 
 
         setTimeout(
-            function () {
+            () => {
 
                 window.location.href =
                     "game.html";
@@ -517,7 +667,6 @@ async function login() {
             },
             400
         );
-
 
     } catch (error) {
 
@@ -533,18 +682,19 @@ async function login() {
 
     } finally {
 
-        loginButton.classList.remove("loading");
+        loginButton.classList.remove(
+            "loading"
+        );
 
         loginButton.textContent =
             "🎮 Inloggen";
-
     }
 }
 
 
-/* ============================================================
-   REGISTER
-============================================================ */
+// ============================================================
+// REGISTER
+// ============================================================
 
 async function register() {
 
@@ -559,16 +709,20 @@ async function register() {
             .getElementById("registerPassword")
             .value;
 
-    const confirmPassword =
+    const confirm =
         document
             .getElementById("registerPasswordConfirm")
             .value;
 
 
-    if (!username || !password) {
+    if (
+        !username ||
+        !password ||
+        !confirm
+    ) {
 
         showMessage(
-            "Vul een gebruikersnaam en wachtwoord in.",
+            "Vul alle velden in.",
             "error"
         );
 
@@ -579,7 +733,7 @@ async function register() {
     if (username.length < 3) {
 
         showMessage(
-            "Je gebruikersnaam moet minstens 3 tekens bevatten.",
+            "De gebruikersnaam moet minstens 3 tekens bevatten.",
             "error"
         );
 
@@ -590,7 +744,7 @@ async function register() {
     if (password.length < 4) {
 
         showMessage(
-            "Je wachtwoord moet minstens 4 tekens bevatten.",
+            "Het wachtwoord moet minstens 4 tekens bevatten.",
             "error"
         );
 
@@ -598,7 +752,7 @@ async function register() {
     }
 
 
-    if (password !== confirmPassword) {
+    if (password !== confirm) {
 
         showMessage(
             "De wachtwoorden zijn niet hetzelfde.",
@@ -609,23 +763,31 @@ async function register() {
     }
 
 
-    registerButton.classList.add("loading");
+    if (!supabaseClient) {
+
+        showMessage(
+            "Databaseverbinding is niet beschikbaar.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    registerButton.classList.add(
+        "loading"
+    );
 
     registerButton.textContent =
-        "Account wordt gemaakt...";
+        "Account maken...";
 
 
     try {
 
-        /*
-         * Eigen database registratie.
-         *
-         * Geen Supabase Auth signup,
-         * dus geen email-verificatie
-         * en geen email-rate-limit.
-         */
-
-        const { data, error } =
+        const {
+            data,
+            error
+        } =
             await supabaseClient.rpc(
                 "register_player",
                 {
@@ -633,6 +795,12 @@ async function register() {
                     p_password: password
                 }
             );
+
+
+        console.log(
+            "Register response:",
+            data
+        );
 
 
         if (error) {
@@ -643,13 +811,28 @@ async function register() {
             );
 
             showMessage(
-                "Registreren mislukt: " +
-                error.message,
+                error.message ||
+                "Registreren mislukt.",
                 "error"
             );
 
             return;
         }
+
+
+        showLogin();
+
+
+        document
+            .getElementById("loginUsername")
+            .value =
+            username;
+
+
+        document
+            .getElementById("loginPassword")
+            .value =
+            "";
 
 
         showMessage(
@@ -658,21 +841,9 @@ async function register() {
         );
 
 
-        /*
-         * Ga automatisch naar login.
-         */
-
-        loginTab.click();
-
-
-        document
-            .getElementById("loginUsername")
-            .value = username;
-
         document
             .getElementById("loginPassword")
             .focus();
-
 
     } catch (error) {
 
@@ -688,23 +859,25 @@ async function register() {
 
     } finally {
 
-        registerButton.classList.remove("loading");
+        registerButton.classList.remove(
+            "loading"
+        );
 
         registerButton.textContent =
             "✨ Account maken";
-
     }
 }
 
 
-/* ============================================================
-   BUTTON EVENTS
-============================================================ */
+// ============================================================
+// BUTTONS
+// ============================================================
 
 loginButton.addEventListener(
     "click",
     login
 );
+
 
 registerButton.addEventListener(
     "click",
@@ -712,53 +885,140 @@ registerButton.addEventListener(
 );
 
 
-/* ============================================================
-   ENTER = LOGIN
-============================================================ */
+// ============================================================
+// ENTER LOGIN
+// ============================================================
+
+document
+    .getElementById("loginUsername")
+    .addEventListener(
+        "keydown",
+        event => {
+
+            if (event.key === "Enter") {
+                login();
+            }
+        }
+    );
+
 
 document
     .getElementById("loginPassword")
     .addEventListener(
         "keydown",
-        function (event) {
+        event => {
 
             if (event.key === "Enter") {
                 login();
             }
-
         }
     );
 
 
-/* ============================================================
-   ENTER = REGISTER
-============================================================ */
+// ============================================================
+// ENTER REGISTER
+// ============================================================
+
+document
+    .getElementById("registerUsername")
+    .addEventListener(
+        "keydown",
+        event => {
+
+            if (event.key === "Enter") {
+                register();
+            }
+        }
+    );
+
+
+document
+    .getElementById("registerPassword")
+    .addEventListener(
+        "keydown",
+        event => {
+
+            if (event.key === "Enter") {
+                register();
+            }
+        }
+    );
+
 
 document
     .getElementById("registerPasswordConfirm")
     .addEventListener(
         "keydown",
-        function (event) {
+        event => {
 
             if (event.key === "Enter") {
                 register();
             }
-
         }
     );
 
 
-/* ============================================================
-   GLOBAL FUNCTIES
-============================================================ */
+// ============================================================
+// COMPATIBILITEIT MET OUDE HTML
+// ============================================================
 
-/*
- * Deze twee regels zijn belangrijk als je ergens nog
- * onclick="login()" of onclick="register()" gebruikt.
- */
+window.login =
+    login;
 
-window.login = login;
-window.register = register;
+window.register =
+    register;
+
+
+// ============================================================
+// BESTAANDE LOGIN CONTROLEREN
+// ============================================================
+
+(function checkExistingPlayer() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(
+                "stb_player"
+            );
+
+
+        if (!saved) {
+            return;
+        }
+
+
+        const player =
+            JSON.parse(saved);
+
+
+        if (
+            player &&
+            player.id
+        ) {
+
+            console.log(
+                "Bestaande speler gevonden:",
+                player.username
+            );
+
+            window.location.href =
+                "game.html";
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Ongeldige opgeslagen speler:",
+            error
+        );
+
+        localStorage.removeItem(
+            "stb_player"
+        );
+    }
+
+})();
 
 </script>
 
