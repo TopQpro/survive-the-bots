@@ -482,18 +482,26 @@ button:hover {
 
     position: absolute;
 
-    width: 7px;
-    height: 7px;
+    width: 9px;
+    height: 9px;
 
     border-radius: 50%;
 
     background: #facc15;
 
     box-shadow:
-        0 0 9px #facc15;
+        0 0 6px #facc15,
+        0 0 14px #facc15,
+        0 0 22px rgba(250,204,21,.8);
 
     transform:
         translate(-50%,-50%);
+
+    z-index: 100;
+
+    pointer-events: none;
+}
+
 }
 
 
