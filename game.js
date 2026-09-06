@@ -28,6 +28,7 @@ let user = null;
 let profile = null;
 
 let gameRunning = false;
+let scoreSaved = false;
 
 let health = 100;
 let kills = 0;
@@ -46,8 +47,6 @@ let mouseY = 0;
 let lastShot = 0;
 
 let waveTimer = null;
-
-let scoreSaved = false;
 
 
 // ============================================================
@@ -69,11 +68,8 @@ let weapon = {
 // ELEMENTS
 // ============================================================
 
-const game =
-    document.getElementById("game");
-
-const player =
-    document.getElementById("player");
+const game = document.getElementById("game");
+const player = document.getElementById("player");
 
 const usernameElement =
     document.getElementById("username");
@@ -149,8 +145,7 @@ async function checkAuth() {
 
 
         /*
-         * Eerst proberen we de normale Supabase
-         * sessie.
+         * Indien Supabase Auth actief is.
          */
 
         if (session) {
@@ -162,7 +157,8 @@ async function checkAuth() {
         }
 
         /*
-         * Fallback voor de huidige eigen login.
+         * Jullie eigen login gebruikt momenteel
+         * localStorage.
          */
 
         else {
@@ -238,6 +234,7 @@ async function checkAuth() {
                     );
                 }
 
+
             } catch (error) {
 
                 console.error(
@@ -259,11 +256,6 @@ async function checkAuth() {
         }
 
 
-        /*
-         * Deze functies mogen falen zonder
-         * dat de game stopt.
-         */
-
         await giveDefaultWeapons();
 
         await loadWeapon();
@@ -271,6 +263,7 @@ async function checkAuth() {
         updateHud();
 
         return true;
+
 
     } catch (error) {
 
@@ -288,7 +281,7 @@ async function checkAuth() {
 
 
 // ============================================================
-// PROFIEL LADEN
+// PROFIEL
 // ============================================================
 
 async function loadProfile() {
@@ -302,7 +295,7 @@ async function loadProfile() {
         data,
         error
     } = await supabaseClient
-        .from("players")
+        .from("profiles")
         .select(
             "id,username,coins,role"
         )
@@ -316,7 +309,6 @@ async function loadProfile() {
     if (!error && data) {
 
         profile = data;
-
 
         coins =
             Number(
@@ -354,7 +346,7 @@ async function loadProfile() {
 
 
     /*
-     * Fallback naar localStorage.
+     * Fallback naar jullie eigen players-login.
      */
 
     const saved =
@@ -401,10 +393,11 @@ async function loadProfile() {
                 );
             }
 
+
         } catch (error) {
 
             console.error(
-                "Profiel fallback fout:",
+                "Profiel fallback:",
                 error
             );
         }
@@ -442,6 +435,7 @@ async function giveDefaultWeapons() {
                 error.message
             );
         }
+
 
     } catch (error) {
 
@@ -564,6 +558,7 @@ async function loadWeapon() {
             };
         }
 
+
     } catch (error) {
 
         console.warn(
@@ -606,69 +601,64 @@ document.addEventListener(
 // MOUSE
 // ============================================================
 
-if (game) {
+game.addEventListener(
+    "mousemove",
+    function(event) {
 
-    game.addEventListener(
-        "mousemove",
-        function(event) {
-
-            const rect =
-                game.getBoundingClientRect();
+        const rect =
+            game.getBoundingClientRect();
 
 
-            mouseX =
-                event.clientX -
-                rect.left;
+        mouseX =
+            event.clientX -
+            rect.left;
 
 
-            mouseY =
-                event.clientY -
-                rect.top;
+        mouseY =
+            event.clientY -
+            rect.top;
 
 
-            if (crosshair) {
+        if (crosshair) {
 
-                crosshair.style.display =
-                    "block";
-
-
-                crosshair.style.left =
-                    event.clientX + "px";
+            crosshair.style.display =
+                "block";
 
 
-                crosshair.style.top =
-                    event.clientY + "px";
-            }
+            crosshair.style.left =
+                event.clientX + "px";
+
+
+            crosshair.style.top =
+                event.clientY + "px";
         }
-    );
+    }
+);
 
 
-    game.addEventListener(
-        "mouseleave",
-        function() {
+game.addEventListener(
+    "mouseleave",
+    function() {
 
-            if (crosshair) {
+        if (crosshair) {
 
-                crosshair.style.display =
-                    "none";
-            }
+            crosshair.style.display =
+                "none";
         }
-    );
+    }
+);
 
 
-    game.addEventListener(
-        "mousedown",
-        function(event) {
+game.addEventListener(
+    "mousedown",
+    function(event) {
 
-            if (
-                event.button === 0
-            ) {
+        if (event.button === 0) {
 
-                shoot();
-            }
+            shoot();
         }
-    );
-}
+    }
+);
 
 
 // ============================================================
@@ -695,7 +685,13 @@ function startGame() {
     wave = 1;
     score = 0;
 
+
+    /*
+     * Nieuwe game = score mag opnieuw opgeslagen worden.
+     */
+
     scoreSaved = false;
+
 
     gameRunning = true;
 
@@ -705,27 +701,23 @@ function startGame() {
     player.style.left =
         "50%";
 
+
     player.style.top =
         "50%";
 
 
-    if (startOverlay) {
-
-        startOverlay.classList.add(
-            "hidden"
-        );
-    }
+    startOverlay.classList.add(
+        "hidden"
+    );
 
 
-    if (gameOverOverlay) {
-
-        gameOverOverlay.classList.add(
-            "hidden"
-        );
-    }
+    gameOverOverlay.classList.add(
+        "hidden"
+    );
 
 
     updateHud();
+
 
     spawnWave();
 
@@ -763,7 +755,7 @@ function gameLoop() {
 
 
 // ============================================================
-// PLAYER BEWEGEN
+// PLAYER
 // ============================================================
 
 function movePlayer() {
@@ -893,7 +885,7 @@ function spawnWave() {
 
 
 // ============================================================
-// BOT SPAWNEN
+// BOT SPAWN
 // ============================================================
 
 function spawnBot() {
@@ -1053,7 +1045,6 @@ function spawnBot() {
         hp,
         type,
         speed
-
     });
 }
 
@@ -1123,14 +1114,13 @@ function moveBots() {
 
             bot.element.style.top =
                 bot.y + "px";
-
         }
     );
 }
 
 
 // ============================================================
-// SCHIETEN
+// SHOOT
 // ============================================================
 
 function shoot() {
@@ -1282,7 +1272,8 @@ function moveBullets() {
             bullet.y + "px";
 
 
-        let hit = false;
+        let hit =
+            false;
 
 
         for (
@@ -1381,7 +1372,7 @@ function moveBullets() {
 
 
 // ============================================================
-// BOT DODEN
+// KILL BOT
 // ============================================================
 
 function killBot(index) {
@@ -1548,13 +1539,13 @@ function botCollision() {
 
                     health = 0;
 
+
                     endGame();
                 }
 
 
                 updateHud();
             }
-
         }
     );
 }
@@ -1615,6 +1606,11 @@ async function endGame() {
     }
 
 
+    /*
+     * Eerst stoppen zodat collision niet
+     * meerdere keren endGame() kan uitvoeren.
+     */
+
     gameRunning = false;
 
 
@@ -1628,37 +1624,25 @@ async function endGame() {
     }
 
 
-    if (finalScore) {
-
-        finalScore.textContent =
-            score;
-    }
+    finalScore.textContent =
+        score;
 
 
-    if (finalKills) {
-
-        finalKills.textContent =
-            kills;
-    }
+    finalKills.textContent =
+        kills;
 
 
-    if (finalWave) {
-
-        finalWave.textContent =
-            wave;
-    }
+    finalWave.textContent =
+        wave;
 
 
-    if (gameOverOverlay) {
-
-        gameOverOverlay.classList.remove(
-            "hidden"
-        );
-    }
+    gameOverOverlay.classList.remove(
+        "hidden"
+    );
 
 
     /*
-     * Score automatisch opslaan.
+     * SCORE WORDT HIER AUTOMATISCH OPGESLAGEN.
      */
 
     await saveScore();
@@ -1672,8 +1656,7 @@ async function endGame() {
 async function saveScore() {
 
     /*
-     * Voorkom dat dezelfde game twee keer
-     * wordt opgeslagen.
+     * Bescherming tegen dubbele opslag.
      */
 
     if (scoreSaved) {
@@ -1686,10 +1669,13 @@ async function saveScore() {
     }
 
 
-    if (!user || !user.id) {
+    if (
+        !user ||
+        !user.id
+    ) {
 
         console.error(
-            "Score niet opgeslagen: geen gebruiker."
+            "Score NIET opgeslagen: geen user.id."
         );
 
         return false;
@@ -1699,23 +1685,18 @@ async function saveScore() {
     scoreSaved = true;
 
 
+    console.log(
+        "Score wordt opgeslagen...",
+        {
+            user_id: user.id,
+            score: score,
+            kills: kills,
+            wave: wave
+        }
+    );
+
+
     try {
-
-        console.log(
-            "Score opslaan...",
-            {
-                user_id: user.id,
-                score: score,
-                kills: kills,
-                wave: wave
-            }
-        );
-
-
-        /*
-         * Dit is bewust de versie van de
-         * databasefunctie MET p_user_id.
-         */
 
         const {
             data,
@@ -1726,15 +1707,15 @@ async function saveScore() {
                 p_user_id: user.id,
                 p_score: Math.max(
                     0,
-                    Math.round(score)
+                    Math.floor(score)
                 ),
                 p_kills: Math.max(
                     0,
-                    Math.round(kills)
+                    Math.floor(kills)
                 ),
                 p_wave: Math.max(
                     1,
-                    Math.round(wave)
+                    Math.floor(wave)
                 )
             }
         );
@@ -1743,168 +1724,60 @@ async function saveScore() {
         if (error) {
 
             /*
-             * Belangrijk:
-             * scoreSaved wordt teruggezet zodat
-             * we opnieuw kunnen proberen indien
-             * nodig.
+             * Heel belangrijk:
+             * fout zichtbaar in browserconsole.
              */
 
-            scoreSaved = false;
-
-
             console.error(
-                "Score opslaan mislukt:",
+                "❌ SCORE OPSLAAN MISLUKT",
                 error
             );
 
 
-            return false;
-        }
-
-
-        /*
-         * De databasefunctie geeft TRUE terug
-         * wanneer de score succesvol werd opgeslagen.
-         */
-
-        if (data === false) {
-
             scoreSaved = false;
-
-
-            console.error(
-                "Database heeft score niet opgeslagen."
-            );
-
 
             return false;
         }
 
 
         console.log(
-            "Score succesvol opgeslagen!",
+            "✅ SCORE OPGESLAGEN",
             data
         );
 
 
         /*
-         * De database heeft de coins al bijgewerkt.
+         * De databasefunctie geeft de coins
+         * zelf aan de speler.
          *
-         * We tellen hier dus NIET opnieuw coins bij.
+         * We passen lokaal alleen de HUD aan.
          */
 
+        coins +=
+            kills +
+            Math.max(
+                wave - 1,
+                0
+            ) * 5;
 
-        /*
-         * Lokale player-data opnieuw synchroniseren
-         * indien mogelijk.
-         */
 
-        await refreshCoins();
+        updateHud();
 
 
         return true;
 
+
     } catch (error) {
+
+        console.error(
+            "❌ Onverwachte fout bij score opslaan:",
+            error
+        );
+
 
         scoreSaved = false;
 
-
-        console.error(
-            "Score opslaan fout:",
-            error
-        );
-
-
         return false;
-    }
-}
-
-
-// ============================================================
-// COINS VERNIEUWEN
-// ============================================================
-
-async function refreshCoins() {
-
-    if (!user || !user.id) {
-        return;
-    }
-
-
-    try {
-
-        const {
-            data,
-            error
-        } = await supabaseClient
-            .from("players")
-            .select("coins")
-            .eq(
-                "id",
-                user.id
-            )
-            .maybeSingle();
-
-
-        if (
-            !error &&
-            data
-        ) {
-
-            coins =
-                Number(
-                    data.coins || 0
-                );
-
-
-            updateHud();
-
-
-            /*
-             * Ook localStorage bijwerken.
-             */
-
-            const saved =
-                localStorage.getItem(
-                    "stb_player"
-                );
-
-
-            if (saved) {
-
-                try {
-
-                    const playerData =
-                        JSON.parse(saved);
-
-
-                    playerData.coins =
-                        coins;
-
-
-                    localStorage.setItem(
-                        "stb_player",
-                        JSON.stringify(
-                            playerData
-                        )
-                    );
-
-                } catch (error) {
-
-                    console.warn(
-                        "Lokale coins konden niet worden bijgewerkt:",
-                        error
-                    );
-                }
-            }
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "Coins vernieuwen mislukt:",
-            error
-        );
     }
 }
 
@@ -1965,6 +1838,7 @@ async function logout() {
 
         await supabaseClient.auth.signOut();
 
+
     } catch (error) {
 
         console.warn(
@@ -1988,22 +1862,20 @@ async function logout() {
 // GLOBALE FUNCTIES
 // ============================================================
 
-/*
- * Deze functies moeten globaal beschikbaar zijn
- * omdat game.html onclick="" gebruikt.
- */
-
 window.startGame =
     startGame;
+
 
 window.logout =
     logout;
 
+
 window.shoot =
     shoot;
 
-window.saveScore =
-    saveScore;
+
+window.endGame =
+    endGame;
 
 
 // ============================================================
@@ -2022,11 +1894,6 @@ document.addEventListener(
             return;
         }
 
-
-        /*
-         * Startscherm blijft zichtbaar.
-         * De speler start zelf het spel.
-         */
 
         updateHud();
 
