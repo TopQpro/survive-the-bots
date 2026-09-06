@@ -888,87 +888,109 @@ function spawnWave() {
 // BOT SPAWN
 // ============================================================
 
+// ============================================================
+// BOT SPAWN
+// ============================================================
+
 function spawnBot() {
 
     const element =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
 
-    let type =
-        "normal";
+    // ------------------------------------------------------------
+    // BASIS BOT
+    // ------------------------------------------------------------
 
+    let type = "normal";
 
     let hp =
         1 +
-        Math.floor(
-            wave / 4
-        );
-
+        Math.floor(wave / 4);
 
     let speed =
-        .7 +
-        Math.random() *
-        .35;
+        0.7 +
+        Math.random() * 0.35;
 
 
     const random =
         Math.random();
 
 
+    // ------------------------------------------------------------
+    // TANK
+    // ------------------------------------------------------------
+
     if (
-        random < .18 &&
+        random < 0.18 &&
         wave >= 2
     ) {
 
         type = "tank";
 
-
+        // Tank krijgt veel meer HP
         hp =
             5 +
-            wave;
+            wave * 2;
 
-
+        // Tank is langzaam
         speed =
-            .45 +
-            Math.random() *
-            .2;
-
+            0.45 +
+            Math.random() * 0.2;
 
         element.className =
             "bot tank";
-
     }
 
+
+    // ------------------------------------------------------------
+    // FAST
+    // ------------------------------------------------------------
+
     else if (
-        random < .38 &&
+        random < 0.38 &&
         wave >= 2
     ) {
 
         type = "fast";
 
-
+        // Fast robot heeft weinig HP
         hp = 1;
 
-
+        // Maar beweegt veel sneller
         speed =
             1.1 +
-            Math.random() *
-            .4;
-
+            Math.random() * 0.4;
 
         element.className =
             "bot fast";
-
     }
 
+
+    // ------------------------------------------------------------
+    // NORMAL
+    // ------------------------------------------------------------
+
     else {
+
+        type = "normal";
+
+        hp =
+            1 +
+            Math.floor(wave / 4);
+
+        speed =
+            0.7 +
+            Math.random() * 0.35;
 
         element.className =
             "bot";
     }
 
+
+    // ------------------------------------------------------------
+    // SPAWN POSITIE
+    // ------------------------------------------------------------
 
     let x;
     let y;
@@ -980,6 +1002,7 @@ function spawnBot() {
         );
 
 
+    // Boven
     if (side === 0) {
 
         x =
@@ -987,21 +1010,22 @@ function spawnBot() {
             game.clientWidth;
 
         y = -30;
-
     }
 
+
+    // Rechts
     else if (side === 1) {
 
         x =
-            game.clientWidth +
-            30;
+            game.clientWidth + 30;
 
         y =
             Math.random() *
             game.clientHeight;
-
     }
 
+
+    // Onder
     else if (side === 2) {
 
         x =
@@ -1009,11 +1033,11 @@ function spawnBot() {
             game.clientWidth;
 
         y =
-            game.clientHeight +
-            30;
-
+            game.clientHeight + 30;
     }
 
+
+    // Links
     else {
 
         x = -30;
@@ -1027,26 +1051,138 @@ function spawnBot() {
     element.style.left =
         x + "px";
 
-
     element.style.top =
         y + "px";
 
+
+    // ------------------------------------------------------------
+    // ROBOT TOEVOEGEN AAN GAME
+    // ------------------------------------------------------------
 
     game.appendChild(
         element
     );
 
 
+    // ------------------------------------------------------------
+    // HEALTH BAR
+    // ------------------------------------------------------------
+
+    const healthBar =
+        document.createElement("div");
+
+    healthBar.className =
+        "bot-health";
+
+
+    const healthBarInner =
+        document.createElement("div");
+
+    healthBarInner.className =
+        "bot-health-inner";
+
+
+    healthBar.appendChild(
+        healthBarInner
+    );
+
+
+    element.appendChild(
+        healthBar
+    );
+
+
+    // ------------------------------------------------------------
+    // MAXIMALE HP OPSLAAN
+    // ------------------------------------------------------------
+
+    const maxHp =
+        hp;
+
+
+    // ------------------------------------------------------------
+    // HEALTH BAR INITIËREN
+    // ------------------------------------------------------------
+
+    updateBotHealthBar(
+        healthBarInner,
+        hp,
+        maxHp
+    );
+
+
+    // ------------------------------------------------------------
+    // BOT OPSLAAN
+    // ------------------------------------------------------------
+
     bots.push({
 
         element,
+
         x,
+
         y,
+
         hp,
+
+        maxHp,
+
         type,
-        speed
+
+        speed,
+
+        healthBarInner
+
     });
 }
+
+function updateBotHealthBar(
+    healthBar,
+    hp,
+    maxHp
+) {
+
+    if (!healthBar) {
+        return;
+    }
+
+
+    const percentage =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                (hp / maxHp) * 100
+            )
+        );
+
+
+    healthBar.style.width =
+        percentage + "%";
+
+
+    healthBar.classList.remove(
+        "medium",
+        "low"
+    );
+
+
+    if (percentage <= 30) {
+
+        healthBar.classList.add(
+            "low"
+        );
+
+    }
+
+    else if (percentage <= 60) {
+
+        healthBar.classList.add(
+            "medium"
+        );
+    }
+}
+
 
 
 // ============================================================
@@ -1316,8 +1452,24 @@ function moveBullets() {
                 hitDistance
             ) {
 
-                bot.hp -=
-                    bullet.damage;
+                bot.hp -= bullet.damage;
+				
+				bot.element.classList.add("hit");
+
+setTimeout(
+    () => {
+        bot.element.classList.remove("hit");
+    },
+    80
+);
+
+
+updateBotHealthBar(
+    bot.healthBarInner,
+    bot.hp,
+    bot.maxHp
+);
+
 
 
                 bullet.element.remove();

@@ -13,6 +13,275 @@
 
 <style>
 
+/* ============================================================
+   ROBOTS
+   ============================================================ */
+
+.bot {
+    position: absolute;
+
+    width: 34px;
+    height: 40px;
+
+    background: linear-gradient(
+        145deg,
+        #64748b,
+        #1e293b
+    );
+
+    border: 2px solid #94a3b8;
+
+    border-radius: 7px;
+
+    box-shadow:
+        0 0 8px rgba(56,189,248,.35);
+
+    transform:
+        translate(-50%, -50%);
+
+    z-index: 10;
+}
+
+
+/* Hoofd */
+
+.bot::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 24px;
+    height: 20px;
+
+    left: 3px;
+    top: 4px;
+
+    background: #334155;
+
+    border: 2px solid #94a3b8;
+
+    border-radius: 5px;
+}
+
+
+/* Ogen */
+
+.bot::after {
+
+    content: "•  •";
+
+    position: absolute;
+
+    left: 5px;
+    top: 5px;
+
+    width: 20px;
+
+    color: #38bdf8;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    letter-spacing: 2px;
+
+    text-shadow:
+        0 0 5px #38bdf8;
+}
+
+
+/* Lichaam */
+
+.bot {
+    box-shadow:
+        inset 0 -10px 0 rgba(2,6,23,.45),
+        0 0 8px rgba(56,189,248,.35);
+}
+
+
+/* ============================================================
+   FAST ROBOT
+   ============================================================ */
+
+.bot.fast {
+
+    width: 28px;
+    height: 34px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f97316,
+            #7c2d12
+        );
+
+    border-color: #fb923c;
+
+    box-shadow:
+        0 0 12px rgba(249,115,22,.65);
+}
+
+
+.bot.fast::before {
+
+    background: #9a3412;
+
+    border-color: #fdba74;
+}
+
+
+.bot.fast::after {
+
+    color: #fde047;
+
+    text-shadow:
+        0 0 6px #fde047;
+}
+
+
+/* ============================================================
+   TANK ROBOT
+   ============================================================ */
+
+.bot.tank {
+
+    width: 50px;
+    height: 52px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #475569,
+            #020617
+        );
+
+    border: 3px solid #64748b;
+
+    border-radius: 9px;
+
+    box-shadow:
+        0 0 15px rgba(239,68,68,.45),
+        inset 0 0 12px rgba(0,0,0,.8);
+}
+
+
+.bot.tank::before {
+
+    width: 34px;
+    height: 25px;
+
+    left: 5px;
+    top: 5px;
+
+    background: #1e293b;
+
+    border:
+        3px solid #64748b;
+
+    border-radius: 6px;
+}
+
+
+.bot.tank::after {
+
+    content: "●  ●";
+
+    left: 9px;
+    top: 8px;
+
+    color: #ef4444;
+
+    font-size: 12px;
+
+    text-shadow:
+        0 0 7px #ef4444;
+}
+
+
+/* ============================================================
+   HEALTH BAR
+   ============================================================ */
+
+.bot-health {
+
+    position: absolute;
+
+    width: 42px;
+    height: 5px;
+
+    left: 50%;
+
+    top: -13px;
+
+    transform:
+        translateX(-50%);
+
+    background: #020617;
+
+    border:
+        1px solid #475569;
+
+    border-radius: 4px;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+    z-index: 20;
+}
+
+
+.bot-health-inner {
+
+    width: 100%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #22c55e,
+            #84cc16
+        );
+
+    transition:
+        width .12s linear,
+        background .15s linear;
+}
+
+
+/* Lage HP */
+
+.bot-health-inner.medium {
+
+    background:
+        linear-gradient(
+            90deg,
+            #eab308,
+            #f59e0b
+        );
+}
+
+
+.bot-health-inner.low {
+
+    background:
+        linear-gradient(
+            90deg,
+            #ef4444,
+            #dc2626
+        );
+}
+
+.bot.hit {
+    filter:
+        brightness(2)
+        drop-shadow(
+            0 0 8px white
+        );
+}
+
+
 * {
     box-sizing: border-box;
 }
