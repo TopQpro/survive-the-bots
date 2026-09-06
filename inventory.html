@@ -3,346 +3,444 @@
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
 
-    <title>Leaderboard - Survive the Bots</title>
+<title>Mijn wapens - Survive the Bots</title>
 
-    <style>
+<style>
 
-        * {
-            box-sizing: border-box;
-        }
+* {
+    box-sizing: border-box;
+}
 
-        html,
-        body {
-            margin: 0;
-            min-height: 100%;
-        }
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
 
-        body {
-            min-height: 100vh;
+body {
 
-            background:
-                radial-gradient(
-                    circle at top,
-                    #172554,
-                    #020617 70%
-                );
+    min-height: 100vh;
 
-            color: white;
+    background:
+        radial-gradient(
+            circle at top,
+            #172554 0%,
+            #020617 65%
+        );
 
-            font-family: Arial, sans-serif;
-        }
+    color: white;
 
+    font-family: Arial, sans-serif;
+}
 
-        /* ====================================================
-           HEADER
-        ==================================================== */
 
-        header {
+/* ============================================================
+   HEADER
+============================================================ */
 
-            padding: 18px;
+header {
 
-            background: #020617;
+    position: sticky;
 
-            border-bottom:
-                1px solid #334155;
+    top: 0;
 
-            display: flex;
+    z-index: 100;
 
-            align-items: center;
+    display: flex;
 
-            gap: 10px;
+    align-items: center;
 
-            flex-wrap: wrap;
-        }
+    gap: 8px;
 
+    padding: 14px 18px;
 
-        header h1 {
+    background:
+        rgba(2, 6, 23, .97);
 
-            margin: 0;
+    border-bottom:
+        1px solid #334155;
 
-            margin-right: auto;
+    box-shadow:
+        0 5px 25px rgba(0,0,0,.25);
+}
 
-            color: #38bdf8;
 
-            font-size: 24px;
-        }
+header h1 {
 
+    margin: 0;
 
-        button {
+    margin-right: auto;
 
-            padding: 10px 14px;
+    color: #38bdf8;
 
-            border: 0;
+    font-size: 21px;
+}
 
-            border-radius: 8px;
 
-            background: #0284c7;
+button {
 
-            color: white;
+    padding: 10px 14px;
 
-            font-weight: bold;
+    border: 0;
 
-            cursor: pointer;
-        }
+    border-radius: 8px;
 
+    background: #0284c7;
 
-        button:hover {
+    color: white;
 
-            background: #0369a1;
-        }
+    font-weight: bold;
 
+    cursor: pointer;
 
-        .logout {
+    transition:
+        background .15s,
+        transform .1s;
+}
 
-            background: #dc2626;
-        }
 
+button:hover {
 
-        .logout:hover {
+    background: #0369a1;
 
-            background: #b91c1c;
-        }
+    transform: translateY(-1px);
+}
 
 
-        /* ====================================================
-           CONTAINER
-        ==================================================== */
+.logout {
 
-        .container {
+    background: #dc2626;
+}
 
-            width: min(900px, 92%);
 
-            margin: 30px auto;
-        }
+.logout:hover {
 
+    background: #b91c1c;
+}
 
-        .card {
 
-            background:
-                rgba(15, 23, 42, .96);
+/* ============================================================
+   CONTAINER
+============================================================ */
 
-            border:
-                1px solid #334155;
+.container {
 
-            border-radius: 16px;
+    width: min(1050px, 92%);
 
-            padding: 20px;
+    margin: 30px auto;
 
-            box-shadow:
-                0 20px 60px
-                rgba(0, 0, 0, .25);
-        }
+    padding-bottom: 40px;
+}
 
 
-        /* ====================================================
-           MESSAGE
-        ==================================================== */
+/* ============================================================
+   INTRO
+============================================================ */
 
-        .message {
+.intro {
 
-            padding: 13px;
+    margin-bottom: 20px;
+}
 
-            margin-bottom: 15px;
 
-            border-radius: 9px;
+.intro h2 {
 
-            background: #1e293b;
+    margin-bottom: 5px;
 
-            color: #cbd5e1;
+    color: #e2e8f0;
+}
 
-            display: none;
-        }
 
+.intro p {
 
-        .message.show {
+    margin-top: 0;
 
-            display: block;
-        }
+    color: #94a3b8;
+}
 
 
-        .message.error {
+/* ============================================================
+   MESSAGE
+============================================================ */
 
-            background: #451a1a;
+.message {
 
-            color: #fecaca;
-        }
+    padding: 15px;
 
+    margin-bottom: 20px;
 
-        /* ====================================================
-           TABLE
-        ==================================================== */
+    background:
+        rgba(15,23,42,.96);
 
-        .table-wrapper {
+    border:
+        1px solid #334155;
 
-            overflow-x: auto;
-        }
+    border-radius: 12px;
 
+    color: #cbd5e1;
+}
 
-        table {
 
-            width: 100%;
+.message.error {
 
-            border-collapse: collapse;
+    border-color: #7f1d1d;
 
-            min-width: 550px;
-        }
+    background:
+        rgba(69,26,26,.8);
 
+    color: #fecaca;
+}
 
-        th,
-        td {
 
-            padding: 13px 10px;
+.hidden {
 
-            border-bottom:
-                1px solid #334155;
+    display: none !important;
+}
 
-            text-align: left;
-        }
 
+/* ============================================================
+   WEAPONS GRID
+============================================================ */
 
-        th {
+.weapons {
 
-            color: #38bdf8;
+    display: grid;
 
-            font-size: 14px;
-        }
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(240px, 1fr)
+        );
 
+    gap: 18px;
+}
 
-        tbody tr:hover {
 
-            background:
-                rgba(30, 41, 59, .6);
-        }
+/* ============================================================
+   WEAPON CARD
+============================================================ */
 
+.card {
 
-        .rank {
+    overflow: hidden;
 
-            width: 60px;
+    background:
+        rgba(15,23,42,.96);
 
-            font-weight: bold;
+    border:
+        1px solid #334155;
 
-            color: #facc15;
-        }
+    border-radius: 16px;
 
+    box-shadow:
+        0 15px 40px rgba(0,0,0,.25);
 
-        .player-name {
+    transition:
+        transform .15s,
+        border-color .15s,
+        box-shadow .15s;
+}
 
-            font-weight: bold;
-        }
 
+.card:hover {
 
-        .score {
+    transform: translateY(-3px);
 
-            color: #facc15;
+    border-color: #38bdf8;
 
-            font-weight: bold;
-        }
+    box-shadow:
+        0 18px 45px
+        rgba(0,0,0,.4);
+}
 
 
-        .empty {
+/* ============================================================
+   IMAGE / ICON
+============================================================ */
 
-            text-align: center;
+.weapon-visual {
 
-            color: #94a3b8;
+    height: 150px;
 
-            padding: 30px;
-        }
+    display: flex;
 
+    align-items: center;
 
-        /* ====================================================
-           TOP 3
-        ==================================================== */
+    justify-content: center;
 
-        .rank-1 {
+    background:
+        radial-gradient(
+            circle,
+            #1e293b,
+            #020617
+        );
 
-            color: #facc15;
-        }
+    border-bottom:
+        1px solid #334155;
+}
 
 
-        .rank-2 {
+.weapon-image {
 
-            color: #cbd5e1;
-        }
+    width: 100%;
 
+    height: 150px;
 
-        .rank-3 {
+    object-fit: contain;
+}
 
-            color: #d97706;
-        }
 
+.weapon-icon {
 
-        /* ====================================================
-           VERSION
-        ==================================================== */
+    font-size: 70px;
+}
 
-        .version {
 
-            position: fixed;
+/* ============================================================
+   CARD CONTENT
+============================================================ */
 
-            right: 12px;
+.card-content {
 
-            bottom: 8px;
+    padding: 18px;
+}
 
-            color: #64748b;
 
-            font-size: 11px;
-        }
+.card h2 {
 
+    margin-top: 0;
 
-        /* ====================================================
-           MOBILE
-        ==================================================== */
+    margin-bottom: 8px;
 
-        @media (max-width: 650px) {
+    color: #38bdf8;
+}
 
-            header {
 
-                padding: 14px;
-            }
+.description {
 
+    min-height: 42px;
 
-            header h1 {
+    color: #cbd5e1;
 
-                width: 100%;
+    line-height: 1.5;
+}
 
-                margin-right: 0;
 
-                margin-bottom: 5px;
-            }
+/* ============================================================
+   STATS
+============================================================ */
 
+.stats {
 
-            header button {
+    margin-top: 15px;
 
-                flex: 1;
+    padding-top: 12px;
 
-                font-size: 12px;
+    border-top:
+        1px solid #334155;
 
-                padding: 9px 7px;
-            }
+    color: #cbd5e1;
 
+    line-height: 1.8;
+}
 
-            .container {
 
-                width: 94%;
+.stat-label {
 
-                margin-top: 20px;
-            }
+    color: #64748b;
+}
 
 
-            .card {
+/* ============================================================
+   SOURCE
+============================================================ */
 
-                padding: 12px;
-            }
+.source {
 
-        }
+    display: inline-block;
 
-    </style>
+    margin-top: 15px;
+
+    padding: 5px 8px;
+
+    border-radius: 6px;
+
+    background: #1e293b;
+
+    color: #94a3b8;
+
+    font-size: 12px;
+}
+
+
+/* ============================================================
+   VERSION
+============================================================ */
+
+.version {
+
+    position: fixed;
+
+    right: 10px;
+
+    bottom: 7px;
+
+    color: #475569;
+
+    font-size: 11px;
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 700px) {
+
+    header {
+
+        flex-wrap: wrap;
+
+    }
+
+    header h1 {
+
+        width: 100%;
+
+        margin-right: 0;
+
+        margin-bottom: 5px;
+
+    }
+
+    header button {
+
+        font-size: 12px;
+
+        padding: 8px 10px;
+
+    }
+
+}
+
+
+@media (max-width: 450px) {
+
+    .weapons {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+</style>
 
 </head>
 
@@ -350,583 +448,594 @@
 <body>
 
 
-    <!-- ====================================================
-         HEADER
-    ==================================================== -->
+<!-- ==========================================================
+     HEADER
+========================================================== -->
 
-    <header>
+<header>
 
-        <h1>
-            🏆 Leaderboard
-        </h1>
-
-
-        <button
-            type="button"
-            onclick="goTo('game.html')">
-
-            🎮 Game
-
-        </button>
+    <h1>
+        🔫 Mijn wapens
+    </h1>
 
 
-        <button
-            type="button"
-            onclick="goTo('shop.html')">
+    <button
+        type="button"
+        onclick="goTo('game.html')">
 
-            🛒 Shop
+        🎮 Game
 
-        </button>
-
-
-        <button
-            type="button"
-            onclick="goTo('inventory.html')">
-
-            🔫 Wapens
-
-        </button>
+    </button>
 
 
-        <button
-            type="button"
-            class="logout"
-            onclick="logout()">
+    <button
+        type="button"
+        onclick="goTo('shop.html')">
 
-            Uitloggen
+        🛒 Shop
 
-        </button>
-
-    </header>
+    </button>
 
 
-    <!-- ====================================================
-         CONTENT
-    ==================================================== -->
+    <button
+        type="button"
+        onclick="goTo('leaderboard.html')">
 
-    <div class="container">
+        🏆 Scores
 
-        <div
-            id="message"
-            class="message">
-        </div>
+    </button>
 
 
-        <div class="card">
+    <button
+        id="adminButton"
+        class="hidden"
+        type="button"
+        onclick="goTo('admin.html')">
 
-            <div class="table-wrapper">
+        👑 Admin
 
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                #
-                            </th>
-
-                            <th>
-                                Speler
-                            </th>
-
-                            <th>
-                                Score
-                            </th>
-
-                            <th>
-                                Kills
-                            </th>
-
-                            <th>
-                                Wave
-                            </th>
-
-                        </tr>
-
-                    </thead>
+    </button>
 
 
-                    <tbody id="leaderboard">
+    <button
+        class="logout"
+        type="button"
+        onclick="logout()">
 
-                        <tr>
+        Uitloggen
 
-                            <td
-                                colspan="5"
-                                class="empty">
+    </button>
 
-                                Leaderboard laden...
+</header>
 
-                            </td>
 
-                        </tr>
+<!-- ==========================================================
+     CONTENT
+========================================================== -->
 
-                    </tbody>
+<main class="container">
 
-                </table>
 
-            </div>
+    <div class="intro">
 
-        </div>
+        <h2>
+            Jouw arsenaal
+        </h2>
+
+        <p>
+            Bekijk hier alle wapens die je momenteel bezit.
+        </p>
 
     </div>
 
 
-    <div class="version">
-        Survive the Bots v1.3.2
+    <div
+        id="message"
+        class="message">
+
+        Wapens laden...
+
     </div>
 
 
-    <!-- ====================================================
-         SUPABASE
-    ==================================================== -->
+    <div
+        id="weapons"
+        class="weapons">
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script src="supabase-config.js"></script>
-
-    <script src="auth.js"></script>
+    </div>
 
 
-    <script>
-
-        "use strict";
+</main>
 
 
-        /* ==================================================
-           SUPABASE CLIENT
-        ================================================== */
+<div class="version">
+    Survive the Bots v1.3.2
+</div>
 
-        const supabaseClient =
-            supabase.createClient(
-                SUPABASE_URL,
-                SUPABASE_KEY
+
+<!-- ==========================================================
+     SCRIPTS
+========================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="supabase-config.js"></script>
+
+<script src="auth.js"></script>
+
+
+<script>
+
+"use strict";
+
+
+// ============================================================
+// SUPABASE
+// ============================================================
+
+const supabaseClient =
+    supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+// ============================================================
+// PLAYER
+// ============================================================
+
+let currentPlayer = null;
+
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+
+function goTo(page) {
+
+    window.location.href = page;
+}
+
+
+// ============================================================
+// INIT
+// ============================================================
+
+async function init() {
+
+    currentPlayer =
+        requireLogin();
+
+    if (!currentPlayer) {
+        return;
+    }
+
+
+    if (
+        currentPlayer.role === "admin"
+    ) {
+
+        document
+            .getElementById("adminButton")
+            .classList.remove("hidden");
+
+    }
+
+
+    await giveDefaultWeapons();
+
+    await loadWeapons();
+
+}
+
+
+// ============================================================
+// DEFAULT WAPENS
+// ============================================================
+
+async function giveDefaultWeapons() {
+
+    try {
+
+        const { error } =
+            await supabaseClient.rpc(
+                "give_default_weapons",
+                {
+                    p_user_id:
+                        currentPlayer.id
+                }
             );
 
 
-        /* ==================================================
-           MESSAGE
-        ================================================== */
+        if (error) {
 
-        function showMessage(
-            text,
-            error = false
+            console.error(
+                "Default wapens:",
+                error
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Default wapens:",
+            error
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// LOAD WEAPONS
+// ============================================================
+
+async function loadWeapons() {
+
+    const container =
+        document.getElementById(
+            "weapons"
+        );
+
+    const message =
+        document.getElementById(
+            "message"
+        );
+
+
+    message.textContent =
+        "Wapens laden...";
+
+    message.className =
+        "message";
+
+
+    try {
+
+        const { data, error } =
+            await supabaseClient.rpc(
+                "get_my_weapons"
+            );
+
+
+        if (error) {
+
+            console.error(
+                "Wapens laden:",
+                error
+            );
+
+            message.textContent =
+                "Wapens konden niet geladen worden.";
+
+            message.classList.add(
+                "error"
+            );
+
+            return;
+        }
+
+
+        container.innerHTML = "";
+
+
+        if (
+            !data ||
+            data.length === 0
         ) {
 
-            const message =
-                document.getElementById(
-                    "message"
-                );
+            message.textContent =
+                "Je hebt nog geen wapens.";
 
-
-            message.textContent = text;
-
-            message.className =
-                "message show";
-
-
-            if (error) {
-
-                message.classList.add(
-                    "error"
-                );
-
-            }
-
+            return;
         }
 
 
-        /* ==================================================
-           NAVIGATION
-        ================================================== */
+        message.classList.add(
+            "hidden"
+        );
 
-        function goTo(page) {
 
-            /*
-                We gebruiken bewust geen
-                Supabase Auth check hier.
+        data.forEach(
+            weapon => {
 
-                De rest van het project gebruikt
-                stb_player in localStorage.
-            */
-
-            const player =
-                getCurrentPlayer();
-
-
-            if (!player) {
-
-                window.location.href =
-                    "index.html";
-
-                return;
-            }
-
-
-            window.location.href =
-                page;
-
-        }
-
-
-        /* ==================================================
-           LOAD LEADERBOARD
-        ================================================== */
-
-        async function loadLeaderboard() {
-
-            const body =
-                document.getElementById(
-                    "leaderboard"
-                );
-
-
-            body.innerHTML = `
-                <tr>
-                    <td
-                        colspan="5"
-                        class="empty">
-                        Leaderboard laden...
-                    </td>
-                </tr>
-            `;
-
-
-            try {
-
-                /*
-                    We lezen rechtstreeks uit de
-                    leaderboard-view.
-
-                    Dit past bij je bestaande database.
-                */
-
-                const {
-                    data,
-                    error
-                } =
-                    await supabaseClient
-                        .from("leaderboard")
-                        .select(
-                            "player_name,score,kills,wave"
-                        )
-                        .order(
-                            "score",
-                            {
-                                ascending: false
-                            }
-                        )
-                        .limit(100);
-
-
-                if (error) {
-
-                    console.error(
-                        "Leaderboard error:",
-                        error
-                    );
-
-
-                    body.innerHTML = `
-                        <tr>
-                            <td
-                                colspan="5"
-                                class="empty">
-
-                                Leaderboard kon niet geladen worden.
-
-                            </td>
-                        </tr>
-                    `;
-
-
-                    showMessage(
-                        error.message,
-                        true
-                    );
-
-                    return;
-                }
-
-
-                if (
-                    !data ||
-                    data.length === 0
-                ) {
-
-                    body.innerHTML = `
-                        <tr>
-                            <td
-                                colspan="5"
-                                class="empty">
-
-                                Er zijn nog geen scores.
-
-                            </td>
-                        </tr>
-                    `;
-
-                    return;
-                }
-
-
-                body.innerHTML = "";
-
-
-                data.forEach(
-                    (row, index) => {
-
-                        const tr =
-                            document.createElement(
-                                "tr"
-                            );
-
-
-                        const rank =
-                            index + 1;
-
-
-                        let rankClass =
-                            "rank";
-
-
-                        if (rank === 1) {
-                            rankClass =
-                                "rank rank-1";
-                        }
-
-                        if (rank === 2) {
-                            rankClass =
-                                "rank rank-2";
-                        }
-
-                        if (rank === 3) {
-                            rankClass =
-                                "rank rank-3";
-                        }
-
-
-                        const playerName =
-                            escapeHtml(
-                                row.player_name
-                            );
-
-
-                        const score =
-                            Number(
-                                row.score || 0
-                            );
-
-
-                        const kills =
-                            Number(
-                                row.kills || 0
-                            );
-
-
-                        const wave =
-                            Number(
-                                row.wave || 0
-                            );
-
-
-                        tr.innerHTML = `
-
-                            <td class="${rankClass}">
-                                ${getMedal(rank)}
-                                ${rank}
-                            </td>
-
-                            <td class="player-name">
-                                ${playerName}
-                            </td>
-
-                            <td class="score">
-                                ${score}
-                            </td>
-
-                            <td>
-                                ${kills}
-                            </td>
-
-                            <td>
-                                ${wave}
-                            </td>
-
-                        `;
-
-
-                        body.appendChild(tr);
-
-                    }
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "Leaderboard exception:",
-                    error
-                );
-
-
-                body.innerHTML = `
-                    <tr>
-                        <td
-                            colspan="5"
-                            class="empty">
-
-                            Er ging iets mis bij het laden.
-
-                        </td>
-                    </tr>
-                `;
-
-
-                showMessage(
-                    "Er ging iets mis bij het laden van het leaderboard.",
-                    true
+                container.appendChild(
+                    createWeaponCard(
+                        weapon
+                    )
                 );
 
             }
-
-        }
-
-
-        /* ==================================================
-           MEDALS
-        ================================================== */
-
-        function getMedal(rank) {
-
-            if (rank === 1) {
-                return "🥇";
-            }
-
-            if (rank === 2) {
-                return "🥈";
-            }
-
-            if (rank === 3) {
-                return "🥉";
-            }
-
-            return "";
-
-        }
+        );
 
 
-        /* ==================================================
-           ESCAPE HTML
-        ================================================== */
+    } catch (error) {
 
-        function escapeHtml(value) {
+        console.error(
+            "Wapens laden:",
+            error
+        );
 
-            return String(
-                value ?? ""
-            )
+        message.textContent =
+            "Er ging iets mis bij het laden van de wapens.";
 
-                .replaceAll(
-                    "&",
-                    "&amp;"
-                )
+        message.classList.add(
+            "error"
+        );
 
-                .replaceAll(
-                    "<",
-                    "&lt;"
-                )
+    }
 
-                .replaceAll(
-                    ">",
-                    "&gt;"
-                )
-
-                .replaceAll(
-                    '"',
-                    "&quot;"
-                )
-
-                .replaceAll(
-                    "'",
-                    "&#039;"
-                );
-
-        }
+}
 
 
-        /* ==================================================
-           LOGOUT
-        ================================================== */
+// ============================================================
+// CREATE WEAPON CARD
+// ============================================================
 
-        function logout() {
+function createWeaponCard(
+    weapon
+) {
 
-            if (
-                typeof window.logout ===
-                "function"
-            ) {
+    const card =
+        document.createElement(
+            "article"
+        );
 
-                window.logout();
-
-                return;
-            }
+    card.className =
+        "card";
 
 
-            localStorage.removeItem(
-                "stb_player"
+    // --------------------------------------------------------
+    // VISUAL
+    // --------------------------------------------------------
+
+    const visual =
+        document.createElement(
+            "div"
+        );
+
+    visual.className =
+        "weapon-visual";
+
+
+    if (weapon.image_url) {
+
+        const image =
+            document.createElement(
+                "img"
             );
 
+        image.className =
+            "weapon-image";
 
-            window.location.href =
-                "index.html";
+        image.src =
+            weapon.image_url;
 
-        }
+        image.alt =
+            weapon.name || "Wapen";
 
+        image.onerror =
+            function () {
 
-        /* ==================================================
-           INIT
-        ================================================== */
+                visual.innerHTML = "";
 
-        function init() {
+                const icon =
+                    document.createElement(
+                        "div"
+                    );
 
-            const player =
-                getCurrentPlayer();
+                icon.className =
+                    "weapon-icon";
 
+                icon.textContent =
+                    weapon.icon || "🔫";
 
-            if (!player) {
+                visual.appendChild(
+                    icon
+                );
 
-                window.location.href =
-                    "index.html";
-
-                return;
-            }
-
-
-            loadLeaderboard();
-
-        }
-
-
-        /* ==================================================
-           GLOBAL FUNCTIONS
-        ================================================== */
-
-        window.loadLeaderboard =
-            loadLeaderboard;
-
-        window.goTo =
-            goTo;
-
-        window.logout =
-            logout;
+            };
 
 
-        /* ==================================================
-           START
-        ================================================== */
+        visual.appendChild(
+            image
+        );
 
-        init();
+    } else {
 
-    </script>
+        const icon =
+            document.createElement(
+                "div"
+            );
+
+        icon.className =
+            "weapon-icon";
+
+        icon.textContent =
+            weapon.icon || "🔫";
+
+        visual.appendChild(
+            icon
+        );
+
+    }
+
+
+    card.appendChild(
+        visual
+    );
+
+
+    // --------------------------------------------------------
+    // CONTENT
+    // --------------------------------------------------------
+
+    const content =
+        document.createElement(
+            "div"
+        );
+
+    content.className =
+        "card-content";
+
+
+    const title =
+        document.createElement(
+            "h2"
+        );
+
+    title.textContent =
+        weapon.name || "Onbekend wapen";
+
+    content.appendChild(
+        title
+    );
+
+
+    const description =
+        document.createElement(
+            "div"
+        );
+
+    description.className =
+        "description";
+
+    description.textContent =
+        weapon.description ||
+        "Geen beschrijving beschikbaar.";
+
+    content.appendChild(
+        description
+    );
+
+
+    // --------------------------------------------------------
+    // STATS
+    // --------------------------------------------------------
+
+    const stats =
+        document.createElement(
+            "div"
+        );
+
+    stats.className =
+        "stats";
+
+
+    stats.innerHTML = `
+
+        <div>
+            <span class="stat-label">💥 Damage:</span>
+            ${escapeHtml(weapon.damage)}
+        </div>
+
+        <div>
+            <span class="stat-label">⚡ Fire rate:</span>
+            ${escapeHtml(weapon.fire_rate)} ms
+        </div>
+
+        <div>
+            <span class="stat-label">🔫 Kogels:</span>
+            ${escapeHtml(weapon.bullets)}
+        </div>
+
+        <div>
+            <span class="stat-label">🎯 Snelheid:</span>
+            ${escapeHtml(weapon.bullet_speed)}
+        </div>
+
+    `;
+
+
+    content.appendChild(
+        stats
+    );
+
+
+    // --------------------------------------------------------
+    // SOURCE
+    // --------------------------------------------------------
+
+    const source =
+        document.createElement(
+            "div"
+        );
+
+    source.className =
+        "source";
+
+    source.textContent =
+        "Verkregen via: " +
+        (
+            weapon.source ||
+            "onbekend"
+        );
+
+
+    content.appendChild(
+        source
+    );
+
+
+    card.appendChild(
+        content
+    );
+
+
+    return card;
+
+}
+
+
+// ============================================================
+// ESCAPE HTML
+// ============================================================
+
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+// ============================================================
+// START
+// ============================================================
+
+init();
+
+</script>
 
 </body>
 

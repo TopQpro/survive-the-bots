@@ -4,7 +4,7 @@
 ============================================================
  SURVIVE THE BOTS
  game.js
- Version: 1.3.2
+ Version: 1.3.3
 ============================================================
 */
 
@@ -28,6 +28,7 @@ let user = null;
 let profile = null;
 
 let gameRunning = false;
+let scoreSaved = false;
 
 let health = 100;
 let kills = 0;
@@ -121,29 +122,33 @@ async function checkAuth() {
 
     try {
 
+        /*
+         * Eerst kijken of er een echte Supabase sessie is.
+         */
+
         const {
             data,
             error
         } = await supabaseClient.auth.getSession();
 
+
         if (error) {
 
-            console.error(
-                "Auth fout:",
-                error
+            console.warn(
+                "Supabase sessie kon niet worden gelezen:",
+                error.message
             );
-
-            location.href = "index.html";
-
-            return false;
         }
 
-        session = data.session;
+
+        session =
+            data?.session || null;
+
 
         /*
-         * We ondersteunen ook de oude lokale login.
-         * Daardoor kunnen we tijdelijk verder werken
-         * terwijl de authenticatie later wordt verbeterd.
+         * ----------------------------------------------------
+         * NIEUWE AUTH
+         * ----------------------------------------------------
          */
 
         if (session) {
@@ -152,48 +157,80 @@ async function checkAuth() {
 
             await loadProfile();
 
-        } else {
+        }
+
+
+        /*
+         * ----------------------------------------------------
+         * EIGEN / LOKALE LOGIN
+         * ----------------------------------------------------
+         *
+         * Dit is momenteel belangrijk voor jullie project.
+         */
+
+        if (!user) {
 
             const saved =
                 localStorage.getItem(
                     "stb_player"
                 );
 
+
             if (!saved) {
 
-                location.href = "index.html";
+                location.href =
+                    "index.html";
 
                 return false;
             }
+
 
             try {
 
                 const playerData =
                     JSON.parse(saved);
 
-                if (!playerData || !playerData.id) {
+
+                if (
+                    !playerData
+                    ||
+                    !playerData.id
+                ) {
 
                     throw new Error(
-                        "Ongeldige lokale gebruiker."
+                        "Ongeldige speler."
                     );
                 }
+
 
                 user = {
                     id: playerData.id
                 };
 
-                profile = playerData;
+
+                profile =
+                    playerData;
+
 
                 coins =
                     Number(
                         playerData.coins || 0
                     );
 
-                usernameElement.textContent =
-                    playerData.username || "-";
 
-                coinsElement.textContent =
-                    coins;
+                if (usernameElement) {
+
+                    usernameElement.textContent =
+                        playerData.username || "-";
+                }
+
+
+                if (coinsElement) {
+
+                    coinsElement.textContent =
+                        coins;
+                }
+
 
                 if (
                     playerData.role === "admin"
@@ -213,19 +250,23 @@ async function checkAuth() {
                     error
                 );
 
+
                 localStorage.removeItem(
                     "stb_player"
                 );
 
-                location.href = "index.html";
+
+                location.href =
+                    "index.html";
 
                 return false;
             }
         }
 
+
         /*
-         * Deze functies mogen falen zonder dat
-         * de game daardoor stopt.
+         * Wapens mogen niet verhinderen dat
+         * de game start.
          */
 
         await giveDefaultWeapons();
@@ -242,9 +283,28 @@ async function checkAuth() {
             error
         );
 
-        location.href = "index.html";
 
-        return false;
+        /*
+         * Niet meteen terugsturen wanneer de
+         * lokale login nog geldig is.
+         */
+
+        const saved =
+            localStorage.getItem(
+                "stb_player"
+            );
+
+
+        if (!saved) {
+
+            location.href =
+                "index.html";
+
+            return false;
+        }
+
+
+        return true;
     }
 }
 
@@ -259,85 +319,51 @@ async function loadProfile() {
         return;
     }
 
-    /*
-     * Eerst proberen we profiles.
-     */
 
-    const {
-        data,
-        error
-    } = await supabaseClient
-        .from("profiles")
-        .select(
-            "id,username,coins,role"
-        )
-        .eq(
-            "id",
-            user.id
-        )
-        .maybeSingle();
+    try {
 
-
-    if (!error && data) {
-
-        profile = data;
-
-        coins =
-            Number(
-                data.coins || 0
-            );
-
-        usernameElement.textContent =
-            data.username || "-";
-
-        coinsElement.textContent =
-            coins;
-
-        if (
-            data.role === "admin"
-            &&
-            adminButton
-        ) {
-
-            adminButton.classList.remove(
-                "hidden"
-            );
-        }
-
-        return;
-    }
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("profiles")
+            .select(
+                "id,username,coins,role"
+            )
+            .eq(
+                "id",
+                user.id
+            )
+            .maybeSingle();
 
 
-    /*
-     * Als profiles niet bestaat of geen record bevat,
-     * proberen we de lokale gebruiker te gebruiken.
-     */
+        if (!error && data) {
 
-    const saved =
-        localStorage.getItem(
-            "stb_player"
-        );
+            profile = data;
 
-    if (saved) {
-
-        try {
-
-            profile =
-                JSON.parse(saved);
 
             coins =
                 Number(
-                    profile.coins || 0
+                    data.coins || 0
                 );
 
-            usernameElement.textContent =
-                profile.username || "-";
 
-            coinsElement.textContent =
-                coins;
+            if (usernameElement) {
+
+                usernameElement.textContent =
+                    data.username || "-";
+            }
+
+
+            if (coinsElement) {
+
+                coinsElement.textContent =
+                    coins;
+            }
+
 
             if (
-                profile.role === "admin"
+                data.role === "admin"
                 &&
                 adminButton
             ) {
@@ -347,11 +373,77 @@ async function loadProfile() {
                 );
             }
 
-        } catch (e) {
 
-            console.error(e);
-
+            return;
         }
+
+    } catch (error) {
+
+        console.warn(
+            "Profiel laden:",
+            error
+        );
+    }
+
+
+    /*
+     * Fallback naar lokale speler.
+     */
+
+    const saved =
+        localStorage.getItem(
+            "stb_player"
+        );
+
+
+    if (!saved) {
+        return;
+    }
+
+
+    try {
+
+        profile =
+            JSON.parse(saved);
+
+
+        coins =
+            Number(
+                profile.coins || 0
+            );
+
+
+        if (usernameElement) {
+
+            usernameElement.textContent =
+                profile.username || "-";
+        }
+
+
+        if (coinsElement) {
+
+            coinsElement.textContent =
+                coins;
+        }
+
+
+        if (
+            profile.role === "admin"
+            &&
+            adminButton
+        ) {
+
+            adminButton.classList.remove(
+                "hidden"
+            );
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Lokale profieldata:",
+            error
+        );
     }
 }
 
@@ -366,6 +458,7 @@ async function giveDefaultWeapons() {
         return;
     }
 
+
     try {
 
         const {
@@ -377,19 +470,19 @@ async function giveDefaultWeapons() {
             }
         );
 
+
         if (error) {
 
             console.warn(
                 "Default wapens:",
                 error.message
             );
-
         }
 
     } catch (error) {
 
         console.warn(
-            "Default wapens konden niet worden geladen:",
+            "Default wapens:",
             error
         );
     }
@@ -406,6 +499,7 @@ async function loadWeapon() {
         return;
     }
 
+
     try {
 
         const {
@@ -414,6 +508,7 @@ async function loadWeapon() {
         } = await supabaseClient.rpc(
             "get_my_weapons"
         );
+
 
         if (error) {
 
@@ -424,6 +519,7 @@ async function loadWeapon() {
 
             return;
         }
+
 
         if (
             !data
@@ -436,15 +532,12 @@ async function loadWeapon() {
             return;
         }
 
-        /*
-         * We proberen eerst het geselecteerde wapen
-         * uit localStorage.
-         */
 
-        let selectedId =
+        const selectedId =
             localStorage.getItem(
                 "stb_selected_weapon"
             );
+
 
         let selected =
             data.find(
@@ -452,10 +545,6 @@ async function loadWeapon() {
                     weaponData.weapon_id === selectedId
             );
 
-
-        /*
-         * Anders pistol.
-         */
 
         if (!selected) {
 
@@ -467,14 +556,10 @@ async function loadWeapon() {
         }
 
 
-        /*
-         * Anders eerste wapen.
-         */
-
         if (!selected) {
 
-            selected = data[0];
-
+            selected =
+                data[0];
         }
 
 
@@ -514,7 +599,6 @@ async function loadWeapon() {
                     Number(
                         selected.bullet_speed || 12
                     )
-
             };
         }
 
@@ -567,9 +651,11 @@ game.addEventListener(
         const rect =
             game.getBoundingClientRect();
 
+
         mouseX =
             event.clientX -
             rect.left;
+
 
         mouseY =
             event.clientY -
@@ -581,8 +667,10 @@ game.addEventListener(
             crosshair.style.display =
                 "block";
 
+
             crosshair.style.left =
                 event.clientX + "px";
+
 
             crosshair.style.top =
                 event.clientY + "px";
@@ -622,18 +710,8 @@ game.addEventListener(
 
 function startGame() {
 
-    /*
-     * Heel belangrijk:
-     * deze functie staat bewust globaal.
-     *
-     * Daardoor werkt:
-     *
-     * onclick="startGame()"
-     *
-     * uit game.html ook.
-     */
-
     clearObjects();
+
 
     if (waveTimer) {
 
@@ -650,6 +728,8 @@ function startGame() {
     wave = 1;
     score = 0;
 
+    scoreSaved = false;
+
     gameRunning = true;
 
     lastShot = 0;
@@ -665,6 +745,7 @@ function startGame() {
     startOverlay.classList.add(
         "hidden"
     );
+
 
     gameOverOverlay.classList.add(
         "hidden"
@@ -692,6 +773,7 @@ function gameLoop() {
         return;
     }
 
+
     movePlayer();
 
     moveBots();
@@ -700,6 +782,7 @@ function gameLoop() {
 
     botCollision();
 
+
     requestAnimationFrame(
         gameLoop
     );
@@ -707,17 +790,19 @@ function gameLoop() {
 
 
 // ============================================================
-// PLAYER BEWEGEN
+// PLAYER
 // ============================================================
 
 function movePlayer() {
 
     const speed = 5;
 
+
     let x =
         parseFloat(
             player.style.left
         );
+
 
     let y =
         parseFloat(
@@ -728,6 +813,7 @@ function movePlayer() {
     if (Number.isNaN(x)) {
         x = 50;
     }
+
 
     if (Number.isNaN(y)) {
         y = 50;
@@ -809,6 +895,7 @@ function movePlayer() {
     player.style.left =
         x + "%";
 
+
     player.style.top =
         y + "%";
 }
@@ -832,13 +919,12 @@ function spawnWave() {
     ) {
 
         spawnBot();
-
     }
 }
 
 
 // ============================================================
-// BOT SPAWNEN
+// BOT
 // ============================================================
 
 function spawnBot() {
@@ -852,11 +938,13 @@ function spawnBot() {
     let type =
         "normal";
 
+
     let hp =
         1 +
         Math.floor(
             wave / 4
         );
+
 
     let speed =
         .7 +
@@ -876,21 +964,22 @@ function spawnBot() {
 
         type = "tank";
 
+
         hp =
             5 +
             wave;
+
 
         speed =
             .45 +
             Math.random() *
             .2;
 
+
         element.className =
             "bot tank";
 
-    }
-
-    else if (
+    } else if (
         random < .38
         &&
         wave >= 2
@@ -898,23 +987,23 @@ function spawnBot() {
 
         type = "fast";
 
+
         hp = 1;
+
 
         speed =
             1.1 +
             Math.random() *
             .4;
 
+
         element.className =
             "bot fast";
 
-    }
-
-    else {
+    } else {
 
         element.className =
             "bot";
-
     }
 
 
@@ -936,9 +1025,7 @@ function spawnBot() {
 
         y = -30;
 
-    }
-
-    else if (side === 1) {
+    } else if (side === 1) {
 
         x =
             game.clientWidth +
@@ -948,9 +1035,7 @@ function spawnBot() {
             Math.random() *
             game.clientHeight;
 
-    }
-
-    else if (side === 2) {
+    } else if (side === 2) {
 
         x =
             Math.random() *
@@ -960,9 +1045,7 @@ function spawnBot() {
             game.clientHeight +
             30;
 
-    }
-
-    else {
+    } else {
 
         x = -30;
 
@@ -974,6 +1057,7 @@ function spawnBot() {
 
     element.style.left =
         x + "px";
+
 
     element.style.top =
         y + "px";
@@ -992,7 +1076,6 @@ function spawnBot() {
         hp,
         type,
         speed
-
     });
 }
 
@@ -1026,6 +1109,7 @@ function moveBots() {
                 px -
                 bot.x;
 
+
             const dy =
                 py -
                 bot.y;
@@ -1047,6 +1131,7 @@ function moveBots() {
                     distance *
                     bot.speed;
 
+
                 bot.y +=
                     dy /
                     distance *
@@ -1057,6 +1142,7 @@ function moveBots() {
             bot.element.style.left =
                 bot.x + "px";
 
+
             bot.element.style.top =
                 bot.y + "px";
 
@@ -1066,7 +1152,7 @@ function moveBots() {
 
 
 // ============================================================
-// SCHIETEN
+// SHOOT
 // ============================================================
 
 function shoot() {
@@ -1149,6 +1235,7 @@ function shoot() {
         element.style.left =
             px + "px";
 
+
         element.style.top =
             py + "px";
 
@@ -1180,7 +1267,6 @@ function shoot() {
 
             damage:
                 weapon.damage
-
         });
     }
 }
@@ -1205,6 +1291,7 @@ function moveBullets() {
         bullet.x +=
             bullet.vx;
 
+
         bullet.y +=
             bullet.vy;
 
@@ -1212,12 +1299,12 @@ function moveBullets() {
         bullet.element.style.left =
             bullet.x + "px";
 
+
         bullet.element.style.top =
             bullet.y + "px";
 
 
-        let hit =
-            false;
+        let hit = false;
 
 
         for (
@@ -1233,6 +1320,7 @@ function moveBullets() {
             const dx =
                 bullet.x -
                 bot.x;
+
 
             const dy =
                 bullet.y -
@@ -1265,6 +1353,7 @@ function moveBullets() {
 
                 bullet.element.remove();
 
+
                 bullets.splice(
                     i,
                     1
@@ -1279,8 +1368,8 @@ function moveBullets() {
                 ) {
 
                     killBot(j);
-
                 }
+
 
                 break;
             }
@@ -1306,6 +1395,7 @@ function moveBullets() {
 
             bullet.element.remove();
 
+
             bullets.splice(
                 i,
                 1
@@ -1316,7 +1406,7 @@ function moveBullets() {
 
 
 // ============================================================
-// BOT DODEN
+// KILL BOT
 // ============================================================
 
 function killBot(index) {
@@ -1348,20 +1438,15 @@ function killBot(index) {
 
         score += 40;
 
-    }
-
-    else if (
+    } else if (
         bot.type === "fast"
     ) {
 
         score += 15;
 
-    }
-
-    else {
+    } else {
 
         score += 10;
-
     }
 
 
@@ -1373,6 +1458,7 @@ function killBot(index) {
     ) {
 
         wave++;
+
 
         score +=
             wave * 20;
@@ -1390,7 +1476,6 @@ function killBot(index) {
                     ) {
 
                         spawnWave();
-
                     }
 
                 },
@@ -1429,6 +1514,7 @@ function botCollision() {
                 px -
                 bot.x;
 
+
             const dy =
                 py -
                 bot.y;
@@ -1451,12 +1537,9 @@ function botCollision() {
 
                     health -= .9;
 
-                }
-
-                else {
+                } else {
 
                     health -= .45;
-
                 }
 
 
@@ -1485,7 +1568,6 @@ function botCollision() {
                     health = 0;
 
                     endGame();
-
                 }
 
 
@@ -1568,8 +1650,10 @@ async function endGame() {
     finalScore.textContent =
         score;
 
+
     finalKills.textContent =
         kills;
+
 
     finalWave.textContent =
         wave;
@@ -1579,6 +1663,10 @@ async function endGame() {
         "hidden"
     );
 
+
+    /*
+     * Score onmiddellijk opslaan.
+     */
 
     await saveScore();
 }
@@ -1590,18 +1678,61 @@ async function endGame() {
 
 async function saveScore() {
 
-    if (!user) {
-        return;
+    /*
+     * Beschermt tegen dubbele opslag.
+     */
+
+    if (scoreSaved) {
+
+        console.warn(
+            "Score was al opgeslagen."
+        );
+
+        return false;
     }
 
+
+    if (!user || !user.id) {
+
+        console.error(
+            "Score kan niet worden opgeslagen: geen user.id."
+        );
+
+        return false;
+    }
+
+
+    scoreSaved = true;
+
+
+    console.log(
+        "Score opslaan...",
+        {
+            user_id: user.id,
+            score: score,
+            kills: kills,
+            wave: wave
+        }
+    );
+
+
+    /*
+     * --------------------------------------------------------
+     * BELANGRIJK
+     * --------------------------------------------------------
+     *
+     * We proberen eerst de bestaande RPC.
+     */
 
     try {
 
         const {
+            data,
             error
         } = await supabaseClient.rpc(
             "save_game_score",
             {
+                p_user_id: user.id,
                 p_score: score,
                 p_kills: kills,
                 p_wave: wave
@@ -1609,34 +1740,111 @@ async function saveScore() {
         );
 
 
-        if (error) {
+        if (!error) {
 
-            console.error(
-                "Score opslaan:",
-                error
+            console.log(
+                "✅ Score succesvol opgeslagen.",
+                data
             );
 
-            return;
+
+            /*
+             * Coins lokaal bijwerken.
+             */
+
+            coins +=
+                kills +
+                wave * 5;
+
+
+            updateHud();
+
+
+            /*
+             * Lokale speler ook bijwerken.
+             */
+
+            updateLocalPlayerCoins();
+
+
+            return true;
         }
 
 
         /*
-         * Coins lokaal bijwerken.
-         * De databasefunctie kan dit later ook
-         * definitief regelen.
+         * Als de RPC nog de oude parameters gebruikt,
+         * krijgen we hier een fout.
          */
 
-        coins +=
-            kills +
-            wave * 5;
+        console.error(
+            "save_game_score fout:",
+            error
+        );
 
 
-        updateHud();
+        /*
+         * Niet stilzwijgend doen alsof het gelukt is.
+         */
+
+        scoreSaved = false;
+
+
+        return false;
 
     } catch (error) {
 
         console.error(
-            "Score fout:",
+            "Onverwachte fout bij score opslaan:",
+            error
+        );
+
+
+        scoreSaved = false;
+
+
+        return false;
+    }
+}
+
+
+// ============================================================
+// LOKALE COINS BIJWERKEN
+// ============================================================
+
+function updateLocalPlayerCoins() {
+
+    const saved =
+        localStorage.getItem(
+            "stb_player"
+        );
+
+
+    if (!saved) {
+        return;
+    }
+
+
+    try {
+
+        const playerData =
+            JSON.parse(saved);
+
+
+        playerData.coins =
+            coins;
+
+
+        localStorage.setItem(
+            "stb_player",
+            JSON.stringify(
+                playerData
+            )
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Lokale coins konden niet worden bijgewerkt:",
             error
         );
     }
@@ -1659,7 +1867,6 @@ function clearObjects() {
             ) {
 
                 bot.element.remove();
-
             }
         }
     );
@@ -1675,7 +1882,6 @@ function clearObjects() {
             ) {
 
                 bullet.element.remove();
-
             }
         }
     );
@@ -1695,11 +1901,7 @@ async function logout() {
 
     try {
 
-        if (gameRunning) {
-
-            gameRunning = false;
-
-        }
+        gameRunning = false;
 
 
         await supabaseClient.auth.signOut();
@@ -1710,7 +1912,6 @@ async function logout() {
             "Uitloggen:",
             error
         );
-
     }
 
 
@@ -1727,11 +1928,6 @@ async function logout() {
 // ============================================================
 // GLOBALE FUNCTIES
 // ============================================================
-
-/*
- * Dit is belangrijk voor de onclick="" knoppen
- * in game.html.
- */
 
 window.startGame =
     startGame;
@@ -1759,13 +1955,6 @@ document.addEventListener(
             return;
         }
 
-
-        /*
-         * Startscherm blijft zichtbaar.
-         *
-         * De speler moet zelf op
-         * "Start Game" klikken.
-         */
 
         updateHud();
 
