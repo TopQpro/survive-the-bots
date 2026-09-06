@@ -1,126 +1,305 @@
-<!DOCTYPE html> <html lang="nl"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Survive the Bots</title> <style> * { box-sizing: border-box; } html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #020617; color: white; font-family: Arial, sans-serif; } /* ============================================================ TOPBAR ============================================================ */ #topbar { position: fixed; z-index: 1000; top: 0; left: 0; right: 0; min-height: 60px; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(2,6,23,.96); border-bottom: 1px solid #334155; } .logo { color: #38bdf8; font-size: 18px; font-weight: bold; margin-right: auto; } .hud { display: flex; gap: 6px; flex-wrap: wrap; } .hud-item { background: #0f172a; border: 1px solid #334155; border-radius: 7px; padding: 7px 9px; font-size: 13px; } button { cursor: pointer; border: 0; border-radius: 8px; padding: 9px 12px; background: #0284c7; color: white; font-weight: bold; } button:hover { background: #0369a1; } .logout { background: #dc2626; } .logout:hover { background: #b91c1c; } /* ============================================================ GAME ============================================================ */ #game { position: absolute; top: 60px; bottom: 0; left: 0; right: 0; overflow: hidden; background: linear-gradient( rgba(30,41,59,.5) 1px, transparent 1px ), linear-gradient( 90deg, rgba(30,41,59,.5) 1px, transparent 1px ), #030712; background-size: 40px 40px; } /* ============================================================ PLAYER ============================================================ */ #player { position: absolute; width: 30px; height: 30px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 10px #22c55e, 0 0 25px rgba(34,197,94,.7); transform: translate(-50%,-50%); z-index: 20; } /* ============================================================ BOTS ============================================================ */ .bot { position: absolute; width: 28px; height: 28px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 14px #ef4444; transform: translate(-50%,-50%); z-index: 10; } .bot.fast { width: 22px; height: 22px; background: #f97316; } .bot.tank { width: 42px; height: 42px; background: #a855f7; } /* ============================================================ BULLET ============================================================ */ .bullet { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #facc15; box-shadow: 0 0 9px #facc15; transform: translate(-50%,-50%); } /* ============================================================ OVERLAYS ============================================================ */ .overlay { position: fixed; z-index: 500; top: 60px; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; align-items: center; background: rgba(2,6,23,.75); } .overlay-box { width: min(430px,90%); padding: 30px; text-align: center; background: rgba(15,23,42,.98); border: 1px solid #334155; border-radius: 18px; box-shadow: 0 25px 70px rgba(0,0,0,.6); } .overlay-box h1 { color: #38bdf8; } .hidden { display: none !important; } .version { position: fixed; z-index: 2000; right: 10px; bottom: 7px; color: #64748b; font-size: 11px; } #crosshair { position: fixed; z-index: 3000; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.8); border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; display: none; } #damageFlash { position: fixed; z-index: 200; top: 60px; left: 0; right: 0; bottom: 0; background: rgba(239,68,68,.3); pointer-events: none; display: none; } </style> </head> <body> <div id="topbar">
-<div class="logo">
-    🎮 Survive the Bots
+<!DOCTYPE html> <html lang="nl"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survive the Bots - Game</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        background:
+            radial-gradient(circle at top, #172554, #020617 70%);
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+
+    .version {
+        position: fixed;
+        top: 12px;
+        right: 15px;
+        color: #94a3b8;
+        font-size: 13px;
+        z-index: 20;
+    }
+
+    .container {
+        width: min(1100px, 94%);
+        margin: auto;
+        padding: 25px 0;
+    }
+
+    .card {
+        background: rgba(15, 23, 42, .96);
+        border: 1px solid #334155;
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    }
+
+    h1 {
+        color: #38bdf8;
+        margin-top: 0;
+    }
+
+    .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .hud {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .hud-item {
+        background: #020617;
+        border: 1px solid #334155;
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+    }
+
+    .hud-value {
+        display: block;
+        margin-top: 4px;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    button {
+        border: 0;
+        border-radius: 9px;
+        padding: 11px 17px;
+        background: #0284c7;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #0369a1;
+    }
+
+    .green {
+        background: #16a34a;
+    }
+
+    .green:hover {
+        background: #15803d;
+    }
+
+    .red {
+        background: #dc2626;
+    }
+
+    .red:hover {
+        background: #b91c1c;
+    }
+
+    #game {
+        position: relative;
+        width: 100%;
+        height: 560px;
+        overflow: hidden;
+        user-select: none;
+        cursor: crosshair;
+
+        background:
+            linear-gradient(#111827 1px, transparent 1px),
+            linear-gradient(90deg, #111827 1px, transparent 1px),
+            #030712;
+
+        background-size: 40px 40px;
+
+        border: 2px solid #334155;
+        border-radius: 15px;
+    }
+
+    #player {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        background: #22c55e;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 25px #22c55e;
+        z-index: 5;
+    }
+
+    .bot {
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        background: #ef4444;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 18px #ef4444;
+        z-index: 4;
+    }
+
+    .bullet {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: #facc15;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #facc15;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    .instructions {
+        color: #cbd5e1;
+        margin-bottom: 15px;
+    }
+
+    .game-message {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        background: rgba(2, 6, 23, .9);
+        border: 1px solid #475569;
+        padding: 25px;
+        border-radius: 15px;
+        z-index: 15;
+    }
+
+    @media(max-width:700px) {
+
+        .hud {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        #game {
+            height: 450px;
+        }
+    }
+</style>
+
+</head> <body> <div class="version"> Survive the Bots v1.3.0 </div> <div class="container">
+<div class="card topbar">
+
+    <div>
+        <h1>🎮 Survive the Bots</h1>
+        <div>
+            👤 <span id="username">-</span>
+        </div>
+    </div>
+
+    <div>
+
+        <button onclick="location.href='index.html'">
+            ← Menu
+        </button>
+
+        <button onclick="location.href='shop.html'">
+            🛒 Shop
+        </button>
+
+        <button onclick="location.href='leaderboard.html'">
+            🏆 Leaderboard
+        </button>
+
+    </div>
+
 </div>
 
 
-<div class="hud">
+<div class="card">
 
-    <div class="hud-item">
-        👤 <span id="username">-</span>
+    <div class="hud">
+
+        <div class="hud-item">
+            ❤️ Gezondheid
+            <span
+                class="hud-value"
+                id="health"
+            >
+                100
+            </span>
+        </div>
+
+        <div class="hud-item">
+            💀 Kills
+            <span
+                class="hud-value"
+                id="kills"
+            >
+                0
+            </span>
+        </div>
+
+        <div class="hud-item">
+            🌊 Wave
+            <span
+                class="hud-value"
+                id="wave"
+            >
+                1
+            </span>
+        </div>
+
+        <div class="hud-item">
+            ⭐ Score
+            <span
+                class="hud-value"
+                id="score"
+            >
+                0
+            </span>
+        </div>
+
+        <div class="hud-item">
+            🔫 Wapen
+            <span
+                class="hud-value"
+                id="weapon"
+            >
+                Pistol
+            </span>
+        </div>
+
     </div>
 
-    <div class="hud-item">
-        ❤️ <span id="health">100</span>
-    </div>
 
-    <div class="hud-item">
-        💀 <span id="kills">0</span>
-    </div>
-
-    <div class="hud-item">
-        🌊 <span id="wave">1</span>
-    </div>
-
-    <div class="hud-item">
-        ⭐ <span id="score">0</span>
-    </div>
-
-    <div class="hud-item">
-        💰 <span id="coins">0</span>
-    </div>
-
-</div>
-
-
-<button onclick="location.href='shop.html'">
-    🛒 Shop
-</button>
-
-
-<button onclick="location.href='inventory.html'">
-    🔫 Wapens
-</button>
-
-
-<button onclick="location.href='leaderboard.html'">
-    🏆 Scores
-</button>
-
-
-<button
-    id="adminButton"
-    class="hidden"
-    onclick="location.href='admin.html'">
-
-    👑 Admin
-
-</button>
-
-
-<button
-    class="logout"
-    onclick="logout()">
-
-    Uitloggen
-
-</button>
-
-</div> <div id="game">
-<div id="player"></div>
-
-</div> <div id="crosshair"></div> <div id="damageFlash"></div> <div id="startOverlay" class="overlay">
-<div class="overlay-box">
-
-    <h1>
-        🎮 Survive the Bots
-    </h1>
-
-    <p>
-        Overleef zoveel mogelijk waves.
+    <p class="instructions">
+        <b>WASD</b> of de pijltjestoetsen = bewegen.
+        <b>Muisklik</b> = schieten.
     </p>
 
-    <p>
-        <b>WASD</b> of pijltjestoetsen<br>
-        Muis om te richten en te schieten
-    </p>
 
-    <button onclick="startGame()">
-        ▶ Start Game
+    <button
+        id="startButton"
+        class="green"
+        onclick="startGame()"
+    >
+        ▶ Start game
     </button>
 
-</div>
 
-</div> <div id="gameOverOverlay" class="overlay hidden">
-<div class="overlay-box">
+    <div id="game">
 
-    <h1>
-        💀 Game Over
-    </h1>
+        <div id="player"></div>
 
-    <p>
-        Score:
-        <b id="finalScore">0</b>
-    </p>
+        <div
+            id="gameMessage"
+            class="game-message"
+        >
+            <h2>Survive the Bots</h2>
+            <p>Klik op Start game.</p>
+        </div>
 
-    <p>
-        Kills:
-        <b id="finalKills">0</b>
-    </p>
-
-    <p>
-        Wave:
-        <b id="finalWave">1</b>
-    </p>
-
-    <button onclick="startGame()">
-        🔄 Opnieuw
-    </button>
-
-    <button onclick="location.href='leaderboard.html'">
-        🏆 Leaderboard
-    </button>
+    </div>
 
 </div>
 
-</div> <div class="version"> v1.3.0 </div> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <script src="supabase-config.js"></script> <script> const supabaseClient = supabase.createClient( SUPABASE_URL, SUPABASE_KEY ); let session = null; let user = null; let profile = null; let gameRunning = false; let health = 100; let kills = 0; let wave = 1; let score = 0; let coins = 0; let bots = []; let bullets = []; let keys = {}; let mouseX = 0; let mouseY = 0; let lastShot = 0; let weapon = { damage: 25, fire_rate: 300, bullets: 1, spread: 0, bullet_speed: 12, name: "Pistol" }; const game = document.getElementById("game"); const player = document.getElementById("player"); // ============================================================ // AUTH // ============================================================ async function checkAuth() { const result = await supabaseClient.auth.getSession(); session = result.data.session; if (!session) { location.href = "index.html"; return false; } user = session.user; await loadProfile(); await giveDefaults(); await loadWeapon(); return true; } // ============================================================ // PROFILE // ============================================================ async function loadProfile() { const { data, error } = await supabaseClient .from("profiles") .select("username,coins,role") .eq("id", user.id) .single(); if (error) { console.error(error); return; } profile = data; coins = Number(data.coins || 0); document.getElementById( "username" ).textContent = data.username; document.getElementById( "coins" ).textContent = coins; if (data.role === "admin") { document .getElementById("adminButton") .classList.remove("hidden"); } } // ============================================================ // DEFAULT WAPENS // ============================================================ async function giveDefaults() { const { error } = await supabaseClient.rpc( "give_default_weapons", { p_user_id: user.id } ); if (error) { console.error( "Default weapon:", error ); } } // ============================================================ // WEAPON // ============================================================ async function loadWeapon() { const { data, error } = await supabaseClient.rpc( "get_my_weapons" ); if (error) { console.error(error); return; } if (!data || !data.length) return; const pistol = data.find( x => x.weapon_id === "pistol" ); if (pistol) { weapon = { damage: Number(pistol.damage), fire_rate: Number(pistol.fire_rate), bullets: Number(pistol.bullets), spread: Number(pistol.spread), bullet_speed: Number(pistol.bullet_speed), name: pistol.name }; } } // ============================================================ // INPUT // ============================================================ document.addEventListener( "keydown", e => { keys[ e.key.toLowerCase() ] = true; } ); document.addEventListener( "keyup", e => { keys[ e.key.toLowerCase() ] = false; } ); game.addEventListener( "mousemove", e => { const rect = game.getBoundingClientRect(); mouseX = e.clientX - rect.left; mouseY = e.clientY - rect.top; const crosshair = document.getElementById( "crosshair" ); crosshair.style.display = "block"; crosshair.style.left = e.clientX + "px"; crosshair.style.top = e.clientY + "px"; } ); game.addEventListener( "mouseleave", () => { document.getElementById( "crosshair" ).style.display = "none"; } ); game.addEventListener( "mousedown", e => { if (e.button === 0) shoot(); } ); // ============================================================ // START // ============================================================ function startGame() { clearObjects(); health = 100; kills = 0; wave = 1; score = 0; gameRunning = true; player.style.left = "50%"; player.style.top = "50%"; document .getElementById("startOverlay") .classList.add("hidden"); document .getElementById("gameOverOverlay") .classList.add("hidden"); updateHud(); spawnWave(); requestAnimationFrame( gameLoop ); } // ============================================================ // LOOP // ============================================================ function gameLoop() { if (!gameRunning) return; movePlayer(); moveBots(); moveBullets(); botCollision(); requestAnimationFrame( gameLoop ); } // ============================================================ // PLAYER // ============================================================ function movePlayer() { const speed = 5; let x = parseFloat( player.style.left ); let y = parseFloat( player.style.top ); if (isNaN(x)) x = 50; if (isNaN(y)) y = 50; if ( keys["w"] || keys["arrowup"] ) y -= speed / game.clientHeight * 100; if ( keys["s"] || keys["arrowdown"] ) y += speed / game.clientHeight * 100; if ( keys["a"] || keys["arrowleft"] ) x -= speed / game.clientWidth * 100; if ( keys["d"] || keys["arrowright"] ) x += speed / game.clientWidth * 100; x = Math.max( 2, Math.min(98,x) ); y = Math.max( 3, Math.min(97,y) ); player.style.left = x + "%"; player.style.top = y + "%"; } // ============================================================ // WAVE // ============================================================ function spawnWave() { const count = 5 + wave * 2; for ( let i = 0; i < count; i++ ) { spawnBot(); } } // ============================================================ // SPAWN BOT // ============================================================ function spawnBot() { const element = document.createElement("div"); let type = "normal"; let hp = 1 + Math.floor(wave / 4); let speed = .7 + Math.random() * .35; const r = Math.random(); if ( r < .18 && wave >= 2 ) { type = "tank"; hp = 5 + wave; speed = .45 + Math.random() * .2; element.className = "bot tank"; } else if ( r < .38 && wave >= 2 ) { type = "fast"; hp = 1; speed = 1.1 + Math.random() * .4; element.className = "bot fast"; } else { element.className = "bot"; } let x; let y; const side = Math.floor( Math.random() * 4 ); if (side === 0) { x = Math.random() * game.clientWidth; y = -30; } else if (side === 1) { x = game.clientWidth + 30; y = Math.random() * game.clientHeight; } else if (side === 2) { x = Math.random() * game.clientWidth; y = game.clientHeight + 30; } else { x = -30; y = Math.random() * game.clientHeight; } element.style.left = x + "px"; element.style.top = y + "px"; game.appendChild( element ); bots.push({ element, x, y, hp, type, speed }); } // ============================================================ // BOT MOVEMENT // ============================================================ function moveBots() { const px = game.clientWidth * parseFloat( player.style.left ) / 100; const py = game.clientHeight * parseFloat( player.style.top ) / 100; bots.forEach(bot => { const dx = px - bot.x; const dy = py - bot.y; const distance = Math.sqrt( dx * dx + dy * dy ); if (distance > 1) { bot.x += dx / distance * bot.speed; bot.y += dy / distance * bot.speed; } bot.element.style.left = bot.x + "px"; bot.element.style.top = bot.y + "px"; }); } // ============================================================ // SHOOT // ============================================================ function shoot() { if (!gameRunning) return; const now = Date.now(); if ( now - lastShot < weapon.fire_rate ) return; lastShot = now; const px = game.clientWidth * parseFloat( player.style.left ) / 100; const py = game.clientHeight * parseFloat( player.style.top ) / 100; const angle = Math.atan2( mouseY - py, mouseX - px ); for ( let i = 0; i < weapon.bullets; i++ ) { const spread = ( Math.random() - .5 ) * weapon.spread; const a = angle + spread; const bullet = document.createElement( "div" ); bullet.className = "bullet"; bullet.style.left = px + "px"; bullet.style.top = py + "px"; game.appendChild( bullet ); bullets.push({ element: bullet, x: px, y: py, vx: Math.cos(a) * weapon.bullet_speed, vy: Math.sin(a) * weapon.bullet_speed, damage: weapon.damage }); } } // ============================================================ // BULLETS // ============================================================ function moveBullets() { for ( let i = bullets.length - 1; i >= 0; i-- ) { const bullet = bullets[i]; bullet.x += bullet.vx; bullet.y += bullet.vy; bullet.element.style.left = bullet.x + "px"; bullet.element.style.top = bullet.y + "px"; let hit = false; for ( let j = bots.length - 1; j >= 0; j-- ) { const bot = bots[j]; const dx = bullet.x - bot.x; const dy = bullet.y - bot.y; const distance = Math.sqrt( dx * dx + dy * dy ); if ( distance < ( bot.type === "tank" ? 35 : 25 ) ) { bot.hp -= bullet.damage; bullet.element.remove(); bullets.splice(i,1); hit = true; if (bot.hp <= 0) { killBot(j); } break; } } if (hit) continue; if ( bullet.x < -50 || bullet.y < -50 || bullet.x > game.clientWidth + 50 || bullet.y > game.clientHeight + 50 ) { bullet.element.remove(); bullets.splice(i,1); } } } // ============================================================ // KILL // ============================================================ function killBot(index) { const bot = bots[index]; if (!bot) return; bot.element.remove(); bots.splice( index, 1 ); kills++; score += bot.type === "tank" ? 40 : bot.type === "fast" ? 15 : 10; updateHud(); if ( bots.length === 0 ) { wave++; score += wave * 20; updateHud(); setTimeout( () => { if (gameRunning) spawnWave(); }, 600 ); } } // ============================================================ // COLLISION // ============================================================ function botCollision() { const px = game.clientWidth * parseFloat( player.style.left ) / 100; const py = game.clientHeight * parseFloat( player.style.top ) / 100; bots.forEach(bot => { const dx = px - bot.x; const dy = py - bot.y; const distance = Math.sqrt( dx * dx + dy * dy ); if ( distance < 28 ) { health -= bot.type === "tank" ? .9 : .45; const flash = document.getElementById( "damageFlash" ); flash.style.display = "block"; setTimeout( () => flash.style.display = "none", 70 ); if (health <= 0) { health = 0; endGame(); } updateHud(); } }); } // ============================================================ // HUD // ============================================================ function updateHud() { document.getElementById( "health" ).textContent = Math.round(health); document.getElementById( "kills" ).textContent = kills; document.getElementById( "wave" ).textContent = wave; document.getElementById( "score" ).textContent = score; document.getElementById( "coins" ).textContent = coins; } // ============================================================ // END // ============================================================ async function endGame() { if (!gameRunning) return; gameRunning = false; document.getElementById( "finalScore" ).textContent = score; document.getElementById( "finalKills" ).textContent = kills; document.getElementById( "finalWave" ).textContent = wave; document .getElementById( "gameOverOverlay" ) .classList.remove("hidden"); await saveScore(); } // ============================================================ // SAVE SCORE // ============================================================ async function saveScore() { const { error } = await supabaseClient.rpc( "save_game_score", { p_score: score, p_kills: kills, p_wave: wave } ); if (error) { console.error( "Score opslaan:", error ); return; } coins += kills + wave * 5; document.getElementById( "coins" ).textContent = coins; } // ============================================================ // CLEAR // ============================================================ function clearObjects() { bots.forEach( bot => bot.element.remove() ); bullets.forEach( bullet => bullet.element.remove() ); bots = []; bullets = []; } // ============================================================ // LOGOUT // ============================================================ async function logout() { await supabaseClient.auth.signOut(); location.href = "index.html"; } // ============================================================ // START AUTH // ============================================================ checkAuth(); </script> </body> </html>
+</div> <script src="supabase-config.js"></script> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <script> // ============================================================ // SUPABASE // ============================================================ const supabaseClient = supabase.createClient( SUPABASE_URL, SUPABASE_KEY ); // ============================================================ // PLAYER // ============================================================ let currentPlayer = null; try { const saved = localStorage.getItem("stb_player"); if (!saved) { window.location.href = "index.html"; } else { currentPlayer = JSON.parse(saved); document .getElementById("username") .textContent = currentPlayer.username; } } catch (error) { console.error(error); localStorage.removeItem( "stb_player" ); window.location.href = "index.html"; } // ============================================================ // GAME STATE // ============================================================ let gameRunning = false; let health = 100; let kills = 0; let wave = 1; let score = 0; let bots = []; let bullets = []; let keys = {}; let animationFrame = null; let lastDamageTime = 0; // ============================================================ // ELEMENTS // ============================================================ const game = document.getElementById("game"); const player = document.getElementById("player"); // ============================================================ // KEYBOARD // ============================================================ document.addEventListener( "keydown", function(event) { keys[ event.key.toLowerCase() ] = true; } ); document.addEventListener( "keyup", function(event) { keys[ event.key.toLowerCase() ] = false; } ); // ============================================================ // START GAME // ============================================================ function startGame() { console.log( "Survive the Bots v1.3.0 gestart." ); gameRunning = true; health = 100; kills = 0; wave = 1; score = 0; keys = {}; clearGame(); player.style.left = "50%"; player.style.top = "50%"; document .getElementById("startButton") .textContent = "↻ Opnieuw starten"; document .getElementById("gameMessage") .classList.add("hidden"); updateHud(); spawnBots(); if (animationFrame) { cancelAnimationFrame( animationFrame ); } animationFrame = requestAnimationFrame( gameLoop ); } // ============================================================ // CLEAR GAME // ============================================================ function clearGame() { bots.forEach( bot => { if (bot.element) { bot.element.remove(); } } ); bots = []; bullets.forEach( bullet => { if (bullet.element) { bullet.element.remove(); } } ); bullets = []; } // ============================================================ // GAME LOOP // ============================================================ function gameLoop() { if (!gameRunning) { return; } movePlayer(); moveBots(); checkBotCollisions(); updateBullets(); animationFrame = requestAnimationFrame( gameLoop ); } // ============================================================ // PLAYER MOVEMENT // ============================================================ function movePlayer() { const speed = 0.7; let x = parseFloat( player.style.left || "50" ); let y = parseFloat( player.style.top || "50" ); if ( keys["w"] || keys["arrowup"] ) { y -= speed; } if ( keys["s"] || keys["arrowdown"] ) { y += speed; } if ( keys["a"] || keys["arrowleft"] ) { x -= speed; } if ( keys["d"] || keys["arrowright"] ) { x += speed; } x = Math.max( 2, Math.min(98, x) ); y = Math.max( 3, Math.min(97, y) ); player.style.left = x + "%"; player.style.top = y + "%"; } // ============================================================ // SPAWN BOTS // ============================================================ function spawnBots() { const amount = 4 + wave; for ( let i = 0; i < amount; i++ ) { const element = document.createElement("div"); element.className = "bot"; let x; let y; const side = Math.floor( Math.random() * 4 ); if (side === 0) { x = 2; y = Math.random() * 95; } else if (side === 1) { x = 98; y = Math.random() * 95; } else if (side === 2) { x = Math.random() * 95; y = 2; } else { x = Math.random() * 95; y = 98; } element.style.left = x + "%"; element.style.top = y + "%"; game.appendChild( element ); bots.push({ element: element, x: x, y: y, speed: 0.06 + Math.random() * 0.04 }); } } // ============================================================ // MOVE BOTS // ============================================================ function moveBots() { const px = parseFloat( player.style.left ); const py = parseFloat( player.style.top ); bots.forEach( bot => { const dx = px - bot.x; const dy = py - bot.y; const distance = Math.sqrt( dx * dx + dy * dy ); if (distance > 0.5) { bot.x += dx / distance * bot.speed; bot.y += dy / distance * bot.speed; } bot.element.style.left = bot.x + "%"; bot.element.style.top = bot.y + "%"; } ); } // ============================================================ // BOT COLLISION // ============================================================ function checkBotCollisions() { const now = Date.now(); if ( now - lastDamageTime < 500 ) { return; } const px = parseFloat( player.style.left ); const py = parseFloat( player.style.top ); for ( const bot of bots ) { const dx = px - bot.x; const dy = py - bot.y; const distance = Math.sqrt( dx * dx + dy * dy ); if (distance < 3.5) { health -= 10; lastDamageTime = now; updateHud(); if (health <= 0) { gameOver(); } break; } } } // ============================================================ // SHOOT // ============================================================ game.addEventListener( "click", shoot ); function shoot(event) { if (!gameRunning) { return; } const rect = game.getBoundingClientRect(); const targetX = event.clientX - rect.left; const targetY = event.clientY - rect.top; const startX = player.offsetLeft; const startY = player.offsetTop; const dx = targetX - startX; const dy = targetY - startY; const distance = Math.sqrt( dx * dx + dy * dy ); if (distance === 0) { return; } const speed = 9; const bullet = document.createElement("div"); bullet.className = "bullet"; bullet.style.left = startX + "px"; bullet.style.top = startY + "px"; game.appendChild( bullet ); bullets.push({ element: bullet, x: startX, y: startY, vx: dx / distance * speed, vy: dy / distance * speed }); } // ============================================================ // BULLETS // ============================================================ function updateBullets() { const width = game.clientWidth; const height = game.clientHeight; bullets = bullets.filter( bullet => { bullet.x += bullet.vx; bullet.y += bullet.vy; bullet.element.style.left = bullet.x + "px"; bullet.element.style.top = bullet.y + "px"; if ( bullet.x < 0 || bullet.x > width || bullet.y < 0 || bullet.y > height ) { bullet.element.remove(); return false; } for ( let i = 0; i < bots.length; i++ ) { const bot = bots[i]; const bx = bot.x / 100 * width; const by = bot.y / 100 * height; const dx = bullet.x - bx; const dy = bullet.y - by; const distance = Math.sqrt( dx * dx + dy * dy ); if ( distance < 25 ) { bot.element.remove(); bots.splice( i, 1 ); bullet.element.remove(); kills++; score += 10; updateHud(); if ( bots.length === 0 && gameRunning ) { nextWave(); } return false; } } return true; } ); } // ============================================================ // NEXT WAVE // ============================================================ function nextWave() { wave++; score += wave * 25; updateHud(); spawnBots(); } // ============================================================ // GAME OVER // ============================================================ function gameOver() { if (!gameRunning) { return; } gameRunning = false; if (animationFrame) { cancelAnimationFrame( animationFrame ); } document .getElementById("gameMessage") .classList.remove("hidden"); document .getElementById("gameMessage") .innerHTML = ` <h2>💀 Game Over</h2> <p> Score: <b>${score}</b> </p> <p> Kills: <b>${kills}</b> </p> <p> Wave: <b>${wave}</b> </p> <button class="green" onclick="startGame()" > ▶ Opnieuw </button> `; saveScore(); } // ============================================================ // HUD // ============================================================ function updateHud() { document .getElementById("health") .textContent = Math.max( 0, Math.round(health) ); document .getElementById("kills") .textContent = kills; document .getElementById("wave") .textContent = wave; document .getElementById("score") .textContent = score; } // ============================================================ // SAVE SCORE // ============================================================ async function saveScore() { if (!currentPlayer) { return; } try { const { error } = await supabaseClient .from("leaderboard") .insert({ user_id: currentPlayer.id, player_name: currentPlayer.username, score: score, kills: kills, wave: wave }); if (error) { console.error( "Score opslaan mislukt:", error ); } } catch (error) { console.error( "Score error:", error ); } } </script> </body> </html>
