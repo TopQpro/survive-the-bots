@@ -28,7 +28,6 @@ let user = null;
 let profile = null;
 
 let gameRunning = false;
-let scoreSaved = false;
 
 let health = 100;
 let kills = 0;
@@ -47,6 +46,8 @@ let mouseY = 0;
 let lastShot = 0;
 
 let waveTimer = null;
+
+let scoreSaved = false;
 
 
 // ============================================================
@@ -68,8 +69,11 @@ let weapon = {
 // ELEMENTS
 // ============================================================
 
-const game = document.getElementById("game");
-const player = document.getElementById("player");
+const game =
+    document.getElementById("game");
+
+const player =
+    document.getElementById("player");
 
 const usernameElement =
     document.getElementById("username");
@@ -122,10 +126,6 @@ async function checkAuth() {
 
     try {
 
-        /*
-         * Eerst kijken of er een echte Supabase sessie is.
-         */
-
         const {
             data,
             error
@@ -134,21 +134,23 @@ async function checkAuth() {
 
         if (error) {
 
-            console.warn(
-                "Supabase sessie kon niet worden gelezen:",
-                error.message
+            console.error(
+                "Auth fout:",
+                error
             );
+
+            location.href = "index.html";
+
+            return false;
         }
 
 
-        session =
-            data?.session || null;
+        session = data.session;
 
 
         /*
-         * ----------------------------------------------------
-         * NIEUWE AUTH
-         * ----------------------------------------------------
+         * Eerst proberen we de normale Supabase
+         * sessie.
          */
 
         if (session) {
@@ -159,16 +161,11 @@ async function checkAuth() {
 
         }
 
-
         /*
-         * ----------------------------------------------------
-         * EIGEN / LOKALE LOGIN
-         * ----------------------------------------------------
-         *
-         * Dit is momenteel belangrijk voor jullie project.
+         * Fallback voor de huidige eigen login.
          */
 
-        if (!user) {
+        else {
 
             const saved =
                 localStorage.getItem(
@@ -192,13 +189,12 @@ async function checkAuth() {
 
 
                 if (
-                    !playerData
-                    ||
+                    !playerData ||
                     !playerData.id
                 ) {
 
                     throw new Error(
-                        "Ongeldige speler."
+                        "Ongeldige lokale gebruiker."
                     );
                 }
 
@@ -233,8 +229,7 @@ async function checkAuth() {
 
 
                 if (
-                    playerData.role === "admin"
-                    &&
+                    playerData.role === "admin" &&
                     adminButton
                 ) {
 
@@ -265,11 +260,12 @@ async function checkAuth() {
 
 
         /*
-         * Wapens mogen niet verhinderen dat
-         * de game start.
+         * Deze functies mogen falen zonder
+         * dat de game stopt.
          */
 
         await giveDefaultWeapons();
+
         await loadWeapon();
 
         updateHud();
@@ -283,28 +279,10 @@ async function checkAuth() {
             error
         );
 
+        location.href =
+            "index.html";
 
-        /*
-         * Niet meteen terugsturen wanneer de
-         * lokale login nog geldig is.
-         */
-
-        const saved =
-            localStorage.getItem(
-                "stb_player"
-            );
-
-
-        if (!saved) {
-
-            location.href =
-                "index.html";
-
-            return false;
-        }
-
-
-        return true;
+        return false;
     }
 }
 
@@ -320,103 +298,36 @@ async function loadProfile() {
     }
 
 
-    try {
-
-        const {
-            data,
-            error
-        } = await supabaseClient
-            .from("profiles")
-            .select(
-                "id,username,coins,role"
-            )
-            .eq(
-                "id",
-                user.id
-            )
-            .maybeSingle();
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from("players")
+        .select(
+            "id,username,coins,role"
+        )
+        .eq(
+            "id",
+            user.id
+        )
+        .maybeSingle();
 
 
-        if (!error && data) {
+    if (!error && data) {
 
-            profile = data;
-
-
-            coins =
-                Number(
-                    data.coins || 0
-                );
-
-
-            if (usernameElement) {
-
-                usernameElement.textContent =
-                    data.username || "-";
-            }
-
-
-            if (coinsElement) {
-
-                coinsElement.textContent =
-                    coins;
-            }
-
-
-            if (
-                data.role === "admin"
-                &&
-                adminButton
-            ) {
-
-                adminButton.classList.remove(
-                    "hidden"
-                );
-            }
-
-
-            return;
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "Profiel laden:",
-            error
-        );
-    }
-
-
-    /*
-     * Fallback naar lokale speler.
-     */
-
-    const saved =
-        localStorage.getItem(
-            "stb_player"
-        );
-
-
-    if (!saved) {
-        return;
-    }
-
-
-    try {
-
-        profile =
-            JSON.parse(saved);
+        profile = data;
 
 
         coins =
             Number(
-                profile.coins || 0
+                data.coins || 0
             );
 
 
         if (usernameElement) {
 
             usernameElement.textContent =
-                profile.username || "-";
+                data.username || "-";
         }
 
 
@@ -428,8 +339,7 @@ async function loadProfile() {
 
 
         if (
-            profile.role === "admin"
-            &&
+            data.role === "admin" &&
             adminButton
         ) {
 
@@ -438,12 +348,66 @@ async function loadProfile() {
             );
         }
 
-    } catch (error) {
 
-        console.warn(
-            "Lokale profieldata:",
-            error
+        return;
+    }
+
+
+    /*
+     * Fallback naar localStorage.
+     */
+
+    const saved =
+        localStorage.getItem(
+            "stb_player"
         );
+
+
+    if (saved) {
+
+        try {
+
+            profile =
+                JSON.parse(saved);
+
+
+            coins =
+                Number(
+                    profile.coins || 0
+                );
+
+
+            if (usernameElement) {
+
+                usernameElement.textContent =
+                    profile.username || "-";
+            }
+
+
+            if (coinsElement) {
+
+                coinsElement.textContent =
+                    coins;
+            }
+
+
+            if (
+                profile.role === "admin" &&
+                adminButton
+            ) {
+
+                adminButton.classList.remove(
+                    "hidden"
+                );
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Profiel fallback fout:",
+                error
+            );
+        }
     }
 }
 
@@ -482,7 +446,7 @@ async function giveDefaultWeapons() {
     } catch (error) {
 
         console.warn(
-            "Default wapens:",
+            "Default wapens konden niet worden geladen:",
             error
         );
     }
@@ -522,10 +486,8 @@ async function loadWeapon() {
 
 
         if (
-            !data
-            ||
-            !Array.isArray(data)
-            ||
+            !data ||
+            !Array.isArray(data) ||
             data.length === 0
         ) {
 
@@ -533,7 +495,7 @@ async function loadWeapon() {
         }
 
 
-        const selectedId =
+        let selectedId =
             localStorage.getItem(
                 "stb_selected_weapon"
             );
@@ -644,64 +606,69 @@ document.addEventListener(
 // MOUSE
 // ============================================================
 
-game.addEventListener(
-    "mousemove",
-    function(event) {
+if (game) {
 
-        const rect =
-            game.getBoundingClientRect();
+    game.addEventListener(
+        "mousemove",
+        function(event) {
 
-
-        mouseX =
-            event.clientX -
-            rect.left;
+            const rect =
+                game.getBoundingClientRect();
 
 
-        mouseY =
-            event.clientY -
-            rect.top;
+            mouseX =
+                event.clientX -
+                rect.left;
 
 
-        if (crosshair) {
-
-            crosshair.style.display =
-                "block";
-
-
-            crosshair.style.left =
-                event.clientX + "px";
+            mouseY =
+                event.clientY -
+                rect.top;
 
 
-            crosshair.style.top =
-                event.clientY + "px";
+            if (crosshair) {
+
+                crosshair.style.display =
+                    "block";
+
+
+                crosshair.style.left =
+                    event.clientX + "px";
+
+
+                crosshair.style.top =
+                    event.clientY + "px";
+            }
         }
-    }
-);
+    );
 
 
-game.addEventListener(
-    "mouseleave",
-    function() {
+    game.addEventListener(
+        "mouseleave",
+        function() {
 
-        if (crosshair) {
+            if (crosshair) {
 
-            crosshair.style.display =
-                "none";
+                crosshair.style.display =
+                    "none";
+            }
         }
-    }
-);
+    );
 
 
-game.addEventListener(
-    "mousedown",
-    function(event) {
+    game.addEventListener(
+        "mousedown",
+        function(event) {
 
-        if (event.button === 0) {
+            if (
+                event.button === 0
+            ) {
 
-            shoot();
+                shoot();
+            }
         }
-    }
-);
+    );
+}
 
 
 // ============================================================
@@ -742,14 +709,20 @@ function startGame() {
         "50%";
 
 
-    startOverlay.classList.add(
-        "hidden"
-    );
+    if (startOverlay) {
+
+        startOverlay.classList.add(
+            "hidden"
+        );
+    }
 
 
-    gameOverOverlay.classList.add(
-        "hidden"
-    );
+    if (gameOverOverlay) {
+
+        gameOverOverlay.classList.add(
+            "hidden"
+        );
+    }
 
 
     updateHud();
@@ -790,7 +763,7 @@ function gameLoop() {
 
 
 // ============================================================
-// PLAYER
+// PLAYER BEWEGEN
 // ============================================================
 
 function movePlayer() {
@@ -821,8 +794,7 @@ function movePlayer() {
 
 
     if (
-        keys["w"]
-        ||
+        keys["w"] ||
         keys["arrowup"]
     ) {
 
@@ -834,8 +806,7 @@ function movePlayer() {
 
 
     if (
-        keys["s"]
-        ||
+        keys["s"] ||
         keys["arrowdown"]
     ) {
 
@@ -847,8 +818,7 @@ function movePlayer() {
 
 
     if (
-        keys["a"]
-        ||
+        keys["a"] ||
         keys["arrowleft"]
     ) {
 
@@ -860,8 +830,7 @@ function movePlayer() {
 
 
     if (
-        keys["d"]
-        ||
+        keys["d"] ||
         keys["arrowright"]
     ) {
 
@@ -924,7 +893,7 @@ function spawnWave() {
 
 
 // ============================================================
-// BOT
+// BOT SPAWNEN
 // ============================================================
 
 function spawnBot() {
@@ -957,8 +926,7 @@ function spawnBot() {
 
 
     if (
-        random < .18
-        &&
+        random < .18 &&
         wave >= 2
     ) {
 
@@ -979,9 +947,10 @@ function spawnBot() {
         element.className =
             "bot tank";
 
-    } else if (
-        random < .38
-        &&
+    }
+
+    else if (
+        random < .38 &&
         wave >= 2
     ) {
 
@@ -1000,7 +969,9 @@ function spawnBot() {
         element.className =
             "bot fast";
 
-    } else {
+    }
+
+    else {
 
         element.className =
             "bot";
@@ -1025,7 +996,9 @@ function spawnBot() {
 
         y = -30;
 
-    } else if (side === 1) {
+    }
+
+    else if (side === 1) {
 
         x =
             game.clientWidth +
@@ -1035,7 +1008,9 @@ function spawnBot() {
             Math.random() *
             game.clientHeight;
 
-    } else if (side === 2) {
+    }
+
+    else if (side === 2) {
 
         x =
             Math.random() *
@@ -1045,7 +1020,9 @@ function spawnBot() {
             game.clientHeight +
             30;
 
-    } else {
+    }
+
+    else {
 
         x = -30;
 
@@ -1076,6 +1053,7 @@ function spawnBot() {
         hp,
         type,
         speed
+
     });
 }
 
@@ -1152,7 +1130,7 @@ function moveBots() {
 
 
 // ============================================================
-// SHOOT
+// SCHIETEN
 // ============================================================
 
 function shoot() {
@@ -1382,13 +1360,10 @@ function moveBullets() {
 
 
         if (
-            bullet.x < -50
-            ||
-            bullet.y < -50
-            ||
+            bullet.x < -50 ||
+            bullet.y < -50 ||
             bullet.x >
-                game.clientWidth + 50
-            ||
+                game.clientWidth + 50 ||
             bullet.y >
                 game.clientHeight + 50
         ) {
@@ -1406,7 +1381,7 @@ function moveBullets() {
 
 
 // ============================================================
-// KILL BOT
+// BOT DODEN
 // ============================================================
 
 function killBot(index) {
@@ -1438,13 +1413,17 @@ function killBot(index) {
 
         score += 40;
 
-    } else if (
+    }
+
+    else if (
         bot.type === "fast"
     ) {
 
         score += 15;
 
-    } else {
+    }
+
+    else {
 
         score += 10;
     }
@@ -1537,7 +1516,9 @@ function botCollision() {
 
                     health -= .9;
 
-                } else {
+                }
+
+                else {
 
                     health -= .45;
                 }
@@ -1647,25 +1628,37 @@ async function endGame() {
     }
 
 
-    finalScore.textContent =
-        score;
+    if (finalScore) {
+
+        finalScore.textContent =
+            score;
+    }
 
 
-    finalKills.textContent =
-        kills;
+    if (finalKills) {
+
+        finalKills.textContent =
+            kills;
+    }
 
 
-    finalWave.textContent =
-        wave;
+    if (finalWave) {
+
+        finalWave.textContent =
+            wave;
+    }
 
 
-    gameOverOverlay.classList.remove(
-        "hidden"
-    );
+    if (gameOverOverlay) {
+
+        gameOverOverlay.classList.remove(
+            "hidden"
+        );
+    }
 
 
     /*
-     * Score onmiddellijk opslaan.
+     * Score automatisch opslaan.
      */
 
     await saveScore();
@@ -1679,7 +1672,8 @@ async function endGame() {
 async function saveScore() {
 
     /*
-     * Beschermt tegen dubbele opslag.
+     * Voorkom dat dezelfde game twee keer
+     * wordt opgeslagen.
      */
 
     if (scoreSaved) {
@@ -1695,7 +1689,7 @@ async function saveScore() {
     if (!user || !user.id) {
 
         console.error(
-            "Score kan niet worden opgeslagen: geen user.id."
+            "Score niet opgeslagen: geen gebruiker."
         );
 
         return false;
@@ -1705,26 +1699,23 @@ async function saveScore() {
     scoreSaved = true;
 
 
-    console.log(
-        "Score opslaan...",
-        {
-            user_id: user.id,
-            score: score,
-            kills: kills,
-            wave: wave
-        }
-    );
-
-
-    /*
-     * --------------------------------------------------------
-     * BELANGRIJK
-     * --------------------------------------------------------
-     *
-     * We proberen eerst de bestaande RPC.
-     */
-
     try {
+
+        console.log(
+            "Score opslaan...",
+            {
+                user_id: user.id,
+                score: score,
+                kills: kills,
+                wave: wave
+            }
+        );
+
+
+        /*
+         * Dit is bewust de versie van de
+         * databasefunctie MET p_user_id.
+         */
 
         const {
             data,
@@ -1733,73 +1724,95 @@ async function saveScore() {
             "save_game_score",
             {
                 p_user_id: user.id,
-                p_score: score,
-                p_kills: kills,
-                p_wave: wave
+                p_score: Math.max(
+                    0,
+                    Math.round(score)
+                ),
+                p_kills: Math.max(
+                    0,
+                    Math.round(kills)
+                ),
+                p_wave: Math.max(
+                    1,
+                    Math.round(wave)
+                )
             }
         );
 
 
-        if (!error) {
+        if (error) {
 
-            console.log(
-                "✅ Score succesvol opgeslagen.",
-                data
+            /*
+             * Belangrijk:
+             * scoreSaved wordt teruggezet zodat
+             * we opnieuw kunnen proberen indien
+             * nodig.
+             */
+
+            scoreSaved = false;
+
+
+            console.error(
+                "Score opslaan mislukt:",
+                error
             );
 
 
-            /*
-             * Coins lokaal bijwerken.
-             */
-
-            coins +=
-                kills +
-                wave * 5;
-
-
-            updateHud();
-
-
-            /*
-             * Lokale speler ook bijwerken.
-             */
-
-            updateLocalPlayerCoins();
-
-
-            return true;
+            return false;
         }
 
 
         /*
-         * Als de RPC nog de oude parameters gebruikt,
-         * krijgen we hier een fout.
+         * De databasefunctie geeft TRUE terug
+         * wanneer de score succesvol werd opgeslagen.
          */
 
-        console.error(
-            "save_game_score fout:",
-            error
+        if (data === false) {
+
+            scoreSaved = false;
+
+
+            console.error(
+                "Database heeft score niet opgeslagen."
+            );
+
+
+            return false;
+        }
+
+
+        console.log(
+            "Score succesvol opgeslagen!",
+            data
         );
 
 
         /*
-         * Niet stilzwijgend doen alsof het gelukt is.
+         * De database heeft de coins al bijgewerkt.
+         *
+         * We tellen hier dus NIET opnieuw coins bij.
          */
 
-        scoreSaved = false;
+
+        /*
+         * Lokale player-data opnieuw synchroniseren
+         * indien mogelijk.
+         */
+
+        await refreshCoins();
 
 
-        return false;
+        return true;
 
     } catch (error) {
 
+        scoreSaved = false;
+
+
         console.error(
-            "Onverwachte fout bij score opslaan:",
+            "Score opslaan fout:",
             error
         );
-
-
-        scoreSaved = false;
 
 
         return false;
@@ -1808,43 +1821,88 @@ async function saveScore() {
 
 
 // ============================================================
-// LOKALE COINS BIJWERKEN
+// COINS VERNIEUWEN
 // ============================================================
 
-function updateLocalPlayerCoins() {
+async function refreshCoins() {
 
-    const saved =
-        localStorage.getItem(
-            "stb_player"
-        );
-
-
-    if (!saved) {
+    if (!user || !user.id) {
         return;
     }
 
 
     try {
 
-        const playerData =
-            JSON.parse(saved);
-
-
-        playerData.coins =
-            coins;
-
-
-        localStorage.setItem(
-            "stb_player",
-            JSON.stringify(
-                playerData
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("players")
+            .select("coins")
+            .eq(
+                "id",
+                user.id
             )
-        );
+            .maybeSingle();
+
+
+        if (
+            !error &&
+            data
+        ) {
+
+            coins =
+                Number(
+                    data.coins || 0
+                );
+
+
+            updateHud();
+
+
+            /*
+             * Ook localStorage bijwerken.
+             */
+
+            const saved =
+                localStorage.getItem(
+                    "stb_player"
+                );
+
+
+            if (saved) {
+
+                try {
+
+                    const playerData =
+                        JSON.parse(saved);
+
+
+                    playerData.coins =
+                        coins;
+
+
+                    localStorage.setItem(
+                        "stb_player",
+                        JSON.stringify(
+                            playerData
+                        )
+                    );
+
+                } catch (error) {
+
+                    console.warn(
+                        "Lokale coins konden niet worden bijgewerkt:",
+                        error
+                    );
+                }
+            }
+        }
 
     } catch (error) {
 
         console.warn(
-            "Lokale coins konden niet worden bijgewerkt:",
+            "Coins vernieuwen mislukt:",
             error
         );
     }
@@ -1861,8 +1919,7 @@ function clearObjects() {
         function(bot) {
 
             if (
-                bot.element
-                &&
+                bot.element &&
                 bot.element.remove
             ) {
 
@@ -1876,8 +1933,7 @@ function clearObjects() {
         function(bullet) {
 
             if (
-                bullet.element
-                &&
+                bullet.element &&
                 bullet.element.remove
             ) {
 
@@ -1901,7 +1957,10 @@ async function logout() {
 
     try {
 
-        gameRunning = false;
+        if (gameRunning) {
+
+            gameRunning = false;
+        }
 
 
         await supabaseClient.auth.signOut();
@@ -1929,6 +1988,11 @@ async function logout() {
 // GLOBALE FUNCTIES
 // ============================================================
 
+/*
+ * Deze functies moeten globaal beschikbaar zijn
+ * omdat game.html onclick="" gebruikt.
+ */
+
 window.startGame =
     startGame;
 
@@ -1937,6 +2001,9 @@ window.logout =
 
 window.shoot =
     shoot;
+
+window.saveScore =
+    saveScore;
 
 
 // ============================================================
@@ -1955,6 +2022,11 @@ document.addEventListener(
             return;
         }
 
+
+        /*
+         * Startscherm blijft zichtbaar.
+         * De speler start zelf het spel.
+         */
 
         updateHud();
 
