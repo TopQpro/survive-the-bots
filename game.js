@@ -3,7 +3,7 @@
 ============================================================
 SURVIVE THE BOTS
 Game JavaScript
-Version 1.3.0
+Version 1.3.1
 ============================================================
 */
 // ============================================================
@@ -539,7 +539,7 @@ function(event) {
 function startGame() {
 
 console.log(
-    "Survive the Bots v1.3.0 gestart."
+    "Survive the Bots v1.3.1 gestart."
 );
 
 clearObjects();
